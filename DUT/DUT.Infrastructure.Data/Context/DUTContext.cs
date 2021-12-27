@@ -23,6 +23,8 @@ namespace DUT.Infrastructure.Data.Context
         public DbSet<Faculty> Faculties { get; set; }
         public DbSet<Specialty> Specialties { get; set; }
         public DbSet<Group> Groups { get; set; }
+        public DbSet<UserGroup> UserGroups { get; set; }
+        public DbSet<UserGroupRole> UserUserGroupRoles { get; set; }
 
 
 
