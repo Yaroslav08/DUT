@@ -3,17 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DUT.Web", "DUT.Web\DUT.Web.csproj", "{84DCB16B-8C08-42B7-AA60-9F876E79697A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DUT.Web", "DUT.Web\DUT.Web.csproj", "{84DCB16B-8C08-42B7-AA60-9F876E79697A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DUT.Domain", "DUT.Domain\DUT.Domain.csproj", "{14FD8BDA-3B4A-44B5-87D7-95F9C1BE0995}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DUT.Domain", "DUT.Domain\DUT.Domain.csproj", "{14FD8BDA-3B4A-44B5-87D7-95F9C1BE0995}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DUT.Constants", "DUT.Constants\DUT.Constants.csproj", "{A1DBBBE4-54E3-4380-AAEF-AA2909249DE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DUT.Constants", "DUT.Constants\DUT.Constants.csproj", "{A1DBBBE4-54E3-4380-AAEF-AA2909249DE7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DUT.Application", "DUT.Application\DUT.Application.csproj", "{6BF310AF-8903-4EF2-90FD-7564EDDAE9C5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DUT.Application", "DUT.Application\DUT.Application.csproj", "{6BF310AF-8903-4EF2-90FD-7564EDDAE9C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DUT.Infrastructure.Data", "DUT.Infrastructure.Data\DUT.Infrastructure.Data.csproj", "{0BC88C0F-D13F-488D-B3E1-72E423E81F1F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DUT.Infrastructure.Data", "DUT.Infrastructure.Data\DUT.Infrastructure.Data.csproj", "{0BC88C0F-D13F-488D-B3E1-72E423E81F1F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DUT.Infrastructure.IoC", "DUT.Infrastructure.IoC\DUT.Infrastructure.IoC.csproj", "{50258551-9E56-499E-B75B-5CEECE2B5F9E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DUT.Infrastructure.IoC", "DUT.Infrastructure.IoC\DUT.Infrastructure.IoC.csproj", "{50258551-9E56-499E-B75B-5CEECE2B5F9E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DUT.Extensions", "DUT.Extensions\DUT.Extensions.csproj", "{13192619-2E81-4128-AF84-F618A58D4D70}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{50258551-9E56-499E-B75B-5CEECE2B5F9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50258551-9E56-499E-B75B-5CEECE2B5F9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50258551-9E56-499E-B75B-5CEECE2B5F9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13192619-2E81-4128-AF84-F618A58D4D70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13192619-2E81-4128-AF84-F618A58D4D70}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13192619-2E81-4128-AF84-F618A58D4D70}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13192619-2E81-4128-AF84-F618A58D4D70}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
