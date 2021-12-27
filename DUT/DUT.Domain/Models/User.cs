@@ -10,6 +10,8 @@ namespace DUT.Domain.Models
         public string MiddleName { get; set; }
         [Required, StringLength(100, MinimumLength = 1), PersonalData]
         public string LastName { get; set; }
+        public string ContactEmail { get; set; }
+        public string ContactPhone { get; set; }
         public DateTime JoinAt { get; set; }
         public List<Session> Sessions { get; set; }
         public List<UserGroup> UserGroups { get; set; }
