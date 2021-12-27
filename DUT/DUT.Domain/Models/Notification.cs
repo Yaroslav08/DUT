@@ -17,5 +17,6 @@
         AcceptedInGroup,
         NewLogin,
         Logout,
+        NewPost
     }
 }

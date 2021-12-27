@@ -27,7 +27,8 @@ namespace DUT.Infrastructure.Data.Context
         public DbSet<UserGroupRole> UserUserGroupRoles { get; set; }
         public DbSet<GroupInvite> GroupInvites { get; set; }
         public DbSet<Notification> Notifications { get; set; }
-
+        public DbSet<Post> Posts { get; set; }
+        public DbSet<PostComment> PostComments { get; set; }
 
 
 

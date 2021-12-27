@@ -8,5 +8,6 @@
         public Specialty Specialty { get; set; }
         public List<UserGroup> UserGroups { get; set; }
         public List<GroupInvite> GroupInvites { get; set; }
+        public List<Post> Posts { get; set; }
     }
 }
