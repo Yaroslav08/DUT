@@ -1,4 +1,5 @@
 using DUT.Infrastructure.IoC;
+using DUT.Web.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,8 @@ else
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
+app.UseGlobalErrorHandler();
 
 app.UseApiVersioning();
 
