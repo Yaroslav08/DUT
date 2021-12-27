@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DUT.Infrastructure.Data", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DUT.Infrastructure.IoC", "DUT.Infrastructure.IoC\DUT.Infrastructure.IoC.csproj", "{50258551-9E56-499E-B75B-5CEECE2B5F9E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DUT.Constants.Tests", "DUT.Constants.Tests\DUT.Constants.Tests.csproj", "{B8653EDE-08C3-423A-8285-6BC130D75970}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{50258551-9E56-499E-B75B-5CEECE2B5F9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50258551-9E56-499E-B75B-5CEECE2B5F9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50258551-9E56-499E-B75B-5CEECE2B5F9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8653EDE-08C3-423A-8285-6BC130D75970}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8653EDE-08C3-423A-8285-6BC130D75970}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8653EDE-08C3-423A-8285-6BC130D75970}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8653EDE-08C3-423A-8285-6BC130D75970}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
