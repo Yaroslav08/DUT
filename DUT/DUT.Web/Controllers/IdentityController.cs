@@ -15,6 +15,10 @@ namespace DUT.Web.Controllers
         [HttpPost("Login")]
         public IActionResult LoginUser(LoginViewModel loginModel)
         {
+            if(!ModelState.IsValid)
+            {
+                return View(loginModel);
+            }
             return LocalRedirect("~/");
         }
 
@@ -27,6 +31,10 @@ namespace DUT.Web.Controllers
         [HttpPost("Registration")]
         public IActionResult RegistrationUser(RegisterViewModel registerModel)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(registerModel);
+            }
             return LocalRedirect("~/");
         }
     }

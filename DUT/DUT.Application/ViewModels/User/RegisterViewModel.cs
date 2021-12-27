@@ -10,6 +10,7 @@ namespace DUT.Application.ViewModels.User
         [Display(Name = "Пошта:")]
         public string Login { get; set; }
         [Display(Name = "Пароль:")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$^+=!*()@%&]).{8,}$")]
         public string Password { get; set; }
         [Required, StringLength(9, MinimumLength = 9)]
         [Display(Name = "Код групи:")]
