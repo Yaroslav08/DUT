@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 namespace DUT.Web.Controllers
 {
+    [AllowAnonymous]
     public class BaseController : Controller
     {
         protected string[] GetUserRoles()

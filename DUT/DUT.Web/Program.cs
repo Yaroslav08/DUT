@@ -4,6 +4,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 #region Services
 
+builder.Services.AddApiVersioning(options =>
+{
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
+    options.ReportApiVersions = true;
+});
+
+builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddDUTServices(builder.Configuration);
 
 builder.Services.AddControllersWithViews();
@@ -24,6 +33,8 @@ else
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
+app.UseApiVersioning();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
