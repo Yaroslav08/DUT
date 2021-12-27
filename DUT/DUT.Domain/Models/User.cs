@@ -11,6 +11,7 @@ namespace DUT.Domain.Models
         [Required, StringLength(100, MinimumLength = 1), PersonalData]
         public string LastName { get; set; }
         public DateTime JoinAt { get; set; }
+        public List<Session> Sessions { get; set; }
                 
         public User(string firstName, string middleName, string lastName, string email, string userName) : base(userName)
         {
