@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace DUT.Web.Controllers
 {
     [Route("Identity")]
-    public class IdentityController : Controller
+    public class IdentityController : BaseController
     {
         [HttpGet("Login")]
         public IActionResult Login()
@@ -35,6 +35,13 @@ namespace DUT.Web.Controllers
             {
                 return View(registerModel);
             }
+            return LocalRedirect("~/");
+        }
+
+
+        [HttpGet("logout")]
+        public IActionResult Logout()
+        {
             return LocalRedirect("~/");
         }
     }
