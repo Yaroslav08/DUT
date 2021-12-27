@@ -25,7 +25,7 @@ namespace DUT.Infrastructure.Data.Context
         public DbSet<Group> Groups { get; set; }
         public DbSet<UserGroup> UserGroups { get; set; }
         public DbSet<UserGroupRole> UserUserGroupRoles { get; set; }
-
+        public DbSet<GroupInvite> GroupInvites { get; set; }
 
 
 
