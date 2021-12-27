@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DUT.Infrastructure.Data.Context
 {
-    public class DUTContext : IdentityDbContext<User, Role, int, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>
+    public class DUTDbContext : IdentityDbContext<User, Role, int, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>
     {
         #region ctors
-        public DUTContext(DbContextOptions<DUTContext> options) : base(options)
+        public DUTDbContext(DbContextOptions<DUTDbContext> options) : base(options)
         {
 
         }
-        public DUTContext()
+        public DUTDbContext()
         {
 
         }
