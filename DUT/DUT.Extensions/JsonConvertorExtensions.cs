@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Unicode;
 
 namespace DUT.Extensions
 {
@@ -6,7 +8,8 @@ namespace DUT.Extensions
     {
         private static readonly JsonSerializerOptions _options = new JsonSerializerOptions
         {
-            
+            Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
+            WriteIndented = true
         };
         public static string ToJson(this object data)
         {

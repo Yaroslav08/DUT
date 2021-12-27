@@ -1,7 +1,7 @@
 ﻿using DUT.Domain.Models;
+using DUT.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Text.Json;
 
 namespace DUT.Infrastructure.Data.Configurations
 {
@@ -10,6 +10,9 @@ namespace DUT.Infrastructure.Data.Configurations
         public void Configure(EntityTypeBuilder<Session> builder)
         {
             builder.HasKey(x => x.Id);
+            builder.Property(x => x.Device).HasConversion(
+                v => v.ToJson(),
+                v => v.FromJson<DeviceInfo>());
         }
     }
 }
