@@ -19,6 +19,14 @@ namespace DUT.Infrastructure.Data.Context
         #endregion
 
         public DbSet<Session> Sessions { get; set; }
+        public DbSet<University> Universities { get; set; }
+        public DbSet<Faculty> Faculties { get; set; }
+        public DbSet<Specialty> Specialties { get; set; }
+        public DbSet<Group> Groups { get; set; }
+
+
+
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
