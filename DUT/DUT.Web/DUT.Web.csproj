@@ -18,12 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DUT.Application\DUT.Application.csproj" />
     <ProjectReference Include="..\DUT.Constants\DUT.Constants.csproj" />
     <ProjectReference Include="..\DUT.Infrastructure.IoC\DUT.Infrastructure.IoC.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Areas\Identity\" />
   </ItemGroup>
 
 </Project>

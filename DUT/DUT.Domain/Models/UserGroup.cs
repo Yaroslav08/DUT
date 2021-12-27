@@ -3,6 +3,7 @@
     public class UserGroup : BaseModel<int>
     {
         public bool IsAdmin { get; set; }
+        public bool IsAccepted { get; set; }
         public string Title { get; set; }
         public int UserGroupRoleId { get; set; }
         public UserGroupRole UserGroupRole { get; set; }
