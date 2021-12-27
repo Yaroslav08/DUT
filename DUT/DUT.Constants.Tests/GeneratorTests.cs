@@ -11,6 +11,7 @@ namespace DUT.Constants.Tests
         }
 
         [Theory]
+        [InlineData(1000, 0)]
         [InlineData(10000, 1)]
         [InlineData(100000, 5)]
         public void CheckOnUniqGroupInviteCode(int commonCount, int maxRepeat)
