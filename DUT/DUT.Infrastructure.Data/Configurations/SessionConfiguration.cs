@@ -1,5 +1,5 @@
 ﻿using DUT.Domain.Models;
-using DUT.Extensions;
+using DUT.Infrastructure.Data.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Unicode;
 
-namespace DUT.Extensions
+namespace DUT.Infrastructure.Data.Extensions
 {
     public static class JsonConvertorExtensions
     {
