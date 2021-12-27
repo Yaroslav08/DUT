@@ -5,7 +5,7 @@ namespace DUT.Constants.Tests
     {
         [Fact]
         public void GroupInviteCodeLength()
-        {
+{
             var code = Generator.CreateGroupInviteCode();
             Assert.Equal(9, code.Length);
         }
@@ -21,7 +21,7 @@ namespace DUT.Constants.Tests
             string code = "";
 
             for (int i = 0; i < commonCount; i++)
-            {
+{
                 code = Generator.CreateGroupInviteCode();
                 if (dictionaryOfInviteCodes.ContainsKey(code))
                 {
