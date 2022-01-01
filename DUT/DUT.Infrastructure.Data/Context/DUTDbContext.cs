@@ -30,6 +30,8 @@ namespace DUT.Infrastructure.Data.Context
         public DbSet<Post> Posts { get; set; }
         public DbSet<PostComment> PostComments { get; set; }
         public DbSet<UserSpecialty> UserSpecialties { get; set; }
+        public DbSet<Subject> Subjects { get; set; }
+        public DbSet<Lesson> Lessons { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)

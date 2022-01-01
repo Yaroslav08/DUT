@@ -16,6 +16,7 @@ namespace DUT.Domain.Models
         public List<Session> Sessions { get; set; }
         public List<UserGroup> UserGroups { get; set; }
         public List<PostComment> Comments { get; set; }
+        public List<Subject> Subjects { get; set; }
 
         public User(string firstName, string middleName, string lastName, string email, string userName) : base(userName)
         {

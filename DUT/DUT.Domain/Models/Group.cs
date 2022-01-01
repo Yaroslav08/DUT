@@ -9,5 +9,6 @@
         public List<UserGroup> UserGroups { get; set; }
         public List<GroupInvite> GroupInvites { get; set; }
         public List<Post> Posts { get; set; }
+        public List<Subject> Subjects { get; set; }
     }
 }
