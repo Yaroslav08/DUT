@@ -3,6 +3,8 @@
     public class Group : BaseModel<int>
     {
         public string Name { get; set; }
+        public string Image { get; set; }
+        public DateTime StartStudy { get; set; }
         public int Course { get; set; }
         public int SpecialtyId { get; set; }
         public Specialty Specialty { get; set; }
