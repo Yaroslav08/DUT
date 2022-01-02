@@ -10,6 +10,8 @@ namespace DUT.Domain.Models
         public string MiddleName { get; set; }
         [Required, StringLength(100, MinimumLength = 1), PersonalData]
         public string LastName { get; set; }
+        [StringLength(1000, MinimumLength = 1)]
+        public string Image { get; set; }
         [EmailAddress, StringLength(150, MinimumLength = 3)]
         public string ContactEmail { get; set; }
         [Phone, StringLength(15, MinimumLength = 9)]
