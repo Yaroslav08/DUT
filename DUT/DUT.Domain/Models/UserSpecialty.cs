@@ -1,7 +1,10 @@
-﻿namespace DUT.Domain.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DUT.Domain.Models
 {
     public class UserSpecialty : BaseModel<int>
     {
+        [Required, StringLength(150, MinimumLength = 1)]
         public string Title { get; set; }
         public int SpecialtyId { get; set; }
         public Specialty Specialty { get; set; }

@@ -38,6 +38,9 @@ namespace DUT.Infrastructure.Data.Context
         {
             base.OnModelCreating(builder);
             builder.ApplyConfiguration(new SessionConfiguration());
+            builder.ApplyConfiguration(new LessonConfiguration());
+            builder.ApplyConfiguration(new SubjectConfiguration());
+            builder.ApplyConfiguration(new UserGroupRoleConfiguration());
         }
     }
 }

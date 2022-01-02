@@ -1,11 +1,18 @@
-﻿namespace DUT.Domain.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DUT.Domain.Models
 {
     public class Post : BaseModel<int>
     {
+        [Required, StringLength(150, MinimumLength = 1)]
         public string Title { get; set; }
+        [Required, StringLength(10000, MinimumLength = 5)]
         public string Content { get; set; }
+        [Required]
         public bool IsImportant { get; set; }
+        [Required]
         public bool AvailableToComment { get; set; }
+        [Required]
         public bool IsPublic { get; set; }
         public int UserId { get; set; }
         public User User { get; set; }

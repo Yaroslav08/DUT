@@ -13,6 +13,9 @@ namespace DUT.Infrastructure.Data.Configurations
             builder.Property(x => x.Device).HasConversion(
                 v => v.ToJson(),
                 v => v.FromJson<DeviceInfo>());
+            builder.Property(x => x.Location).HasConversion(
+                v => v.ToJson(),
+                v => v.FromJson<Location>());
         }
     }
 }

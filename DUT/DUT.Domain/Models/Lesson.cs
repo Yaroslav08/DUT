@@ -1,11 +1,17 @@
-﻿namespace DUT.Domain.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DUT.Domain.Models
 {
     public class Lesson : BaseModel<long>
     {
+        [Required, StringLength(250, MinimumLength = 50)]
         public string Theme { get; set; }
         public Journal Journal { get; set; }
+        [Required]
         public DateTime Date { get; set; }
+        [Required]
         public LessonType LessonType { get; set; }
+        [StringLength(1000, MinimumLength = 1)]
         public string Homework { get; set; }
 
         public int SubjectId { get; set; }

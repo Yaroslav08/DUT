@@ -1,10 +1,16 @@
-﻿namespace DUT.Domain.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DUT.Domain.Models
 {
     public class Group : BaseModel<int>
     {
+        [Required, StringLength(50, MinimumLength = 1)]
         public string Name { get; set; }
+        [StringLength(1000, MinimumLength = 1)]
         public string Image { get; set; }
+        [Required]
         public DateTime StartStudy { get; set; }
+        [Required]
         public int Course { get; set; }
         public int SpecialtyId { get; set; }
         public Specialty Specialty { get; set; }
