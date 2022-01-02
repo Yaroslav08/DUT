@@ -4,6 +4,8 @@ namespace DUT.Domain.Models
 {
     public class GroupInvite : BaseModel<Guid>
     {
+        [Required, StringLength(75, MinimumLength = 1)]
+        public string Name { get; set; }
         [Required]
         public DateTime ActiveFrom { get; set; }
         [Required]
