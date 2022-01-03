@@ -1,4 +1,7 @@
-﻿using DUT.Domain.Models;
+﻿using AutoMapper;
+using DUT.Application.Services.Implementations;
+using DUT.Application.Services.Interfaces;
+using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -39,6 +42,20 @@ namespace DUT.Infrastructure.IoC
             }).AddEntityFrameworkStores<DUTDbContext>();
             #endregion
 
+            #region Automapper
+
+            services.AddSingleton(new MapperConfiguration(mc =>
+            {
+                mc.AddProfile<Application.ViewModels.Mapper>();
+            }).CreateMapper());
+
+            #endregion
+
+            #region Services
+
+            services.AddScoped<IUniversityService, UniversityService>();
+
+            #endregion
 
 
             return services;
