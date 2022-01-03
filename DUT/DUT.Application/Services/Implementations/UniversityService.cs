@@ -10,17 +10,23 @@ namespace DUT.Application.Services.Implementations
 {
     public class UniversityService : IUniversityService
     {
+        private readonly IIdentityService _identityService;
         private readonly IMapper _mapper;
         private readonly DUTDbContext _db;
-        public UniversityService(IMapper mapper, DUTDbContext db)
+        public UniversityService(IMapper mapper, DUTDbContext db, IIdentityService identityService)
         {
             _mapper = mapper;
             _db = db;
+            _identityService = identityService;
         }
 
         public async Task<Result<UniversityViewModel>> CreateUniversityAsync(UniversityCreateModel model)
         {
             var newUniversity = _mapper.Map<University>(model);
+
+            newUniversity.CreatedAt = DateTime.Now;
+            newUniversity.CreatedBy = _identityService.GetIdentityData();
+            newUniversity.CreatedFromIP = "::1";
 
             await _db.Universities.AddAsync(newUniversity);
             await _db.SaveChangesAsync();
@@ -39,6 +45,10 @@ namespace DUT.Application.Services.Implementations
         public async Task<Result<UniversityViewModel>> UpdateUniversityAsync(UniversityEditModel model)
         {
             var updatedUniversity = _mapper.Map<University>(model);
+
+            updatedUniversity.LastUpdatedAt = DateTime.Now;
+            updatedUniversity.LastUpdatedBy = _identityService.GetIdentityData();
+            updatedUniversity.LastUpdatedFromIP = "::1";
 
             _db.Universities.Update(updatedUniversity);
             await _db.SaveChangesAsync();
