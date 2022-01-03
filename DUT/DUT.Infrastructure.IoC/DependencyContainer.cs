@@ -55,9 +55,11 @@ namespace DUT.Infrastructure.IoC
 
             services.AddScoped<IUniversityService, UniversityService>();
             services.AddScoped<IIdentityService, FakeIdentityService>();
+            services.AddScoped<IInitialService, InitialService>();
 
             #endregion
 
+            services.AddHttpContextAccessor();
 
             return services;
         }
