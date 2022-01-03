@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DUT.Application.ViewModels.Group;
+using DUT.Application.ViewModels.University;
 using DUT.Application.ViewModels.User;
 using System.Text;
 
@@ -9,6 +10,12 @@ namespace DUT.Application.ViewModels
     {
         public Mapper()
         {
+            CreateMap<Domain.Models.University, UniversityViewModel>();
+            CreateMap<Domain.Models.University, UniversityCreateModel>().ReverseMap();
+            CreateMap<Domain.Models.University, UniversityEditModel>().ReverseMap();
+
+
+
             CreateMap<Domain.Models.Group, GroupViewModel>()
                 .ForMember(x => x.Name, s => s.MapFrom(x => $"{x.Name} ({x.StartStudy.Year})"));
 
