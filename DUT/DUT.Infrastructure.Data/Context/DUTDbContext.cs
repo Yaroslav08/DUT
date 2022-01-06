@@ -32,6 +32,7 @@ namespace DUT.Infrastructure.Data.Context
         public DbSet<UserSpecialty> UserSpecialties { get; set; }
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<Lesson> Lessons { get; set; }
+        public DbSet<App> Apps { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
