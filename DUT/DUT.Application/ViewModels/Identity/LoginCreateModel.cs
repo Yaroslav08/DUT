@@ -4,5 +4,7 @@
     {
         public string Login { get; set; }
         public string Password { get; set; }
+        public string AppId { get; set; }
+        public string AppSecret { get; set; }
     }
 }
