@@ -5,7 +5,7 @@ namespace DUT.Domain.Models
     public class Session : BaseModel<int>
     {
         [Required, StringLength(150, MinimumLength = 1)]
-        public string App { get; set; } // "Dut Android 1.0"
+        public AppModel App { get; set; }
         public DeviceInfo Device { get; set; }
         public Location Location { get; set; }
         [Required]
@@ -16,5 +16,14 @@ namespace DUT.Domain.Models
         public string Token { get; set; }
         public int UserId { get; set; }
         public User User { get; set; }
+    }
+
+    public class AppModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string ShortName { get; set; }
+        public string Description { get; set; }
+        public string Image { get; set; }
     }
 }
