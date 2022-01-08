@@ -1,6 +1,5 @@
 ﻿namespace DUT.Application.ViewModels
 {
-
     public class Result<T>
     {
         #region ctors

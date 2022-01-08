@@ -26,7 +26,10 @@ namespace DUT.Application.Services.Implementations
             if (count > 0)
                 return Result<UniversityViewModel>.Error("University is already exist");
 
-            var newUniversity = _mapper.Map<University>(model);
+            var newUniversity = new University
+            {
+
+            };
 
             newUniversity.CreatedAt = DateTime.Now;
             newUniversity.CreatedBy = _identityService.GetIdentityData();
@@ -48,7 +51,14 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<UniversityViewModel>> UpdateUniversityAsync(UniversityEditModel model)
         {
-            var updatedUniversity = _mapper.Map<University>(model);
+            var updatedUniversity = await _db.Universities.AsNoTracking().SingleOrDefaultAsync(x => x.Id == model.Id);
+            if (updatedUniversity == null)
+                return Result<UniversityViewModel>.NotFound();
+
+            updatedUniversity.Name = model.Name;
+            updatedUniversity.ShortName = model.ShortName;
+            updatedUniversity.NameEng = model.NameEng;
+            updatedUniversity.ShortNameEng = model.ShortNameEng;
 
             updatedUniversity.LastUpdatedAt = DateTime.Now;
             updatedUniversity.LastUpdatedBy = _identityService.GetIdentityData();

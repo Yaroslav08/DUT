@@ -14,6 +14,11 @@ namespace DUT.Web.Middlewares
         {
             try
             {
+                if (httpContext.Request.Path == "/faculty")
+                {
+                    httpContext.Response.Redirect("/faculty/all");
+                    return;
+                }
                 await _next(httpContext);
             }
             catch (Exception ex)

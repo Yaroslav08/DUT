@@ -22,8 +22,8 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<FacultyViewModel>> CreateFacultyAsync(FacultyCreateModel model)
         {
-            var existFaculty = await _db.Faculties.AsNoTracking().AnyAsync(x => x.Name == model.Name);
-            if (existFaculty)
+            var existFaculty = await _db.Faculties.AsNoTracking().FirstOrDefaultAsync(x => x.Name == model.Name);
+            if (existFaculty != null)
                 return Result<FacultyViewModel>.Error("Faculty already exist");
             var faculty = new Faculty
             {

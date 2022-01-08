@@ -5,11 +5,9 @@ namespace DUT.Web.Controllers
 {
     public class UniversityController : Controller
     {
-        private readonly IIdentityService _identityService;
         private readonly IUniversityService _universityService;
-        public UniversityController(IIdentityService identityService, IUniversityService universityService)
+        public UniversityController(IUniversityService universityService)
         {
-            _identityService = identityService;
             _universityService = universityService;
         }
 
