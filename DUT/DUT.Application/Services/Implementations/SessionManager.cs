@@ -5,48 +5,48 @@ namespace DUT.Application.Services.Implementations
 {
     public class SessionManager : ISessionManager, IAsyncDisposable
     {
-        private readonly IList<int> _sessionIds;
+        private readonly IList<string> _tokens;
 
         public SessionManager()
         {
-            _sessionIds = new List<int>(5);
+            _tokens = new List<string>(5);
         }
 
-        public SessionManager(int[] sessionIds)
+        public SessionManager(string[] tokens)
         {
-            _sessionIds = new List<int>(sessionIds);
+            _tokens = new List<string>(tokens);
         }
 
-        public bool AddSession(int sessionId)
+        public bool AddSession(string token)
         {
-            if(_sessionIds.Contains(sessionId))
+            if(_tokens.Contains(token))
                 return false;
-            _sessionIds.Add(sessionId);
+            _tokens.Add(token);
             return true;
         }
 
         public async ValueTask DisposeAsync()
         {
-            await UploadContentAsync(_sessionIds);
+            await UploadContentAsync(_tokens);
         }
 
-        public List<int> GetAllSessionIds()
+        public List<string> GetAllTokens()
         {
-            return (List<int>)_sessionIds;
+            return (List<string>)_tokens;
         }
 
-        public bool IsActiveSession(int sessionId)
+        public bool IsActiveSession(string token)
         {
-            if (_sessionIds.Contains(sessionId))
+            if (_tokens.Contains(token))
                 return true;
             return false;
         }
 
-        public bool RemoveSession(int sessionId)
+        public bool RemoveSession(string token)
         {
-            if (_sessionIds.Contains(sessionId))
+            if (_tokens.Contains(token))
             {
-                _sessionIds.Remove(sessionId);
+                _tokens.Remove(token);
                 return true;
             }
             return false;
@@ -65,29 +65,29 @@ namespace DUT.Application.Services.Implementations
             await sw.WriteAsync(JsonSerializer.Serialize(data));
         }
 
-        public bool AddRangeSessions(IEnumerable<int> sessionIds)
+        public bool AddRangeSessions(IEnumerable<string> tokens)
         {
-            foreach (int sessionId in sessionIds)
+            foreach (var token in tokens)
             {
-                if (sessionIds.Contains(sessionId))
+                if (_tokens.Contains(token))
                 {
                     continue;
                 }
                 else
                 {
-                    _sessionIds.Add(sessionId);
+                    _tokens.Add(token);
                 }
             }
             return true;
         }
 
-        public bool RemoveRangeSession(IEnumerable<int> sessionIds)
+        public bool RemoveRangeSession(IEnumerable<string> tokens)
         {
-            foreach (var sessionId in sessionIds)
+            foreach (var token in tokens)
             {
-                if (sessionIds.Contains(sessionId))
+                if (_tokens.Contains(token))
                 {
-                    _sessionIds.Remove(sessionId);
+                    _tokens.Remove(token);
                 }
                 else
                 {

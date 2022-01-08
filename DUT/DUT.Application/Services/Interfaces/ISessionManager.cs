@@ -2,11 +2,11 @@
 {
     public interface ISessionManager
     {
-        bool AddSession(int sessionId);
-        bool AddRangeSessions(IEnumerable<int> sessionIds);
-        bool RemoveSession(int sessionId);
-        bool RemoveRangeSession(IEnumerable<int> sessionIds);
-        bool IsActiveSession(int sessionId);
-        List<int> GetAllSessionIds();
+        bool AddSession(string token);
+        bool AddRangeSessions(IEnumerable<string> tokens);
+        bool RemoveSession(string token);
+        bool RemoveRangeSession(IEnumerable<string> tokens);
+        bool IsActiveSession(string token);
+        List<string> GetAllTokens();
     }
 }
