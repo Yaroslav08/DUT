@@ -26,7 +26,7 @@ namespace DUT.Application.Services.Implementations
 
             newUniversity.CreatedAt = DateTime.Now;
             newUniversity.CreatedBy = _identityService.GetIdentityData();
-            newUniversity.CreatedFromIP = "::1";
+            newUniversity.CreatedFromIP = model.IP;
 
             await _db.Universities.AddAsync(newUniversity);
             await _db.SaveChangesAsync();
