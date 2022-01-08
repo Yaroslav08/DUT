@@ -18,6 +18,8 @@ builder.Services.AddDUTServices(builder.Configuration);
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddRazorPages();
+
 var app = builder.Build();
 
 #endregion

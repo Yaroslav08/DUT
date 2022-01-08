@@ -8,7 +8,7 @@ namespace DUT.Domain.Models
         [Required]
         public bool IsPublic { set; get; }
 
-        public int PostId { get; set; }
+        public int? PostId { get; set; }
         public Post Post { get; set; }
         public int UserId { get; set; }
         public User User { set; get; }

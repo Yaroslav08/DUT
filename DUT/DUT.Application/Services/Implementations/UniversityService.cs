@@ -22,6 +22,10 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<UniversityViewModel>> CreateUniversityAsync(UniversityCreateModel model)
         {
+            var count = await CountAsync();
+            if (count > 0)
+                return Result<UniversityViewModel>.Error("University is already exist");
+
             var newUniversity = _mapper.Map<University>(model);
 
             newUniversity.CreatedAt = DateTime.Now;

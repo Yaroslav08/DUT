@@ -3,21 +3,19 @@ using DUT.Application.Services.Implementations;
 using DUT.Application.Services.Interfaces;
 using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
+using DUT.Infrastructure.IoC.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
 namespace DUT.Infrastructure.IoC
 {
     public static class DependencyContainer
     {
         public static IServiceCollection AddDUTServices(this IServiceCollection services, IConfiguration configuration)
         {
-            #region Db
-            var connString = configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<DUTDbContext>(options =>
-            {
-                options.UseSqlServer(connString);
-            });
+            #region Identity
             services.AddDefaultIdentity<User>(options =>
             {
                 options.Lockout.AllowedForNewUsers = true;
@@ -39,7 +37,18 @@ namespace DUT.Infrastructure.IoC
 
                 options.User.RequireUniqueEmail = true;
 
-            }).AddEntityFrameworkStores<DUTDbContext>();
+            }).AddEntityFrameworkStores<DUTDbContext>()
+            .AddPersonalDataProtection<InkProtector, DefaultKeyRing>()
+            .AddDefaultTokenProviders();
+            #endregion
+
+
+            #region Db
+            var connString = configuration.GetConnectionString("DefaultConnection");
+            services.AddDbContext<DUTDbContext>(options =>
+            {
+                options.UseSqlServer(connString);
+            });            
             #endregion
 
             #region Automapper
@@ -55,7 +64,7 @@ namespace DUT.Infrastructure.IoC
 
             services.AddScoped<IUniversityService, UniversityService>();
             services.AddScoped<IIdentityService, FakeIdentityService>();
-            services.AddScoped<IInitialService, InitialService>();
+            //services.AddScoped<IInitialService, InitialService>();
             services.AddScoped<IFacultyService, FacultyService>();
             services.AddScoped<ISpecialtyService, SpecialtyService>();
 
@@ -67,7 +76,11 @@ namespace DUT.Infrastructure.IoC
 
             #endregion
 
+            #region Common
+
             services.AddHttpContextAccessor();
+
+            #endregion
 
             return services;
         }

@@ -9,8 +9,9 @@ namespace DUT.Infrastructure.Data.Context
     {
         #region ctors
         public DUTDbContext(DbContextOptions<DUTDbContext> options) : base(options)
+        
         {
-
+            Database.EnsureCreated();
         }
         public DUTDbContext()
         {
@@ -42,6 +43,7 @@ namespace DUT.Infrastructure.Data.Context
             builder.ApplyConfiguration(new LessonConfiguration());
             builder.ApplyConfiguration(new SubjectConfiguration());
             builder.ApplyConfiguration(new UserGroupRoleConfiguration());
+            builder.ApplyConfiguration(new PostCommentConfiguration());
         }
     }
 }
