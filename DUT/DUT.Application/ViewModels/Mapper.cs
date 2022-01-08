@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DUT.Application.ViewModels.Faculty;
 using DUT.Application.ViewModels.Group;
+using DUT.Application.ViewModels.Specialty;
 using DUT.Application.ViewModels.University;
 using DUT.Application.ViewModels.User;
 using System.Text;
@@ -18,6 +19,10 @@ namespace DUT.Application.ViewModels
             CreateMap<Domain.Models.Faculty, FacultyViewModel>();
             CreateMap<Domain.Models.Faculty, FacultyCreateModel>().ReverseMap();
             CreateMap<Domain.Models.Faculty, FacultyEditModel>().ReverseMap();
+
+            CreateMap<Domain.Models.Specialty, SpecialtyViewModel>();
+            CreateMap<Domain.Models.Specialty, SpecialtyCreateModel>().ReverseMap();
+            CreateMap<Domain.Models.Specialty, SpecialtyEditModel>().ReverseMap();
 
 
             CreateMap<Domain.Models.Group, GroupViewModel>()

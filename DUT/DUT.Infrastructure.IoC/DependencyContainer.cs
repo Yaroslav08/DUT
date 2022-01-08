@@ -56,6 +56,8 @@ namespace DUT.Infrastructure.IoC
             services.AddScoped<IUniversityService, UniversityService>();
             services.AddScoped<IIdentityService, FakeIdentityService>();
             services.AddScoped<IInitialService, InitialService>();
+            services.AddScoped<IFacultyService, FacultyService>();
+            services.AddScoped<ISpecialtyService, SpecialtyService>();
 
             #endregion
 

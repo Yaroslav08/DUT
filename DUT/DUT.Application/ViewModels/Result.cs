@@ -1,34 +1,24 @@
 ﻿namespace DUT.Application.ViewModels
 {
-    public abstract class Result
+
+    public class Result<T>
     {
-        protected Result(bool success, bool notFound, string error, Exception exception)
+        #region ctors
+        public Result(bool success, bool notFound, string error, Exception exception, T data)
         {
-            Success = success;
-            NotFound = notFound;
-            Error = error;
-            Exception = exception;
+            IsSuccess = success;
+            IsNotFound = notFound;
+            ErrorMessage = error;
+            ExceptionType = exception;
+            Data = data;
         }
         public Result()
         {
 
         }
+        #endregion
 
-        public bool Success { get; set; }
-        public bool NotFound { get; set; }
-        public string Error { get; set; }
-        public Exception Exception { get; set; }
-    }
-
-    public class Result<T> : Result
-    {
-        public Result(bool success, bool notFound, string error, Exception exception, T data)
-            : base(success, notFound, error, exception)
-        {
-            Data = data;
-        }
-
-        public T Data { get; set; }
+        #region Methods
 
         public static Result<T> Success()
         {
@@ -54,5 +44,17 @@
         {
             return new Result<T>(false, false, null, exception, default);
         }
+
+        #endregion
+
+        #region Props
+
+        public bool IsSuccess { get; set; }
+        public bool IsNotFound { get; set; }
+        public string ErrorMessage { get; set; }
+        public Exception ExceptionType { get; set; }
+        public T Data { get; set; }
+
+        #endregion
     }
 }

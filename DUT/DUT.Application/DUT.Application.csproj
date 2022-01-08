@@ -15,8 +15,4 @@
     <ProjectReference Include="..\DUT.Infrastructure.Data\DUT.Infrastructure.Data.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Extensions\" />
-  </ItemGroup>
-
 </Project>
