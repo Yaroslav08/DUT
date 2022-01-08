@@ -59,6 +59,12 @@ namespace DUT.Infrastructure.IoC
 
             #endregion
 
+            #region Managers
+
+            services.AddSingleton<ISessionManager, SessionManager>();
+
+            #endregion
+
             services.AddHttpContextAccessor();
 
             return services;
