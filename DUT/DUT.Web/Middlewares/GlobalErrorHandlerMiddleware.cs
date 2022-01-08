@@ -39,6 +39,7 @@ namespace DUT.Web.Middlewares
                 {
                     Ok = false,
                     Error = "Internal server error",
+                    Description = exception.Message,
                     Data = requestId
                 });
             }
@@ -46,6 +47,7 @@ namespace DUT.Web.Middlewares
 
         private string GetTypeApp(HttpContext httpContext)
         {
+            return "api";
             var enpoint = httpContext.Request.Path.Value;
             if (enpoint.StartsWith("/api/v"))
                 return "api";

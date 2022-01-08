@@ -6,5 +6,15 @@ namespace DUT.Application.ViewModels.University
     {
         [Required]
         public int Id { get; set; }
+
+        public UniversityEditModel()
+        {
+
+        }
+
+        public UniversityEditModel(UniversityViewModel model) : base(model)
+        {
+            Id = model.Id;
+        }
     }
 }

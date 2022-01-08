@@ -3,6 +3,7 @@ namespace DUT.Application.ViewModels.University
 {
     public class UniversityViewModel
     {
+        public int Id { get; set; }
         public string Name { get; set; }
         public string NameEng { get; set; }
         public string ShortName { get; set; }
