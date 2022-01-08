@@ -8,12 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DUT.Application.Services.Implementations
 {
-    public class FacultyService : IFacultyService
+    public class FacultyService : BaseService<Faculty>, IFacultyService
     {
         private readonly DUTDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
-        public FacultyService(DUTDbContext db, IMapper mapper, IIdentityService identityService)
+        public FacultyService(DUTDbContext db, IMapper mapper, IIdentityService identityService) : base(db)
         {
             _db = db;
             _mapper = mapper;
@@ -38,7 +38,7 @@ namespace DUT.Application.Services.Implementations
             return Result<FacultyViewModel>.SuccessWithData(_mapper.Map<FacultyViewModel>(faculty));
         }
 
-        public async Task<Result<FacultyViewModel>> EditFacultyAsync(FacultyEditModel model)
+        public async Task<Result<FacultyViewModel>> UpdateFacultyAsync(FacultyEditModel model)
         {
             var currentFaculty = await _db.Faculties.AsNoTracking().SingleOrDefaultAsync(x => x.Id == model.Id);
             if (currentFaculty == null)

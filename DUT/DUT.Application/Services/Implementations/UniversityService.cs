@@ -8,12 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DUT.Application.Services.Implementations
 {
-    public class UniversityService : IUniversityService
+    public class UniversityService : BaseService<University>, IUniversityService
     {
         private readonly IIdentityService _identityService;
         private readonly IMapper _mapper;
         private readonly DUTDbContext _db;
-        public UniversityService(IMapper mapper, DUTDbContext db, IIdentityService identityService)
+        public UniversityService(IMapper mapper, DUTDbContext db, IIdentityService identityService) : base(db)
         {
             _mapper = mapper;
             _db = db;
