@@ -42,7 +42,6 @@ namespace DUT.Infrastructure.IoC
             .AddDefaultTokenProviders();
             #endregion
 
-
             #region Db
             var connString = configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<DUTDbContext>(options =>

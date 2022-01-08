@@ -1,5 +1,8 @@
+using DUT.Constants;
 using DUT.Infrastructure.IoC;
 using DUT.Web.Middlewares;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +16,22 @@ builder.Services.AddApiVersioning(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = false;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = TokenOptions.Issuer,
+            ValidateAudience = true,
+            ValidAudience = TokenOptions.Audience,
+            ValidateLifetime = true,
+            IssuerSigningKey = TokenOptions.GetSymmetricSecurityKey(),
+            ValidateIssuerSigningKey = true,
+        };
+    });
 
 builder.Services.AddDUTServices(builder.Configuration);
 
@@ -36,6 +55,7 @@ else
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+app.UseAccessTokenHandler();
 
 app.UseGlobalErrorHandler();
 
