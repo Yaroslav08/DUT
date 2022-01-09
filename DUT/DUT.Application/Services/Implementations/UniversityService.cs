@@ -28,7 +28,10 @@ namespace DUT.Application.Services.Implementations
 
             var newUniversity = new University
             {
-
+                Name = model.Name,
+                ShortName = model.ShortName,
+                NameEng = model.NameEng,
+                ShortNameEng = model.ShortNameEng
             };
 
             newUniversity.CreatedAt = DateTime.Now;
