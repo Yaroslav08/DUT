@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using DUT.Constants.APIResponse;
+using System.Net;
 
 namespace DUT.Web.Middlewares
 {
@@ -14,11 +15,6 @@ namespace DUT.Web.Middlewares
         {
             try
             {
-                if (httpContext.Request.Path == "/faculty")
-                {
-                    httpContext.Response.Redirect("/faculty/all");
-                    return;
-                }
                 await _next(httpContext);
             }
             catch (Exception ex)
@@ -40,13 +36,7 @@ namespace DUT.Web.Middlewares
                 var requestId = httpContext.TraceIdentifier;
                 httpContext.Response.ContentType = "application/json";
                 httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                await httpContext.Response.WriteAsJsonAsync(new
-                {
-                    Ok = false,
-                    Error = "Internal server error",
-                    Description = exception.Message,
-                    Data = requestId
-                });
+                await httpContext.Response.WriteAsJsonAsync(new APIResponse(false, "Internal server error", exception.Message, requestId));
             }
         }
 
