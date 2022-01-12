@@ -11,16 +11,14 @@ namespace DUT.Application.Services.Implementations
 {
     public class FacultyService : BaseService<Faculty>, IFacultyService
     {
-        private readonly ISpecialtyService _specialtyService;
         private readonly DUTDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
-        public FacultyService(DUTDbContext db, IMapper mapper, IIdentityService identityService, ISpecialtyService specialtyService) : base(db)
+        public FacultyService(DUTDbContext db, IMapper mapper, IIdentityService identityService) : base(db)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
-            _specialtyService = specialtyService;
         }
 
         public async Task<Result<FacultyViewModel>> CreateFacultyAsync(FacultyCreateModel model)
@@ -78,9 +76,15 @@ namespace DUT.Application.Services.Implementations
             return Result<FacultyViewModel>.SuccessWithData(faculty);
         }
 
-        public async Task<Result<List<SpecialtyViewModel>>> GetSpecialtiesByFacultyIdAsync(int id)
+        public async Task<Result<List<SpecialtyViewModel>>> GetSpecialtiesByFacultyIdAsync(int facultyId)
         {
-            return await _specialtyService.GetSpecialtiesByFacultyIdAsync(id);
+            return Result<List<SpecialtyViewModel>>.SuccessWithData(await _db.Specialties.AsNoTracking().Where(x => x.FacultyId == facultyId).Select(x => new SpecialtyViewModel
+            {
+                Id = x.Id,
+                CreatedAt = x.CreatedAt,
+                Name = x.Name,
+                Code = x.Code
+            }).ToListAsync());
         }
     }
 }
