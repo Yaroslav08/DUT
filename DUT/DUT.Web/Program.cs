@@ -39,16 +39,19 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddRazorPages();
 
-var app = builder.Build();
+builder.Services.AddSwaggerGen();
 
 #endregion
 
+var app = builder.Build();
 
 #region Pipeline
 
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 else
 {
