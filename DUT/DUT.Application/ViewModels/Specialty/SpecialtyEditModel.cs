@@ -6,5 +6,17 @@ namespace DUT.Application.ViewModels.Specialty
     {
         [Required]
         public int Id { get; set; }
+
+        public SpecialtyEditModel()
+        {
+
+        }
+
+        public SpecialtyEditModel(SpecialtyViewModel model)
+        {
+            Id = model.Id;
+            Name = model.Name;
+            Code = model.Code;
+        }
     }
 }

@@ -84,6 +84,9 @@ namespace DUT.Application.Services.Implementations
             var currentSpecialty = await _db.Specialties.AsNoTracking().SingleOrDefaultAsync(x => x.Id == model.Id);
             if (currentSpecialty == null)
                 return Result<SpecialtyViewModel>.NotFound();
+            var faculty = await _db.Faculties.AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.FacultyId);
+            if (faculty == null)
+                return Result<SpecialtyViewModel>.NotFound("Facuty not found");
             currentSpecialty.Name = model.Name;
             currentSpecialty.Code = model.Code;
             currentSpecialty.FacultyId = model.FacultyId;
