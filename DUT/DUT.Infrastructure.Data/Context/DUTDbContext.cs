@@ -5,11 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DUT.Infrastructure.Data.Context
 {
-    public class DUTDbContext : IdentityDbContext<User, Role, int, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>
+    public class DUTDbContext : DbContext
     {
         #region ctors
         public DUTDbContext(DbContextOptions<DUTDbContext> options) : base(options)
-        
         {
             Database.EnsureCreated();
         }
@@ -19,6 +18,7 @@ namespace DUT.Infrastructure.Data.Context
         }
         #endregion
 
+        public DbSet<User> Users { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<University> Universities { get; set; }
         public DbSet<Faculty> Faculties { get; set; }

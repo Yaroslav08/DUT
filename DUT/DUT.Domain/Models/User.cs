@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 namespace DUT.Domain.Models
 {
-    public class User : IdentityUser<int>
+    public class User : BaseModel<int>
     {
         [Required, StringLength(100, MinimumLength = 1), PersonalData]
         public string FirstName { get; set; }
@@ -10,6 +10,12 @@ namespace DUT.Domain.Models
         public string MiddleName { get; set; }
         [Required, StringLength(100, MinimumLength = 1), PersonalData]
         public string LastName { get; set; }
+        [StringLength(50, MinimumLength = 3)]
+        public string UserName { get; set; }
+        [Required, EmailAddress, StringLength(200, MinimumLength = 5)]
+        public string Login { get; set; }
+        [Required, StringLength(1500, MinimumLength = 1)]
+        public string Password { get; set; }
         [StringLength(1000, MinimumLength = 1)]
         public string Image { get; set; }
         [EmailAddress, StringLength(150, MinimumLength = 3)]
@@ -18,22 +24,25 @@ namespace DUT.Domain.Models
         public string ContactPhone { get; set; }
         [Required]
         public DateTime JoinAt { get; set; }
+        [Required]
+        public int AccessFailedCount { get; set; }
+        [Required]
+        public bool LockoutEnabled { get; set; }
+        public DateTime? LockoutEnd { get; set; }
         public List<Session> Sessions { get; set; }
         public List<UserGroup> UserGroups { get; set; }
         public List<PostComment> Comments { get; set; }
         public List<Subject> Subjects { get; set; }
 
-        public User(string firstName, string middleName, string lastName, string email, string userName) : base(userName)
+        public User(string firstName, string middleName, string lastName, string login, string userName)
         {
             FirstName = firstName;
             MiddleName = middleName;
             LastName = lastName;
-            Email = email;
+            Login = login;
             JoinAt = DateTime.Now;
+            AccessFailedCount = 0;
         }
-        public User()
-        {
-
-        }
+        public User() { }
     }
 }
