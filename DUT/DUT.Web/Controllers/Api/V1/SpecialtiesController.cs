@@ -17,34 +17,25 @@ namespace DUT.Web.Controllers.Api.V1
         [HttpPost]
         public async Task<IActionResult> CreateSpecialty([FromBody] SpecialtyCreateModel model)
         {
-            var result = await _specialtyService.CreateSpecialtyAsync(model);
-            if (result.IsNotFound)
-                return BadRequest(result.ErrorMessage);
-            return Ok(result.Data);
+            return JsonResult(await _specialtyService.CreateSpecialtyAsync(model));
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateSpecialty([FromBody] SpecialtyEditModel model)
         {
-            var result = await _specialtyService.UpdateSpecialtyAsync(model);
-            if (result.IsNotFound)
-                return BadRequest(result.ErrorMessage);
-            return Ok(result.Data);
+            return JsonResult(await _specialtyService.UpdateSpecialtyAsync(model));
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllSpecialties()
         {
-            return Ok(await _specialtyService.GetAllSpecialtiesAsync());
+            return JsonResult(await _specialtyService.GetAllSpecialtiesAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetSpecialtyById(int id)
         {
-            var result = await _specialtyService.GetSpecialtyByIdAsync(id);
-            if (result.IsNotFound)
-                return BadRequest(result.ErrorMessage);
-            return Ok(result.Data);
+            return JsonResult(await _specialtyService.GetSpecialtyByIdAsync(id));
         }
     }
 }

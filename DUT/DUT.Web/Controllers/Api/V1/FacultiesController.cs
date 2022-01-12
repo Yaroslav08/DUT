@@ -16,42 +16,31 @@ namespace DUT.Web.Controllers.Api.V1
         [HttpGet]
         public async Task<IActionResult> GetFaculties()
         {
-            var result = await _facultyService.GetAllFacultiesAsync();
-            return Ok(result.Data);
+            return JsonResult(await _facultyService.GetAllFacultiesAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetFacultyById(int id)
         {
-            var result = await _facultyService.GetFacultyByIdAsync(id);
-            if (result.IsNotFound)
-                return BadRequest(result.ErrorMessage);
-            return Ok(result.Data);
+            return JsonResult(await _facultyService.GetFacultyByIdAsync(id));
         }
 
         [HttpGet("{facultyId}/specialties")]
         public async Task<IActionResult> GetFacultySpecialties(int facultyId)
         {
-            var result = await _facultyService.GetSpecialtiesByFacultyIdAsync(facultyId);
-            return Ok(result.Data);
+            return JsonResult(await _facultyService.GetSpecialtiesByFacultyIdAsync(facultyId));
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateFaculty([FromBody] FacultyCreateModel model)
         {
-            var result = await _facultyService.CreateFacultyAsync(model);
-            if (result.IsSuccess)
-                return Ok(result.Data);
-            return BadRequest(result.ErrorMessage);
+            return JsonResult(await _facultyService.CreateFacultyAsync(model));
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateFaculty([FromBody] FacultyEditModel model)
         {
-            var result = await _facultyService.UpdateFacultyAsync(model);
-            if (result.IsSuccess)
-                return Ok(result.Data);
-            return BadRequest(result.ErrorMessage);
+            return JsonResult(await _facultyService.UpdateFacultyAsync(model));
         }
 
     }

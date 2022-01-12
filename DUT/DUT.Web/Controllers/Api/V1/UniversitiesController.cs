@@ -18,25 +18,19 @@ namespace DUT.Web.Controllers.Api.V1
         [HttpGet]
         public async Task<IActionResult> GetUniversity()
         {
-            return Ok(await _universityService.GetUniversityAsync());
+            return JsonResult(await _universityService.GetUniversityAsync());
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateUniversity([FromBody] UniversityCreateModel model)
         {
-            var result = await _universityService.CreateUniversityAsync(model);
-            if (result.IsSuccess)
-                return Ok(result.Data);
-            return BadRequest(result.ErrorMessage);
+            return JsonResult(await _universityService.CreateUniversityAsync(model));
         }
 
         [HttpPut]
         public async Task<IActionResult> EditUniversity([FromBody] UniversityEditModel model)
         {
-            var result = await _universityService.UpdateUniversityAsync(model);
-            if (result.IsSuccess)
-                return Ok(result.Data);
-            return BadRequest(result.ErrorMessage);
+            return JsonResult(await _universityService.UpdateUniversityAsync(model));
         }
     }
 }
