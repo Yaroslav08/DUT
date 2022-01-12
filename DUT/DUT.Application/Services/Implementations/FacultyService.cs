@@ -2,6 +2,7 @@
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.Faculty;
+using DUT.Application.ViewModels.Specialty;
 using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
@@ -10,14 +11,16 @@ namespace DUT.Application.Services.Implementations
 {
     public class FacultyService : BaseService<Faculty>, IFacultyService
     {
+        private readonly ISpecialtyService _specialtyService;
         private readonly DUTDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
-        public FacultyService(DUTDbContext db, IMapper mapper, IIdentityService identityService) : base(db)
+        public FacultyService(DUTDbContext db, IMapper mapper, IIdentityService identityService, ISpecialtyService specialtyService) : base(db)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
+            _specialtyService = specialtyService;
         }
 
         public async Task<Result<FacultyViewModel>> CreateFacultyAsync(FacultyCreateModel model)
@@ -73,6 +76,11 @@ namespace DUT.Application.Services.Implementations
             if (faculty == null)
                 return Result<FacultyViewModel>.NotFound();
             return Result<FacultyViewModel>.SuccessWithData(faculty);
+        }
+
+        public async Task<Result<List<SpecialtyViewModel>>> GetSpecialtiesByFacultyIdAsync(int id)
+        {
+            return await _specialtyService.GetSpecialtiesByFacultyIdAsync(id);
         }
     }
 }

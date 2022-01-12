@@ -20,6 +20,22 @@ namespace DUT.Web.Controllers.Api.V1
             return Ok(result.Data);
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetFacultyById(int id)
+        {
+            var result = await _facultyService.GetFacultyByIdAsync(id);
+            if (result.IsNotFound)
+                return BadRequest(result.ErrorMessage);
+            return Ok(result.Data);
+        }
+
+        [HttpGet("{facultyId}/specialties")]
+        public async Task<IActionResult> GetFacultySpecialties(int facultyId)
+        {
+            var result = await _facultyService.GetSpecialtiesByFacultyIdAsync(facultyId);
+            return Ok(result.Data);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateFaculty([FromBody] FacultyCreateModel model)
         {
