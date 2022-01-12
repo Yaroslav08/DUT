@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels;
+using DUT.Application.ViewModels.Faculty;
 using DUT.Application.ViewModels.Specialty;
 using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
@@ -24,6 +25,8 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<SpecialtyViewModel>> CreateSpecialtyAsync(SpecialtyCreateModel model)
         {
+            if (await IsExistAsync(x => x.Name == model.Name && x.Code == model.Code))
+                return Result<SpecialtyViewModel>.Error("Specialty already exist");
             var currentFaculty = await _faultyService.GetFacultyByIdAsync(model.FacultyId);
             if (currentFaculty.IsNotFound)
                 return Result<SpecialtyViewModel>.NotFound("Faculty not found");

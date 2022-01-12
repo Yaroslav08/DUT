@@ -18,5 +18,11 @@ namespace DUT.Application.Services.Implementations
                 await _db.Set<T>().CountAsync() :
                 await _db.Set<T>().CountAsync(predicate);
         }
+
+        public async Task<bool> IsExistAsync(Expression<Func<T, bool>> predicate = null)
+        {
+            var items = await _db.Set<T>().AsNoTracking().Where(predicate).ToListAsync();
+            return items.Any();
+        }
     }
 }

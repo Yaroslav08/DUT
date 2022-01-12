@@ -45,7 +45,7 @@ namespace DUT.Web.Controllers
         public async Task<IActionResult> Create(SpecialtyCreateModel model)
         {
             var result = await _specialtyService.CreateSpecialtyAsync(model);
-            if (result.IsNotFound)
+            if (result.IsNotFound || result.ErrorMessage != null)
             {
                 ModelState.AddModelError("", result.ErrorMessage);
                 var facultyResult = await _facultyService.GetAllFacultiesAsync();
