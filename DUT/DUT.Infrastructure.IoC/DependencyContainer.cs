@@ -1,10 +1,7 @@
 ﻿using AutoMapper;
 using DUT.Application.Services.Implementations;
 using DUT.Application.Services.Interfaces;
-using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
-using DUT.Infrastructure.IoC.Identity;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,7 +33,7 @@ namespace DUT.Infrastructure.IoC
 
             services.AddScoped<IUniversityService, UniversityService>();
             services.AddScoped<IIdentityService, FakeIdentityService>();
-            //services.AddScoped<IInitialService, InitialService>();
+            services.AddScoped<IInitialService, InitialService>();
             services.AddScoped<IFacultyService, FacultyService>();
             services.AddScoped<ISpecialtyService, SpecialtyService>();
 
@@ -45,6 +42,7 @@ namespace DUT.Infrastructure.IoC
             #region Managers
 
             services.AddSingleton<ISessionManager, SessionManager>();
+            services.AddScoped<IUserManager, UserManager>();
 
             #endregion
 

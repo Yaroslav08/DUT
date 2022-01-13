@@ -7,6 +7,7 @@
         {
             IsSuccess = success;
             IsNotFound = notFound;
+            IsError = string.IsNullOrEmpty(error) ? false : true;
             ErrorMessage = error;
             ExceptionType = exception;
             Data = data;
@@ -26,6 +27,8 @@
 
         public static Result<T> SuccessWithData(T data)
         {
+            if(data == null)
+                return Success();
             return new Result<T>(true, false, null, null, data);
         }
 
@@ -50,6 +53,7 @@
 
         public bool IsSuccess { get; set; }
         public bool IsNotFound { get; set; }
+        public bool IsError { get; set; }
         public string ErrorMessage { get; set; }
         public Exception ExceptionType { get; set; }
         public T Data { get; set; }

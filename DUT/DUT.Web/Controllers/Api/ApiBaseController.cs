@@ -11,7 +11,7 @@ namespace DUT.Web.Controllers.Api
         {
             if (result.IsNotFound)
                 return NotFound(APIResponse.NotFoundResponse(result.ErrorMessage));
-            if (result.ErrorMessage != null)
+            if (result.IsError)
                 return BadRequest(APIResponse.BadRequestResponse(result.ErrorMessage));
             if(result.IsSuccess)
                 return Ok(APIResponse.OkResponse(result.Data));

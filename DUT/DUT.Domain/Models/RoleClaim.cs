@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
-namespace DUT.Domain.Models
+﻿namespace DUT.Domain.Models
 {
-    public class RoleClaim : IdentityRoleClaim<int>
+    public class RoleClaim : BaseModel<int>
     {
-
+        public int RoleId { get; set; }
+        public Role Role { get; set; }
+        public int ClaimId { get; set; }
+        public Claim Claim { get; set; }
     }
 }

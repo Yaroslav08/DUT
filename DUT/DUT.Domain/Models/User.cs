@@ -15,7 +15,7 @@ namespace DUT.Domain.Models
         [Required, EmailAddress, StringLength(200, MinimumLength = 5)]
         public string Login { get; set; }
         [Required, StringLength(1500, MinimumLength = 1)]
-        public string Password { get; set; }
+        public string PasswordHash { get; set; }
         [StringLength(1000, MinimumLength = 1)]
         public string Image { get; set; }
         [EmailAddress, StringLength(150, MinimumLength = 3)]
@@ -34,6 +34,9 @@ namespace DUT.Domain.Models
         public List<PostComment> Comments { get; set; }
         public List<Subject> Subjects { get; set; }
 
+
+        public List<UserLogin> UserLogins { get; set; }
+
         public User(string firstName, string middleName, string lastName, string login, string userName)
         {
             FirstName = firstName;
@@ -44,5 +47,16 @@ namespace DUT.Domain.Models
             AccessFailedCount = 0;
         }
         public User() { }
+
+
+        public bool IsLocked()
+        {
+            var isLocked = false;
+            if (LockoutEnd == null)
+                isLocked = false;
+            if (LockoutEnd.HasValue && LockoutEnd.Value > DateTime.Now)
+                isLocked = true;
+            return isLocked;
+        }
     }
 }
