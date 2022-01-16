@@ -5,9 +5,8 @@ using DUT.Application.ViewModels.User;
 using DUT.Constants;
 using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
 using Extensions.Password;
-using Extensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace DUT.Application.Services.Implementations
 {

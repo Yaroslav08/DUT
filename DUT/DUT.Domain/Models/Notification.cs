@@ -16,6 +16,7 @@
         Welcome,
         AcceptedInGroup,
         NewLogin,
+        ChangePassword,
         Logout,
         NewPost
     }
