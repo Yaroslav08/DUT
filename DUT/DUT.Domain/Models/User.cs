@@ -29,12 +29,11 @@ namespace DUT.Domain.Models
         [Required]
         public bool LockoutEnabled { get; set; }
         public DateTime? LockoutEnd { get; set; }
+        public UserNotifications UserNotifications { get; set; }
         public List<Session> Sessions { get; set; }
         public List<UserGroup> UserGroups { get; set; }
         public List<PostComment> Comments { get; set; }
         public List<Subject> Subjects { get; set; }
-
-
         public List<UserLogin> UserLogins { get; set; }
 
         public User(string firstName, string middleName, string lastName, string login, string userName)
@@ -58,5 +57,15 @@ namespace DUT.Domain.Models
                 isLocked = true;
             return isLocked;
         }
+    }
+
+    public class UserNotifications
+    {
+        public bool Welcome { get; set; }
+        public bool AcceptedInGroup { get; set; }
+        public bool NewLogin { get; set; }
+        public bool ChangePassword { get; set; }
+        public bool Logout { get; set; }
+        public bool NewPost { get; set; }
     }
 }

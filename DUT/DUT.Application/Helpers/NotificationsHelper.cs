@@ -1,5 +1,8 @@
 ﻿using DUT.Constants;
 using DUT.Domain.Models;
+using Extensions.DeviceDetector.Models;
+using Extensions.Converters;
+using System.Text;
 
 namespace DUT.Application.Helpers
 {
@@ -63,9 +66,40 @@ namespace DUT.Application.Helpers
             };
         }
 
-        public static Notification GetLogoutNotification()
+        public static Notification GetLogoutNotification(Session session)
         {
-            return Plug;
+            return new Notification
+            {
+                Title = "Вихід",
+                Content = $"Увага! Щойно було виконано вихід на вашому акаунті на пристрої {GetDeviceInfo(session.Client)}",
+                ImageUrl = "https://thumbs.dreamstime.com/b/lock-login-password-safe-security-icon-vector-illustration-flat-design-lock-login-password-safe-security-icon-vector-illustration-131742100.jpg",
+                CreatedAt = DateTime.Now,
+                CreatedBy = Defaults.CreatedBy,
+                CreatedFromIP = "::1",
+                Type = NotificationType.ChangePassword,
+                IsImportant = true,
+                IsRead = false,
+                ReadAt = null,
+            };
+        }
+
+        private static string GetDeviceInfo(ClientInfo clientInfo)
+        {
+            StringBuilder result = new StringBuilder();
+            if (clientInfo.Device.Brand.IsNullOrEmpty() && clientInfo.Device.Model.IsNullOrEmpty())
+            {
+                result.Append(clientInfo.Device.Type);
+                result.Append(" ");
+                result.Append($"({clientInfo.OS.Name} {clientInfo.OS.Version})");
+            }
+            else
+            {
+                result.Append(clientInfo.Device.Brand);
+                result.Append(" ");
+                result.Append(clientInfo.Device.Model);
+                result.Append($"({clientInfo.OS.Name} {clientInfo.OS.Version})");
+            }
+            return result.ToString();
         }
 
         public static Notification GetNewPostNotification()

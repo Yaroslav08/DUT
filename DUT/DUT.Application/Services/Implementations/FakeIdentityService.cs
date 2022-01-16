@@ -4,9 +4,9 @@ namespace DUT.Application.Services.Implementations
 {
     public class FakeIdentityService : IIdentityService
     {
-        public string GetCurrentSessionId()
+        public int GetCurrentSessionId()
         {
-            return "1";
+            return 1;
         }
 
         public string GetIdentityData()
@@ -32,6 +32,11 @@ namespace DUT.Application.Services.Implementations
         public string GetUserName()
         {
             return "Yarik08";
+        }
+
+        public string GetBearerToken()
+        {
+            return "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
         }
     }
 }

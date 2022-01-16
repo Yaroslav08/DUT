@@ -1,7 +1,9 @@
-﻿using DUT.Application.Services.Interfaces;
+﻿using DUT.Application.Helpers;
+using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.Identity;
 using DUT.Application.ViewModels.User;
+using DUT.Constants;
 using DUT.Infrastructure.Data.Context;
 using Extensions.DeviceDetector;
 using Extensions.Password;
@@ -13,12 +15,14 @@ namespace DUT.Application.Services.Implementations
     {
         private readonly DUTDbContext _db;
         private readonly IIdentityService _identityService;
+        private readonly ISessionManager _sessionManager;
         private readonly IDetector _detector;
-        public AuthenticationService(DUTDbContext db, IDetector detector, IIdentityService identityService)
+        public AuthenticationService(DUTDbContext db, IDetector detector, IIdentityService identityService, ISessionManager sessionManager)
         {
             _db = db;
             _detector = detector;
             _identityService = identityService;
+            _sessionManager = sessionManager;
         }
 
         public async Task<Result<AuthenticationInfo>> ChangePasswordAsync(PasswordCreateModel model)
@@ -65,7 +69,31 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<bool>> LogoutAsync()
         {
-            throw new NotImplementedException();
+            var token = _identityService.GetBearerToken();
+            if (!_sessionManager.IsActiveSession(token))
+                return Result<bool>.Error("Session is already expired");
+
+            var session = await _db.Sessions.AsNoTracking().SingleOrDefaultAsync(x => x.Id == _identityService.GetCurrentSessionId());
+            if (session == null)
+                return Result<bool>.Error("Session not found");
+
+            var now = DateTime.Now;
+            session.IsActive = false;
+            session.DeactivatedAt = now;
+            session.DeactivatedBySessionId = _identityService.GetCurrentSessionId();
+            session.LastUpdatedFromIP = Defaults.IP;
+            session.LastUpdatedBy = Defaults.CreatedBy;
+            session.LastUpdatedAt = now;
+            _db.Sessions.Update(session);
+            await _db.SaveChangesAsync();
+
+            var notify = NotificationsHelper.GetLogoutNotification(session);
+
+            await _db.Notifications.AddAsync(notify);
+            await _db.SaveChangesAsync();
+
+            _sessionManager.RemoveSession(token);
+            return Result<bool>.SuccessWithData(true);
         }
 
         public async Task<Result<AuthenticationInfo>> RegisterAsync(RegisterViewModel model)

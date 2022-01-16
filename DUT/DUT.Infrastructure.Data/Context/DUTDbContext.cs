@@ -52,6 +52,7 @@ namespace DUT.Infrastructure.Data.Context
             builder.ApplyConfiguration(new UserGroupRoleConfiguration());
             builder.ApplyConfiguration(new PostCommentConfiguration());
             builder.ApplyConfiguration(new LoginAttemptConfiguration());
+            builder.ApplyConfiguration(new UserConfiguration());
         }
     }
 }

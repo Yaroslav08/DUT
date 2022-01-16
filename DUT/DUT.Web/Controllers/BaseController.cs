@@ -64,5 +64,7 @@ namespace DUT.Web.Controllers
         {
             return User.Claims.FirstOrDefault(x => x.Type == type).Value;
         }
+
+        protected string GetIP() => HttpContext.Connection.RemoteIpAddress.ToString();
     }
 }
