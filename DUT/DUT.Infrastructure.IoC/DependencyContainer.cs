@@ -5,6 +5,7 @@ using DUT.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Extensions.DeviceDetector;
 
 namespace DUT.Infrastructure.IoC
 {
@@ -49,6 +50,12 @@ namespace DUT.Infrastructure.IoC
             #region Common
 
             services.AddHttpContextAccessor();
+
+            #endregion
+
+            #region Libraries
+
+            services.AddDeviceDetector();
 
             #endregion
 

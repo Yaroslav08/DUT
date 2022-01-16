@@ -6,20 +6,15 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DUT.Infrastructure.Data.Configurations
 {
-    public class SessionConfiguration : IEntityTypeConfiguration<Session>
+    public class LoginAttemptConfiguration : IEntityTypeConfiguration<LoginAttempt>
     {
-        public void Configure(EntityTypeBuilder<Session> builder)
+        public void Configure(EntityTypeBuilder<LoginAttempt> builder)
         {
             builder.HasKey(x => x.Id);
+            builder.HasIndex(x => x.Login);
             builder.Property(x => x.Client).HasConversion(
                 v => v.ToJson(),
                 v => v.FromJson<ClientInfo>());
-            builder.Property(x => x.Location).HasConversion(
-                v => v.ToJson(),
-                v => v.FromJson<Location>());
-            builder.Property(x => x.App).HasConversion(
-                v => v.ToJson(),
-                v => v.FromJson<AppModel>());
         }
     }
 }

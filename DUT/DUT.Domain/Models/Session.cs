@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Extensions.DeviceDetector.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace DUT.Domain.Models
 {
@@ -6,7 +7,7 @@ namespace DUT.Domain.Models
     {
         [Required, StringLength(150, MinimumLength = 1)]
         public AppModel App { get; set; }
-        public DeviceInfo Device { get; set; }
+        public ClientInfo Client { get; set; }
         public Location Location { get; set; }
         [Required]
         public bool IsActive { get; set; }

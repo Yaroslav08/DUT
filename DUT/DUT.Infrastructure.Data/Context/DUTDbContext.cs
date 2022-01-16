@@ -40,6 +40,7 @@ namespace DUT.Infrastructure.Data.Context
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<Lesson> Lessons { get; set; }
         public DbSet<App> Apps { get; set; }
+        public DbSet<LoginAttempt> LoginAttempts { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -50,6 +51,7 @@ namespace DUT.Infrastructure.Data.Context
             builder.ApplyConfiguration(new SubjectConfiguration());
             builder.ApplyConfiguration(new UserGroupRoleConfiguration());
             builder.ApplyConfiguration(new PostCommentConfiguration());
+            builder.ApplyConfiguration(new LoginAttemptConfiguration());
         }
     }
 }
