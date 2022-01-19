@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 namespace DUT.Application.ViewModels.User
 {
-    public class LoginViewModel
+    public class LoginViewModel : RequestModel
     {
         [Required]
         [EmailAddress]

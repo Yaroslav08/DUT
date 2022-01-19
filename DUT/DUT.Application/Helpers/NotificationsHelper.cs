@@ -3,6 +3,7 @@ using DUT.Domain.Models;
 using Extensions.DeviceDetector.Models;
 using Extensions.Converters;
 using System.Text;
+using DUT.Application.ViewModels.User;
 
 namespace DUT.Application.Helpers
 {
@@ -32,21 +33,50 @@ namespace DUT.Application.Helpers
             return new Notification
             {
                 Title = $"Вас доєднано до групи {group.Name}",
-                Content = $"Ви були доєднані до групи {group.Name}. Бажаємо Вам успішного навчання та сдачі еказменів)",
+                Content = $"Ви були доєднані до групи {group.Name}. Бажаємо Вам успішного навчання!",
                 ImageUrl = "https://cdn1.iconfinder.com/data/icons/color-bold-style/21/34-512.png",
                 CreatedAt = DateTime.Now,
                 CreatedBy = Defaults.CreatedBy,
                 CreatedFromIP = "::1",
-                Type = NotificationType.Welcome,
+                Type = NotificationType.AcceptedInGroup,
                 IsImportant = false,
                 IsRead = false,
                 ReadAt = null,
             };
         }
 
-        public static Notification GetLoginNotification()
+        public static Notification GetLoginNotification(Session session)
         {
-            return Plug;
+            return new Notification
+            {
+                Title = "Новий вхід",
+                Content = $"Увага! Щойно було виконано вхід на ваш акаунт з присторію {GetDeviceInfo(session.Client)} з {session.Location.Country}, {session.Location.City} [{session.Location.IP}]",
+                ImageUrl = "https://cdn-icons-png.flaticon.com/512/152/152533.png",
+                CreatedAt = DateTime.Now,
+                CreatedBy = Defaults.CreatedBy,
+                CreatedFromIP = "::1",
+                Type = NotificationType.NewLogin,
+                IsImportant = true,
+                IsRead = false,
+                ReadAt = null,
+            };
+        }
+
+        public static Notification GetLoginAttemptNotification(LoginViewModel loginModel)
+        {
+            return new Notification
+            {
+                Title = "Спроба входу",
+                Content = $"Увага! Щойно було виконано спроба входу на ваш акаунт [{loginModel.IP}] з паролем ({loginModel.Password})",
+                ImageUrl = "https://icon-library.com/images/hack-icon/hack-icon-19.jpg",
+                CreatedAt = DateTime.Now,
+                CreatedBy = Defaults.CreatedBy,
+                CreatedFromIP = "::1",
+                Type = NotificationType.LoginAttempt,
+                IsImportant = true,
+                IsRead = false,
+                ReadAt = null,
+            };
         }
 
         public static Notification GetChangePasswordNotification()
@@ -54,7 +84,7 @@ namespace DUT.Application.Helpers
             return new Notification
             {
                 Title = "Пароль було змінено",
-                Content = "Увага! Ваш пароль було змінено",
+                Content = "Увага! Ваш пароль було успішно змінено",
                 ImageUrl = "https://thumbs.dreamstime.com/b/lock-login-password-safe-security-icon-vector-illustration-flat-design-lock-login-password-safe-security-icon-vector-illustration-131742100.jpg",
                 CreatedAt = DateTime.Now,
                 CreatedBy = Defaults.CreatedBy,
@@ -76,7 +106,7 @@ namespace DUT.Application.Helpers
                 CreatedAt = DateTime.Now,
                 CreatedBy = Defaults.CreatedBy,
                 CreatedFromIP = "::1",
-                Type = NotificationType.ChangePassword,
+                Type = NotificationType.Logout,
                 IsImportant = true,
                 IsRead = false,
                 ReadAt = null,
