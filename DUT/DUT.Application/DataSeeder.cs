@@ -104,6 +104,8 @@ namespace DUT.Application
             #endregion
 
             db.SaveChanges();
+
+            db.Dispose();
         }
     }
 }

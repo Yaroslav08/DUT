@@ -1,4 +1,6 @@
+using DUT.Application;
 using DUT.Constants;
+using DUT.Infrastructure.Data.Context;
 using DUT.Infrastructure.IoC;
 using DUT.Web.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -81,6 +83,16 @@ app.UseEndpoints(endpoints =>
 });
 
 app.MapRazorPages();
+
+#endregion
+
+#region DataSeeder
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetService<DUTDbContext>();
+    DataSeeder.SeedSystem(context);
+}
 
 #endregion
 
