@@ -40,6 +40,13 @@ namespace DUT.Constants
             return GetString(70);
         }
 
+        public static string GetUsername()
+        {
+            string username;
+            username = GetString(35);
+            return username;
+        }
+
         public static string GetUniqCode(int sections)
         {
             var commonWords = sections * 4;

@@ -16,5 +16,11 @@ namespace DUT.Domain.Models
         public bool IsActive { get; set; }
         public int GroupId { get; set; }
         public Group Group { get; set; }
+
+        public bool IsActiveByTime()
+        {
+            var now = DateTime.Now;
+            return now >= ActiveFrom && now <= ActiveTo;
+        }
     }
 }

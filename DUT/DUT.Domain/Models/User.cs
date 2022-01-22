@@ -31,6 +31,7 @@ namespace DUT.Domain.Models
         public DateTime? LockoutEnd { get; set; }
         public UserNotifications UserNotifications { get; set; }
         public List<Session> Sessions { get; set; }
+        public List<Notification> Notifications { get; set; }
         public List<UserGroup> UserGroups { get; set; }
         public List<PostComment> Comments { get; set; }
         public List<Subject> Subjects { get; set; }

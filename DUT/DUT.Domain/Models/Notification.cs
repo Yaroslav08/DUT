@@ -9,6 +9,9 @@
         public DateTime? ReadAt { get; set; }
         public NotificationType Type { get; set; }
         public bool IsImportant { get; set; }
+
+        public int UserId { get; set; }
+        public User User { get; set; }
     }
 
     public enum NotificationType

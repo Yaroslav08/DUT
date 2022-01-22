@@ -4,6 +4,7 @@ using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.Identity;
 using DUT.Application.ViewModels.User;
 using DUT.Constants;
+using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
 using Extensions.DeviceDetector;
 using Extensions.Password;
@@ -11,13 +12,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DUT.Application.Services.Implementations
 {
-    public class AuthenticationService : IAuthenticationService
+    public class AuthenticationService : BaseService<User>, IAuthenticationService
     {
         private readonly DUTDbContext _db;
         private readonly IIdentityService _identityService;
         private readonly ISessionManager _sessionManager;
         private readonly IDetector _detector;
-        public AuthenticationService(DUTDbContext db, IDetector detector, IIdentityService identityService, ISessionManager sessionManager)
+        public AuthenticationService(DUTDbContext db, IDetector detector, IIdentityService identityService, ISessionManager sessionManager) : base(db)
         {
             _db = db;
             _detector = detector;
@@ -43,18 +44,9 @@ namespace DUT.Application.Services.Implementations
             user.LastUpdatedFromIP = model.IP;
             _db.Users.Update(user);
             await _db.SaveChangesAsync();
-            await _db.Notifications.AddAsync(new Domain.Models.Notification
-            {
-                CreatedAt = DateTime.Now,
-                CreatedBy = _identityService.GetIdentityData(),
-                CreatedFromIP = model.IP,
-                Content = "Увага! Ваш пароль було змінено",
-                ImageUrl = "https://thumbs.dreamstime.com/b/lock-login-password-safe-security-icon-vector-illustration-flat-design-lock-login-password-safe-security-icon-vector-illustration-131742100.jpg",
-                IsImportant = true,
-                ReadAt = null,
-                Title = "Пароль було змінено",
-                Type = Domain.Models.NotificationType.ChangePassword
-            });
+            var notification = NotificationsHelper.GetChangePasswordNotification();
+            notification.UserId = user.Id;
+            await _db.Notifications.AddAsync(notification);
             await _db.SaveChangesAsync();
             return Result<AuthenticationInfo>.SuccessWithData(new AuthenticationInfo
             {
@@ -98,7 +90,44 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<AuthenticationInfo>> RegisterAsync(RegisterViewModel model)
         {
-            throw new NotImplementedException();
+            if (await IsExistAsync(s => s.Login == model.Login))
+                return Result<AuthenticationInfo>.Error("Login is busy");
+
+            var groupInvite = await _db.GroupInvites.AsNoTracking().SingleOrDefaultAsync(s => s.CodeJoin == model.Code);
+            if (groupInvite == null)
+                return Result<AuthenticationInfo>.Error("Code isn't exist");
+
+            if (groupInvite.IsActive)
+                return Result<AuthenticationInfo>.Error("Code already unactive");
+
+            if (!groupInvite.IsActiveByTime())
+                return Result<AuthenticationInfo>.Error("Code is expired");
+
+            var newUser = new User(model.FirstName, null, model.LastName, model.Login, Generator.GetUsername());
+
+            await _db.Users.AddAsync(newUser);
+            await _db.SaveChangesAsync();
+
+            await _db.UserRoles.AddAsync(new UserRole
+            {
+                UserId = newUser.Id,
+                RoleId = 1
+            });
+            await _db.SaveChangesAsync();
+
+            var groupStudent = new UserGroup
+            {
+                UserId = newUser.Id,
+                GroupId = groupInvite.GroupId,
+                IsAdmin = false,
+                Status = UserGroupStatus.New,
+                Title = "Студент"
+            };
+
+            await _db.UserGroups.AddAsync(groupStudent);
+            await _db.SaveChangesAsync();
+
+            return Result<AuthenticationInfo>.Success();
         }
     }
 }
