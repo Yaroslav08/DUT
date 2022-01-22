@@ -4,6 +4,7 @@ using Extensions.DeviceDetector.Models;
 using Extensions.Converters;
 using System.Text;
 using DUT.Application.ViewModels.User;
+using DUT.Application.ViewModels.Identity;
 
 namespace DUT.Application.Helpers
 {
@@ -62,7 +63,7 @@ namespace DUT.Application.Helpers
             };
         }
 
-        public static Notification GetLoginAttemptNotification(LoginViewModel loginModel)
+        public static Notification GetLoginAttemptNotification(LoginCreateModel loginModel)
         {
             return new Notification
             {
@@ -102,6 +103,23 @@ namespace DUT.Application.Helpers
             {
                 Title = "Вихід",
                 Content = $"Увага! Щойно було виконано вихід на вашому акаунті на пристрої {GetDeviceInfo(session.Client)}",
+                ImageUrl = "https://thumbs.dreamstime.com/b/lock-login-password-safe-security-icon-vector-illustration-flat-design-lock-login-password-safe-security-icon-vector-illustration-131742100.jpg",
+                CreatedAt = DateTime.Now,
+                CreatedBy = Defaults.CreatedBy,
+                CreatedFromIP = "::1",
+                Type = NotificationType.Logout,
+                IsImportant = true,
+                IsRead = false,
+                ReadAt = null,
+            };
+        }
+
+        public static Notification GetAllLogoutNotification()
+        {
+            return new Notification
+            {
+                Title = "Вихід",
+                Content = $"Увага! Щойно було виконано вихід з вашого акаунту на всіх пристроях",
                 ImageUrl = "https://thumbs.dreamstime.com/b/lock-login-password-safe-security-icon-vector-illustration-flat-design-lock-login-password-safe-security-icon-vector-illustration-131742100.jpg",
                 CreatedAt = DateTime.Now,
                 CreatedBy = Defaults.CreatedBy,

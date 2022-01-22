@@ -9,5 +9,6 @@
         int GetCurrentSessionId();
         string GetIdentityData();
         string GetBearerToken();
+        string GetIP();
     }
 }

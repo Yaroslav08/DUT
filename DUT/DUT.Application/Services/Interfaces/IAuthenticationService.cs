@@ -10,5 +10,7 @@ namespace DUT.Application.Services.Interfaces
         Task<Result<AuthenticationInfo>> LoginAsync(LoginCreateModel model);
         Task<Result<AuthenticationInfo>> ChangePasswordAsync(PasswordCreateModel model);
         Task<Result<bool>> LogoutAsync();
+        Task<Result<bool>> LogoutBySessionIdAsync(int id);
+        Task<Result<bool>> LogoutAllAsync(int userId);
     }
 }

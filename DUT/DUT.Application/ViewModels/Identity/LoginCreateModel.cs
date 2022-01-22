@@ -1,7 +1,7 @@
 ﻿using Extensions.DeviceDetector.Models;
 namespace DUT.Application.ViewModels.Identity
 {
-    public class LoginCreateModel
+    public class LoginCreateModel : RequestModel
     {
         public string Login { get; set; }
         public string Password { get; set; }
