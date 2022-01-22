@@ -49,7 +49,7 @@ namespace DUT.Application.Services.Implementations
             await _db.Apps.AddAsync(newApp);
             await _db.SaveChangesAsync();
 
-            return Result<AppViewModel>.SuccessWithData(_mapper.Map<AppViewModel>(app));
+            return Result<AppViewModel>.SuccessWithData(_mapper.Map<AppViewModel>(newApp));
         }
 
         public async Task<Result<AppViewModel>> DeleteAppAsync(int id)
@@ -68,6 +68,9 @@ namespace DUT.Application.Services.Implementations
         public async Task<Result<List<AppViewModel>>> GetAllAppsAsync()
         {
             var allApps = await _db.Apps.AsNoTracking().ToListAsync();
+
+            if (!allApps.Any())
+                return Result<List<AppViewModel>>.NotFound("Apps not found");
 
             var appsToView = _mapper.Map<List<AppViewModel>>(allApps);
 

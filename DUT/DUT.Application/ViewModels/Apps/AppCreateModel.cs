@@ -18,5 +18,21 @@ namespace DUT.Application.ViewModels.Apps
         public DateTime ActiveFrom { get; set; }
         [Required]
         public DateTime ActiveTo { get; set; }
+
+        public AppCreateModel(AppViewModel app)
+        {
+            Name = app.Name;
+            ShortName = app.ShortName;
+            Description = app.Description;
+            Image = app.Image;
+            IsActive = app.IsActive;
+            ActiveFrom = app.ActiveFrom;
+            ActiveTo = app.ActiveTo;
+        }
+
+        public AppCreateModel()
+        {
+
+        }
     }
 }
