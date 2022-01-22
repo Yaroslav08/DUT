@@ -9,8 +9,10 @@ namespace DUT.Application
     {
         public static void SeedSystem(DUTDbContext db)
         {
+            int count = 0;
+
             #region Apps
-            if (db.Apps.Any())
+            if (!db.Apps.Any())
             {
                 var listApps = new List<App>();
 
@@ -75,11 +77,12 @@ namespace DUT.Application
                 listApps.Add(app4);
 
                 db.Apps.AddRange(listApps);
+                count++;
             }
             #endregion
 
             #region Roles
-            if (db.Roles.Any())
+            if (!db.Roles.Any())
             {
                 var listRoles = new List<Role>();
 
@@ -100,10 +103,12 @@ namespace DUT.Application
                 listRoles.Add(role4);
 
                 db.Roles.AddRange(listRoles);
+                count++;
             }
             #endregion
 
-            db.SaveChanges();
+            if (count > 0)
+                db.SaveChanges();
 
             db.Dispose();
         }
