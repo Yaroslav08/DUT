@@ -37,6 +37,7 @@ namespace DUT.Infrastructure.IoC
             services.AddScoped<IInitialService, InitialService>();
             services.AddScoped<IFacultyService, FacultyService>();
             services.AddScoped<ISpecialtyService, SpecialtyService>();
+            services.AddScoped<IRoleService, RoleService>();
 
             #endregion
 
