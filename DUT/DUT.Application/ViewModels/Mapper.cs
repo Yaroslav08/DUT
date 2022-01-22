@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DUT.Application.ViewModels.Apps;
 using DUT.Application.ViewModels.Faculty;
 using DUT.Application.ViewModels.Group;
 using DUT.Application.ViewModels.Specialty;
@@ -31,6 +32,11 @@ namespace DUT.Application.ViewModels
 
             CreateMap<Domain.Models.User, UserViewModel>()
                 .ForMember(x => x.FullName, s => s.MapFrom(s => BuildFullName(s)));
+
+
+            CreateMap<Domain.Models.App, AppViewModel>().ReverseMap();
+            CreateMap<Domain.Models.App, AppEditModel>().ReverseMap();
+            CreateMap<Domain.Models.App, AppCreateModel>().ReverseMap();
         }
 
         private string BuildFullName(Domain.Models.User user)
