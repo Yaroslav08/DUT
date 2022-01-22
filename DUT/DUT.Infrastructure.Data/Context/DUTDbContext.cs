@@ -31,7 +31,7 @@ namespace DUT.Infrastructure.Data.Context
         public DbSet<Specialty> Specialties { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<UserGroup> UserGroups { get; set; }
-        public DbSet<UserGroupRole> UserUserGroupRoles { get; set; }
+        public DbSet<UserGroupRole> UserGroupRoles { get; set; }
         public DbSet<GroupInvite> GroupInvites { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Post> Posts { get; set; }

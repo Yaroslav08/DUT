@@ -6,5 +6,14 @@ namespace DUT.Domain.Models
         [Required]
         public string Name { get; set; }
         public List<RoleClaim> RoleClaims { get; set; }
+
+        public Role(string name)
+        {
+            Name = name;
+        }
+        public Role()
+        {
+
+        }
     }
 }
