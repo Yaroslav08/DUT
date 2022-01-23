@@ -2,6 +2,7 @@
 using DUT.Constants;
 using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
+using Extensions.Password;
 
 namespace DUT.Application
 {
@@ -107,8 +108,124 @@ namespace DUT.Application
             }
             #endregion
 
+            #region UserGroupRole
+            if (!db.UserGroupRoles.Any())
+            {
+                var listUserGroupRole = new List<UserGroupRole>();
+
+                var groupRole1 = new UserGroupRole
+                {
+                    Name = UserGroupRoles.Names.ClassTeacher,
+                    NameEng = UserGroupRoles.Names.ClassTeacherEng,
+                    Description = UserGroupRoles.Descriptions.ClassTeacherDes,
+                    DescriptionEng = UserGroupRoles.Descriptions.ClassTeacherEngDes,
+                    Color = UserGroupRoles.Colors.Red,
+                    Permissions = new UserGroupPermission
+                    {
+                        CanCreateInviteCode = true,
+                        CanRemoveInviteCode = true,
+                        CanWriteComment = true,
+                        CanUpdateImage = true,
+                        CanRemovePost = true,
+                        CanRemoveComment = true,
+                        CanCreatePost = true,
+                        CanEditAllPosts = true,
+                        CanEditPost = true,
+                        CanOpenCloseComment = true,
+                        CanRemoveAllComments = true,
+                        CanRemoveAllPosts = true,
+                        CanUpdateInviteCode = true
+                    },
+                    CanEdit = false,
+                    UniqId = UserGroupRoles.UniqIds.ClassTeacher
+                };
+                groupRole1.PrepareToCreate();
+                listUserGroupRole.Add(groupRole1);
+
+                var groupRole2 = new UserGroupRole
+                {
+                    Name = UserGroupRoles.Names.Headmaster,
+                    NameEng = UserGroupRoles.Names.HeadmasterEng,
+                    Description = UserGroupRoles.Descriptions.HeadmasterDes,
+                    DescriptionEng = UserGroupRoles.Descriptions.HeadmasterEngDes,
+                    Color = UserGroupRoles.Colors.Green,
+                    Permissions = new UserGroupPermission
+                    {
+                        CanCreateInviteCode = true,
+                        CanRemoveInviteCode = true,
+                        CanWriteComment = true,
+                        CanUpdateImage = true,
+                        CanRemovePost = true,
+                        CanRemoveComment = true,
+                        CanCreatePost = true,
+                        CanEditAllPosts = false,
+                        CanEditPost = true,
+                        CanOpenCloseComment = true,
+                        CanRemoveAllComments = false,
+                        CanRemoveAllPosts = false,
+                        CanUpdateInviteCode = true
+                    },
+                    CanEdit = false,
+                    UniqId = UserGroupRoles.UniqIds.Headmaster
+                };
+                groupRole2.PrepareToCreate();
+                listUserGroupRole.Add(groupRole2);
+
+
+                var groupRole3 = new UserGroupRole
+                {
+                    Name = UserGroupRoles.Names.Student,
+                    NameEng = UserGroupRoles.Names.StudentEng,
+                    Description = UserGroupRoles.Descriptions.StudentDes,
+                    DescriptionEng = UserGroupRoles.Descriptions.StudentEngDes,
+                    Color = UserGroupRoles.Colors.Blue,
+                    Permissions = new UserGroupPermission
+                    {
+                        CanCreateInviteCode = false,
+                        CanRemoveInviteCode = false,
+                        CanWriteComment = true,
+                        CanUpdateImage = false,
+                        CanRemovePost = false,
+                        CanRemoveComment = true,
+                        CanCreatePost = false,
+                        CanEditAllPosts = false,
+                        CanEditPost = false,
+                        CanOpenCloseComment = false,
+                        CanRemoveAllComments = false,
+                        CanRemoveAllPosts = false,
+                        CanUpdateInviteCode = false
+                    },
+                    CanEdit = false,
+                    UniqId = UserGroupRoles.UniqIds.Student
+                };
+                groupRole3.PrepareToCreate();
+                listUserGroupRole.Add(groupRole3);
+
+                db.UserGroupRoles.AddRange(listUserGroupRole);
+                count++;
+            }
+            #endregion
+
             if (count > 0)
                 db.SaveChanges();
+
+            #region Users
+            if (!db.Users.Any())
+            {
+                var newUser1 = new User("Ярослав", "Юрійович", "Мудрик", "yaroslav.mudryk@gmail.com", "Yarik08");
+                newUser1.PasswordHash = Defaults.Password.GeneratePasswordHash();
+                newUser1.PrepareToCreate();
+                db.Users.Add(newUser1);
+                db.SaveChanges();
+                var userRole = new UserRole
+                {
+                    UserId = newUser1.Id,
+                    RoleId = db.Roles.Where(x => x.Name == Roles.Admin).Select(s => new Role { Id = s.Id }).FirstOrDefault().Id,
+                };
+                db.UserRoles.Add(userRole);
+                db.SaveChanges();
+            }
+            #endregion
 
             db.Dispose();
         }

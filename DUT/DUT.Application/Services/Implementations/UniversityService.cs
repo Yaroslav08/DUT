@@ -54,7 +54,7 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<UniversityViewModel>> UpdateUniversityAsync(UniversityEditModel model)
         {
-            var updatedUniversity = await _db.Universities.AsNoTracking().SingleOrDefaultAsync(x => x.Id == model.Id);
+            var updatedUniversity = await _db.Universities.AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.Id);
             if (updatedUniversity == null)
                 return Result<UniversityViewModel>.NotFound();
 

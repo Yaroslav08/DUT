@@ -40,7 +40,7 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<FacultyViewModel>> UpdateFacultyAsync(FacultyEditModel model)
         {
-            var currentFaculty = await _db.Faculties.AsNoTracking().SingleOrDefaultAsync(x => x.Id == model.Id);
+            var currentFaculty = await _db.Faculties.AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.Id);
             if (currentFaculty == null)
                 return Result<FacultyViewModel>.NotFound();
             currentFaculty.Name = model.Name;
@@ -69,7 +69,7 @@ namespace DUT.Application.Services.Implementations
                 Id = x.Id,
                 CreatedAt = x.CreatedAt,
                 Name = x.Name
-            }).SingleOrDefaultAsync(x => x.Id == id);
+            }).FirstOrDefaultAsync(x => x.Id == id);
             if (faculty == null)
                 return Result<FacultyViewModel>.NotFound();
             return Result<FacultyViewModel>.SuccessWithData(faculty);

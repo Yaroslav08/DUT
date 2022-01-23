@@ -31,17 +31,17 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Role> GetRoleByIdAsync(int id)
         {
-            return await _db.Roles.AsNoTracking().SingleOrDefaultAsync(s => s.Id == id);
+            return await _db.Roles.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
         }
 
         public async Task<Role> GetRoleByNameAsync(string name)
         {
-            return await _db.Roles.AsNoTracking().SingleOrDefaultAsync(s => s.Name == name);
+            return await _db.Roles.AsNoTracking().FirstOrDefaultAsync(s => s.Name == name);
         }
 
         public async Task<Role> UpdateRoleAsync(Role role)
         {
-            var roleToUpdate = await _db.Roles.AsNoTracking().SingleOrDefaultAsync(s => s.Id == role.Id);
+            var roleToUpdate = await _db.Roles.AsNoTracking().FirstOrDefaultAsync(s => s.Id == role.Id);
             if(roleToUpdate == null)
                 return null;
             roleToUpdate.Name = role.Name;

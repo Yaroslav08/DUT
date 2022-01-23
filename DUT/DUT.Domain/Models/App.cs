@@ -22,5 +22,11 @@ namespace DUT.Domain.Models
         public DateTime ActiveFrom { get; set; }
         [Required]
         public DateTime ActiveTo { get; set; }
+
+        public bool IsActiveByTime()
+        {
+            var now = DateTime.Now;
+            return now >= ActiveFrom && now <= ActiveTo;
+        }
     }
 }

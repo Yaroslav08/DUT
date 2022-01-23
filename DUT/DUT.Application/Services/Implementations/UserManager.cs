@@ -40,7 +40,7 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<User>> GetUserByIdAsync(int id)
         {
-            var user = await _db.Users.AsNoTracking().SingleOrDefaultAsync(s => s.Id == id);
+            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
             if (user == null)
                 return Result<User>.NotFound("User not found");
             return Result<User>.SuccessWithData(user);
@@ -48,7 +48,7 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<User>> GetUserByLoginAsync(string login)
         {
-            var user = await _db.Users.AsNoTracking().SingleOrDefaultAsync(s => s.Login == login);
+            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(s => s.Login == login);
             if (user == null)
                 return Result<User>.NotFound("User not found");
             return Result<User>.SuccessWithData(user);
@@ -56,7 +56,7 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<User>> IncrementAccessFailedAndBlockAsync(int id)
         {
-            var user = await _db.Users.AsNoTracking().SingleOrDefaultAsync(x => x.Id == id);
+            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             if (user == null)
                 return Result<User>.NotFound("User not found");
             if (user.AccessFailedCount >= 5)

@@ -76,7 +76,7 @@ namespace DUT.Application.Services.Implementations
                 CreatedAt = x.CreatedAt,
                 Name = x.Name,
                 Code = x.Code
-            }).SingleOrDefaultAsync(x => x.Id == id);
+            }).FirstOrDefaultAsync(x => x.Id == id);
             if (specialty == null)
                 return Result<SpecialtyViewModel>.NotFound();
             return Result<SpecialtyViewModel>.SuccessWithData(specialty);
@@ -84,7 +84,7 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<SpecialtyViewModel>> UpdateSpecialtyAsync(SpecialtyEditModel model)
         {
-            var currentSpecialty = await _db.Specialties.AsNoTracking().SingleOrDefaultAsync(x => x.Id == model.Id);
+            var currentSpecialty = await _db.Specialties.AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.Id);
             if (currentSpecialty == null)
                 return Result<SpecialtyViewModel>.NotFound();
             var faculty = await _db.Faculties.AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.FacultyId);

@@ -24,7 +24,7 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<AppViewModel>> ChangeAppSecretAsync(int appId)
         {
-            var appForUpdate = await _db.Apps.AsNoTracking().SingleOrDefaultAsync(s => s.Id == appId);
+            var appForUpdate = await _db.Apps.AsNoTracking().FirstOrDefaultAsync(s => s.Id == appId);
 
             if (appForUpdate == null)
                 return Result<AppViewModel>.NotFound("App not found");
@@ -54,7 +54,7 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<AppViewModel>> DeleteAppAsync(int id)
         {
-            var appForDelete = await _db.Apps.AsNoTracking().SingleOrDefaultAsync(s => s.Id == id);
+            var appForDelete = await _db.Apps.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
 
             if (appForDelete == null)
                 return Result<AppViewModel>.NotFound("App not found");
@@ -79,7 +79,7 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<AppViewModel>> GetAppByIdAsync(int id)
         {
-            var app = await _db.Apps.AsNoTracking().SingleOrDefaultAsync(s => s.Id == id);
+            var app = await _db.Apps.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
 
             if (app == null)
                 return Result<AppViewModel>.NotFound("App by id not found");
@@ -91,7 +91,7 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<AppViewModel>> UpdateAppAsync(AppEditModel app)
         {
-            var appToUpdate = await _db.Apps.AsNoTracking().SingleOrDefaultAsync(x => x.Id == app.Id);
+            var appToUpdate = await _db.Apps.AsNoTracking().FirstOrDefaultAsync(x => x.Id == app.Id);
 
             if (appToUpdate == null)
                 return Result<AppViewModel>.NotFound("App by id not found");

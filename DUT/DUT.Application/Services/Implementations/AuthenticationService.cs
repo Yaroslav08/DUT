@@ -36,7 +36,7 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<AuthenticationInfo>> ChangePasswordAsync(PasswordCreateModel model)
         {
-            var user = await _db.Users.AsNoTracking().SingleOrDefaultAsync(s => s.Id == model.UserId);
+            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(s => s.Id == model.UserId);
             if (user == null)
                 return Result<AuthenticationInfo>.NotFound("User not found");
 
@@ -70,6 +70,12 @@ namespace DUT.Application.Services.Implementations
 
             if (app == null)
                 return Result<AuthenticationInfo>.Error("App not found");
+
+            if (!app.IsActive)
+                return Result<AuthenticationInfo>.Error("Code already unactive");
+
+            if (!app.IsActiveByTime())
+                return Result<AuthenticationInfo>.Error("Code is expired");
 
             var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Login == model.Login);
             if (user == null)
@@ -149,7 +155,7 @@ namespace DUT.Application.Services.Implementations
             if (!_sessionManager.IsActiveSession(token))
                 return Result<bool>.Error("Session is already expired");
 
-            var session = await _db.Sessions.AsNoTracking().SingleOrDefaultAsync(x => x.Id == _identityService.GetCurrentSessionId());
+            var session = await _db.Sessions.AsNoTracking().FirstOrDefaultAsync(x => x.Id == _identityService.GetCurrentSessionId());
             if (session == null)
                 return Result<bool>.Error("Session not found");
 
@@ -175,7 +181,7 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<bool>> LogoutBySessionIdAsync(int id)
         {
-            var sessionToClose = await _db.Sessions.SingleOrDefaultAsync(x => x.Id == id);
+            var sessionToClose = await _db.Sessions.FirstOrDefaultAsync(x => x.Id == id);
             if (sessionToClose == null)
                 return Result<bool>.Error("Session not found");
             var now = DateTime.Now;
@@ -198,11 +204,11 @@ namespace DUT.Application.Services.Implementations
             if (await IsExistAsync(s => s.Login == model.Login))
                 return Result<AuthenticationInfo>.Error("Login is busy");
 
-            var groupInvite = await _db.GroupInvites.AsNoTracking().SingleOrDefaultAsync(s => s.CodeJoin == model.Code);
+            var groupInvite = await _db.GroupInvites.AsNoTracking().FirstOrDefaultAsync(s => s.CodeJoin == model.Code);
             if (groupInvite == null)
                 return Result<AuthenticationInfo>.Error("Code isn't exist");
 
-            if (groupInvite.IsActive)
+            if (!groupInvite.IsActive)
                 return Result<AuthenticationInfo>.Error("Code already unactive");
 
             if (!groupInvite.IsActiveByTime())

@@ -1,6 +1,4 @@
 ﻿using DUT.Application.ViewModels.Specialty;
-using System.ComponentModel.DataAnnotations;
-
 namespace DUT.Application.ViewModels.Group
 {
     public class GroupViewModel
