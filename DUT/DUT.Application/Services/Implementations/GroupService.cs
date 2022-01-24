@@ -3,10 +3,12 @@ using DUT.Application.Extensions;
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.Group;
+using DUT.Application.ViewModels.Group.GroupMember;
 using DUT.Constants;
 using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace DUT.Application.Services.Implementations
 {
@@ -118,6 +120,63 @@ namespace DUT.Application.Services.Implementations
             var groupToView = _mapper.Map<GroupViewModel>(group);
             groupToView.CountOfStudents = await _db.UserGroups.CountAsync(x => x.GroupId == id && x.Status == Domain.Models.UserGroupStatus.Member);
             return Result<GroupViewModel>.SuccessWithData(groupToView);
+        }
+
+        public async Task<Result<List<GroupMemberViewModel>>> GetGroupMembersAsync(int groupId, int afterId = int.MaxValue, int count = 20, int status = 0)
+        {
+            if (!await IsExistAsync(x => x.Id == groupId))
+                return Result<List<GroupMemberViewModel>>.NotFound($"Group with ID ({groupId}) not found");
+
+            var query = _db.UserGroups
+                .AsNoTracking()
+                .Include(x => x.User)
+                .Include(x => x.UserGroupRole)
+                .Where(x => x.GroupId == groupId && x.Id < afterId)
+                .OrderByDescending(x => x.Id)
+                .Take(count);
+            if (status > 0 && status < 4)
+            {
+                query = query.Where(x => x.Status == (UserGroupStatus)status);
+            }
+
+            var groupMembers = await query.ToListAsync();
+
+            if (groupMembers == null)
+                return Result<List<GroupMemberViewModel>>.Success();
+
+            var groupMembersToView = groupMembers.Select(x => new GroupMemberViewModel
+            {
+                Id = x.Id,
+                CreatedAt = x.CreatedAt,
+                IsAdmin = x.IsAdmin,
+                Status = x.Status,
+                Title = x.Title,
+                User = new ViewModels.User.UserViewModel
+                {
+                    Id = x.User.Id,
+                    FirstName = x.User.FirstName,
+                    LastName = x.User.LastName,
+                    ContactEmail = x.User.ContactEmail,
+                    ContactPhone = x.User.ContactPhone,
+                    FullName = $"{x.User.FirstName} {x.User.LastName}",
+                    Image = x.User.Image,
+                    MiddleName = x.User.MiddleName,
+                    UserName = x.User.UserName,
+                    JoinAt = x.User.JoinAt
+                },
+                UserGroupRole = new UserGroupRoleViewModel
+                {
+                    Id = x.UserGroupRole.Id,
+                    CreatedAt = x.UserGroupRole.CreatedAt,
+                    Name = x.UserGroupRole.Name,
+                    NameEng = x.UserGroupRole.NameEng,
+                    Color = x.UserGroupRole.Color,
+                    Description = x.UserGroupRole.Description,
+                    DescriptionEng = x.UserGroupRole.DescriptionEng,
+                    Permissions = x.UserGroupRole.Permissions
+                }
+            }).ToList();
+            return Result<List<GroupMemberViewModel>>.SuccessWithData(groupMembersToView);
         }
 
         public async Task<Result<List<GroupViewModel>>> SearchGroupsAsync(string name)

@@ -10,7 +10,7 @@ namespace DUT.Domain.Models
         public string Title { get; set; }
         [Required]
         public UserGroupStatus Status { get; set; }
-        public int? UserGroupRoleId { get; set; }
+        public int UserGroupRoleId { get; set; }
         public UserGroupRole UserGroupRole { get; set; }
         public int UserId { get; set; }
         public User User { get; set; }
@@ -20,8 +20,8 @@ namespace DUT.Domain.Models
 
     public enum UserGroupStatus
     {
-        New,
-        Member,
-        Gona
+        New = 1,
+        Member = 2,
+        Gona = 3
     }
 }
