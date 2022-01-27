@@ -43,6 +43,7 @@ namespace DUT.Domain.Models
             MiddleName = middleName;
             LastName = lastName;
             Login = login;
+            UserName = userName;
             JoinAt = DateTime.Now;
             AccessFailedCount = 0;
         }

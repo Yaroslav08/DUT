@@ -34,7 +34,7 @@ namespace DUT.Application.ViewModels
 
             CreateMap<Domain.Models.User, UserViewModel>()
                 .ForMember(x => x.FullName, s => s.MapFrom(s => BuildFullName(s)));
-
+            CreateMap<Domain.Models.User, UserShortViewModel>().ReverseMap();
 
             CreateMap<Domain.Models.App, AppViewModel>().ReverseMap();
             CreateMap<Domain.Models.App, AppEditModel>().ReverseMap();
