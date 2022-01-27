@@ -12,6 +12,7 @@ namespace DUT.Application.Services.Interfaces
         Task<Role> GetRoleByNameAsync(string name);
         Task<Role> CreateRoleAsync(Role role);
         Task<Role> UpdateRoleAsync(Role role);
+        Task<List<Role>> GetAllRolesAsync();
         Task DeleteRoleAsync(int id);
     }
 }

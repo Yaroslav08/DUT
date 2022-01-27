@@ -4,7 +4,9 @@ using DUT.Application.Options;
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.User;
+using DUT.Constants;
 using DUT.Domain.Models;
+using Extensions.Password;
 using DUT.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,10 +16,45 @@ namespace DUT.Application.Services.Implementations
     {
         private readonly DUTDbContext _db;
         private readonly IMapper _mapper;
-        public UserService(DUTDbContext db, IMapper mapper) : base(db)
+        private readonly IIdentityService _identityService;
+        public UserService(DUTDbContext db, IMapper mapper, IIdentityService identityService) : base(db)
         {
             _db = db;
             _mapper = mapper;
+            _identityService = identityService;
+        }
+
+        public async Task<Result<UserViewModel>> CreateUserAsync(UserCreateModel model)
+        {
+            if (await IsExistAsync(s => s.Login == model.Login))
+                return Result<UserViewModel>.Error("Login is busy");
+
+            if (!await _db.Roles.AsNoTracking().AnyAsync(s => s.Id == model.RoleId))
+                return Result<UserViewModel>.NotFound("Role not found");
+
+            if (!string.IsNullOrEmpty(model.UserName))
+                if (await IsExistAsync(s => s.UserName == model.UserName))
+                    return Result<UserViewModel>.Error("Username is busy");
+
+            var newUser = new User(model.FirstName, model.MiddleName, model.LastName, model.Login, null);
+            newUser.UserName = model.UserName ?? Generator.GetUsername();
+            newUser.PrepareToCreate(_identityService);
+            newUser.Login = model.Login;
+            newUser.PasswordHash = model.Password.GeneratePasswordHash();
+            await _db.Users.AddAsync(newUser);
+            await _db.SaveChangesAsync();
+
+            var userRole = new UserRole
+            {
+                UserId = newUser.Id,
+                RoleId = model.RoleId
+            };
+            userRole.PrepareToCreate(_identityService);
+
+            await _db.UserRoles.AddAsync(userRole);
+            await _db.SaveChangesAsync();
+
+            return Result<UserViewModel>.SuccessWithData(_mapper.Map<UserViewModel>(newUser)); ;
         }
 
         public async Task<Result<List<UserShortViewModel>>> GetLastUsersAsync(int count)

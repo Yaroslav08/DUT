@@ -1,6 +1,6 @@
 ﻿using DUT.Application.Options;
 using DUT.Application.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
+using DUT.Application.ViewModels.User;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DUT.Web.Controllers.Api.V1
@@ -30,6 +30,12 @@ namespace DUT.Web.Controllers.Api.V1
         public async Task<IActionResult> SearchUsers([FromBody] SearchUserOptions searchUserOptions)
         {
             return JsonResult(await _userService.SearchUsersAsync(searchUserOptions));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateUser([FromBody] UserCreateModel model)
+        {
+            return JsonResult(await _userService.CreateUserAsync(model));
         }
     }
 }

@@ -29,6 +29,11 @@ namespace DUT.Application.Services.Implementations
             await _db.SaveChangesAsync();
         }
 
+        public async Task<List<Role>> GetAllRolesAsync()
+        {
+            return await _db.Roles.AsNoTracking().ToListAsync();
+        }
+
         public async Task<Role> GetRoleByIdAsync(int id)
         {
             return await _db.Roles.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
