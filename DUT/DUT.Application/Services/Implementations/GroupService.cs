@@ -8,7 +8,6 @@ using DUT.Constants;
 using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 
 namespace DUT.Application.Services.Implementations
 {
@@ -98,6 +97,29 @@ namespace DUT.Application.Services.Implementations
             return Result<GroupViewModel>.SuccessWithData(groupToView);
         }
 
+        public async Task<Result<GroupInviteViewModel>> CreateGroupInviteAsync(GroupInviteCreateModel model)
+        {
+            if (!await IsExistAsync(s => s.Id == model.GroupId))
+                return Result<GroupInviteViewModel>.NotFound("Group not found");
+
+            if (await _db.GroupInvites.AsNoTracking().CountAsync(s => s.GroupId == model.GroupId) >= 5)
+                return Result<GroupInviteViewModel>.Error("One group must be have max 5 invites");
+
+            var newGroupInvite = new GroupInvite
+            {
+                ActiveFrom = model.ActiveFrom,
+                ActiveTo = model.ActiveTo,
+                Name = model.Name,
+                IsActive = model.IsActive,
+                CodeJoin = Generator.CreateGroupInviteCode(),
+                GroupId = model.GroupId.Value,
+            };
+            newGroupInvite.PrepareToCreate(_identityService);
+            await _db.GroupInvites.AddAsync(newGroupInvite);
+            await _db.SaveChangesAsync();
+            return Result<GroupInviteViewModel>.SuccessWithData(_mapper.Map<GroupInviteViewModel>(newGroupInvite));
+        }
+
         public async Task<Result<List<GroupViewModel>>> GetAllGroupsAsync(int count, int afterId)
         {
             var groups = await _db.Groups
@@ -120,6 +142,21 @@ namespace DUT.Application.Services.Implementations
             var groupToView = _mapper.Map<GroupViewModel>(group);
             groupToView.CountOfStudents = await _db.UserGroups.CountAsync(x => x.GroupId == id && x.Status == Domain.Models.UserGroupStatus.Member);
             return Result<GroupViewModel>.SuccessWithData(groupToView);
+        }
+
+        public async Task<Result<List<GroupInviteViewModel>>> GetGroupInvitesByGroupIdAsync(int groupId)
+        {
+            if (!await IsExistAsync(s => s.Id == groupId))
+                return Result<List<GroupInviteViewModel>>.NotFound("Group not found");
+            var groupInvitesFromDb = await _db.GroupInvites
+                .AsNoTracking()
+                .Where(x => x.GroupId == groupId)
+                .OrderByDescending(s => s.CreatedAt)
+                .ToListAsync();
+
+            var groupInvitesToViews = _mapper.Map<List<GroupInviteViewModel>>(groupInvitesFromDb);
+
+            return Result<List<GroupInviteViewModel>>.SuccessWithData(groupInvitesToViews);
         }
 
         public async Task<Result<List<GroupMemberViewModel>>> GetGroupMembersAsync(int groupId, int afterId = int.MaxValue, int count = 20, int status = 0)
@@ -179,6 +216,20 @@ namespace DUT.Application.Services.Implementations
             return Result<List<GroupMemberViewModel>>.SuccessWithData(groupMembersToView);
         }
 
+        public async Task<Result<bool>> RemoveGroupInviteAsync(int groupId, Guid groupInviteId)
+        {
+            var groupInvite = await _db.GroupInvites.AsNoTracking().FirstOrDefaultAsync(x => x.Id == groupInviteId);
+            if (groupInvite == null)
+                return Result<bool>.NotFound("Group invite not found");
+
+            if (groupInvite.GroupId != groupId)
+                return Result<bool>.Error("Incorrect groupId");
+
+            _db.GroupInvites.Remove(groupInvite);
+            await _db.SaveChangesAsync();
+            return Result<bool>.Success();
+        }
+
         public async Task<Result<List<GroupViewModel>>> SearchGroupsAsync(string name)
         {
             var groups = await _db.Groups
@@ -190,6 +241,24 @@ namespace DUT.Application.Services.Implementations
                 return Result<List<GroupViewModel>>.Success();
             var groupsToView = _mapper.Map<List<GroupViewModel>>(groups);
             return Result<List<GroupViewModel>>.SuccessWithData(groupsToView);
+        }
+
+        public async Task<Result<GroupInviteViewModel>> UpdateGroupInviteAsync(GroupInviteEditModel model)
+        {
+            var groupInviteFromDb = await _db.GroupInvites.FindAsync(model.Id);
+            if (groupInviteFromDb == null)
+                return Result<GroupInviteViewModel>.NotFound("Group invite not found");
+
+            groupInviteFromDb.Name = model.Name;
+            groupInviteFromDb.ActiveFrom = model.ActiveFrom;
+            groupInviteFromDb.ActiveTo = model.ActiveTo;
+            groupInviteFromDb.IsActive = model.IsActive;
+            groupInviteFromDb.PrepareToUpdate(_identityService);
+
+            _db.GroupInvites.Update(groupInviteFromDb);
+            await _db.SaveChangesAsync();
+
+            return Result<GroupInviteViewModel>.SuccessWithData(_mapper.Map<GroupInviteViewModel>(groupInviteFromDb));
         }
     }
 }

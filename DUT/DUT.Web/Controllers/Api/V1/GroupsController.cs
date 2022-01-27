@@ -38,6 +38,31 @@ namespace DUT.Web.Controllers.Api.V1
             return JsonResult(await _groupService.GetGroupMembersAsync(groupId, afterId, count, status));
         }
 
+        [HttpGet("{groupId}/invites")]
+        public async Task<IActionResult> GetGroupInvites(int groupId)
+        {
+            return JsonResult(await _groupService.GetGroupInvitesByGroupIdAsync(groupId));
+        }
+
+        [HttpPost("{groupId}/invites")]
+        public async Task<IActionResult> CreateGroupInvite(int groupId, [FromBody] GroupInviteCreateModel model)
+        {
+            model.GroupId = groupId;
+            return JsonResult(await _groupService.CreateGroupInviteAsync(model));
+        }
+
+        [HttpPut("{groupId}/invites")]
+        public async Task<IActionResult> UpdateGroupInvite(int groupId, [FromBody] GroupInviteEditModel model)
+        {
+            return JsonResult(await _groupService.UpdateGroupInviteAsync(model));
+        }
+
+        [HttpDelete("{groupId}/invites/{id}")]
+        public async Task<IActionResult> RemoveGroupInvite(int groupId, Guid id)
+        {
+            return JsonResult(await _groupService.RemoveGroupInviteAsync(groupId, id));
+        }
+
         [HttpGet("search")]
         public async Task<IActionResult> SearchGroups(string name)
         {
