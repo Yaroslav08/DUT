@@ -1,0 +1,66 @@
+﻿using DUT.Application.ViewModels.Group;
+using DUT.Application.ViewModels.Group.GroupMember;
+using DUT.Domain.Models;
+
+namespace DUT.Application.Extensions
+{
+    public static class UserGroupExtensions
+    {
+        public static GroupMemberViewModel MapToView(this UserGroup userGroup, bool withPermissions = true)
+        {
+            if (userGroup == null)
+                return null;
+            return new GroupMemberViewModel
+            {
+                Id = userGroup.Id,
+                CreatedAt = userGroup.CreatedAt,
+                IsAdmin = userGroup.IsAdmin,
+                Status = userGroup.Status,
+                Title = userGroup.Title,
+                User = userGroup.User != null ?
+                new ViewModels.User.UserViewModel
+                {
+                    Id = userGroup.User.Id,
+                    FirstName = userGroup.User.FirstName,
+                    LastName = userGroup.User.LastName,
+                    ContactEmail = userGroup.User.ContactEmail,
+                    ContactPhone = userGroup.User.ContactPhone,
+                    FullName = $"{userGroup.User.FirstName} {userGroup.User.LastName}",
+                    Image = userGroup.User.Image,
+                    MiddleName = userGroup.User.MiddleName,
+                    UserName = userGroup.User.UserName,
+                    JoinAt = userGroup.User.JoinAt
+                } : null,
+                UserGroupRole = userGroup.UserGroupRole != null ?
+                new UserGroupRoleViewModel
+                {
+                    Id = userGroup.UserGroupRole.Id,
+                    CreatedAt = userGroup.UserGroupRole.CreatedAt,
+                    Name = userGroup.UserGroupRole.Name,
+                    NameEng = userGroup.UserGroupRole.NameEng,
+                    Color = userGroup.UserGroupRole.Color,
+                    Description = userGroup.UserGroupRole.Description,
+                    DescriptionEng = userGroup.UserGroupRole.DescriptionEng,
+                    Permissions = withPermissions ? userGroup.UserGroupRole.Permissions : null
+                } : null,
+                Group = userGroup.Group != null ?
+                new GroupViewModel
+                {
+                    Id = userGroup.Group.Id,
+                    Name = userGroup.Group.Name,
+                    Course = userGroup.Group.Course,
+                    CreatedAt = userGroup.Group.CreatedAt,
+                    Image = userGroup.Group.Image,
+                    StartStudy = userGroup.Group.StartStudy
+                } : null
+            };
+        }
+
+        public static List<GroupMemberViewModel> MapToViews(this List<UserGroup> userGroups, bool withPermissions = true)
+        {
+            if (userGroups == null || !userGroups.Any())
+                return null;
+            return userGroups.Select(x => x.MapToView(withPermissions)).ToList();
+        }
+    }
+}

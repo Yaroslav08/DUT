@@ -159,6 +159,27 @@ namespace DUT.Application.Services.Implementations
             return Result<List<GroupInviteViewModel>>.SuccessWithData(groupInvitesToViews);
         }
 
+        public async Task<Result<GroupMemberViewModel>> GetGroupMemberByIdAsync(int groupId, int memberId)
+        {
+            if (!await IsExistAsync(x => x.Id == groupId))
+                return Result<GroupMemberViewModel>.NotFound($"Group with ID ({groupId}) not found");
+
+            var groupMember = await _db.UserGroups
+                .AsNoTracking()
+                .Include(x => x.User)
+                .Include(x => x.UserGroupRole)
+                .FirstOrDefaultAsync(x => x.Id == memberId);
+
+            if (groupMember == null)
+                return Result<GroupMemberViewModel>.NotFound($"Member with ID {memberId} not found");
+
+            if (groupMember.GroupId != groupId)
+                return Result<GroupMemberViewModel>.Error("Group don't have this member");
+
+            var groupMemberToView = groupMember.MapToView();
+            return Result<GroupMemberViewModel>.SuccessWithData(groupMemberToView);
+        }
+
         public async Task<Result<List<GroupMemberViewModel>>> GetGroupMembersAsync(int groupId, int afterId = int.MaxValue, int count = 20, int status = 0)
         {
             if (!await IsExistAsync(x => x.Id == groupId))
@@ -181,38 +202,7 @@ namespace DUT.Application.Services.Implementations
             if (groupMembers == null)
                 return Result<List<GroupMemberViewModel>>.Success();
 
-            var groupMembersToView = groupMembers.Select(x => new GroupMemberViewModel
-            {
-                Id = x.Id,
-                CreatedAt = x.CreatedAt,
-                IsAdmin = x.IsAdmin,
-                Status = x.Status,
-                Title = x.Title,
-                User = new ViewModels.User.UserViewModel
-                {
-                    Id = x.User.Id,
-                    FirstName = x.User.FirstName,
-                    LastName = x.User.LastName,
-                    ContactEmail = x.User.ContactEmail,
-                    ContactPhone = x.User.ContactPhone,
-                    FullName = $"{x.User.FirstName} {x.User.LastName}",
-                    Image = x.User.Image,
-                    MiddleName = x.User.MiddleName,
-                    UserName = x.User.UserName,
-                    JoinAt = x.User.JoinAt
-                },
-                UserGroupRole = new UserGroupRoleViewModel
-                {
-                    Id = x.UserGroupRole.Id,
-                    CreatedAt = x.UserGroupRole.CreatedAt,
-                    Name = x.UserGroupRole.Name,
-                    NameEng = x.UserGroupRole.NameEng,
-                    Color = x.UserGroupRole.Color,
-                    Description = x.UserGroupRole.Description,
-                    DescriptionEng = x.UserGroupRole.DescriptionEng,
-                    Permissions = x.UserGroupRole.Permissions
-                }
-            }).ToList();
+            var groupMembersToView = groupMembers.MapToViews(false);
             return Result<List<GroupMemberViewModel>>.SuccessWithData(groupMembersToView);
         }
 

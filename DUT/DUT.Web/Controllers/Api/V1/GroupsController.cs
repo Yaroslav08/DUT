@@ -38,6 +38,12 @@ namespace DUT.Web.Controllers.Api.V1
             return JsonResult(await _groupService.GetGroupMembersAsync(groupId, afterId, count, status));
         }
 
+        [HttpGet("{groupId}/members/{memberId}")]
+        public async Task<IActionResult> GetGroupMember(int groupId, int memberId)
+        {
+            return JsonResult(await _groupService.GetGroupMemberByIdAsync(groupId, memberId));
+        }
+
         [HttpGet("{groupId}/invites")]
         public async Task<IActionResult> GetGroupInvites(int groupId)
         {
