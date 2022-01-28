@@ -1,5 +1,6 @@
 ﻿using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels.Group;
+using DUT.Application.ViewModels.Group.GroupMember;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,6 +43,14 @@ namespace DUT.Web.Controllers.Api.V1
         public async Task<IActionResult> GetGroupMember(int groupId, int memberId)
         {
             return JsonResult(await _groupService.GetGroupMemberByIdAsync(groupId, memberId));
+        }
+
+        [HttpPut("{groupId}/members/{memberId}")]
+        public async Task<IActionResult> UpdateGroupMember(int groupId, int memberId, [FromBody] GroupMemberEditModel model)
+        {
+            model.GroupId = groupId;
+            model.Id = memberId;
+            return JsonResult(await _groupService.UpdateGroupMemberAsync(model));
         }
 
         [HttpGet("{groupId}/invites")]

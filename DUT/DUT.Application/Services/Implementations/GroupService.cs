@@ -250,5 +250,31 @@ namespace DUT.Application.Services.Implementations
 
             return Result<GroupInviteViewModel>.SuccessWithData(_mapper.Map<GroupInviteViewModel>(groupInviteFromDb));
         }
+
+        public async Task<Result<GroupMemberViewModel>> UpdateGroupMemberAsync(GroupMemberEditModel model)
+        {
+            if (!await IsExistAsync(s => s.Id == model.GroupId))
+                return Result<GroupMemberViewModel>.NotFound($"Group with ID ({model.GroupId}) not found");
+
+            if (!await _db.UserGroupRoles.AsNoTracking().AnyAsync(s => s.Id == model.UserGroupRoleId))
+                return Result<GroupMemberViewModel>.NotFound($"Role with ID ({model.UserGroupRoleId}) not found");
+
+            var currentGroupMember = await _db.UserGroups.FindAsync(model.Id);
+            if (currentGroupMember == null)
+                return Result<GroupMemberViewModel>.NotFound($"Member not found");
+
+            if (currentGroupMember.GroupId != model.GroupId)
+                return Result<GroupMemberViewModel>.Error("Incorrect groupId");
+
+            currentGroupMember.Title = model.Title;
+            currentGroupMember.Status = model.Status;
+            currentGroupMember.UserGroupRoleId = model.UserGroupRoleId;
+            currentGroupMember.PrepareToUpdate(_identityService);
+
+            _db.UserGroups.Update(currentGroupMember);
+            await _db.SaveChangesAsync();
+
+            return Result<GroupMemberViewModel>.Success();
+        }
     }
 }
