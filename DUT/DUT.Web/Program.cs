@@ -37,9 +37,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddDUTServices(builder.Configuration);
 
-builder.Services.AddControllersWithViews();
-
-builder.Services.AddRazorPages();
+builder.Services.AddControllers();
 
 builder.Services.AddSwaggerGen();
 

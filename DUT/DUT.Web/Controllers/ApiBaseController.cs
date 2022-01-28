@@ -1,11 +1,11 @@
 ﻿using DUT.Application.ViewModels;
 using DUT.Constants.APIResponse;
 using Microsoft.AspNetCore.Mvc;
-namespace DUT.Web.Controllers.Api
+namespace DUT.Web.Controllers
 {
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
-    public class ApiBaseController : BaseController
+    public class ApiBaseController : Controller
     {
         public IActionResult JsonResult<T>(Result<T> result)
         {

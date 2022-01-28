@@ -1,10 +1,8 @@
-﻿using DUT.Application.Services.Implementations;
-using DUT.Application.Services.Interfaces;
+﻿using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels.Apps;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DUT.Web.Controllers.Api.V1
+namespace DUT.Web.Controllers.V1
 {
     [ApiVersion("1.0")]
     public class AppsController : ApiBaseController

@@ -26,27 +26,10 @@ namespace DUT.Web.Middlewares
 
         private async Task HandleExceptionAsync(HttpContext httpContext, Exception exception)
         {
-            var typeAppRequest = GetTypeApp(httpContext);
-            if (typeAppRequest == "mvc")
-            {
-                httpContext.Response.Redirect("/Home/Error");
-            }
-            else
-            {
-                var requestId = httpContext.TraceIdentifier;
-                httpContext.Response.ContentType = "application/json";
-                httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                await httpContext.Response.WriteAsJsonAsync(new APIResponse(false, "Internal server error", exception.Message, requestId));
-            }
-        }
-
-        private string GetTypeApp(HttpContext httpContext)
-        {
-            return "api";
-            var enpoint = httpContext.Request.Path.Value;
-            if (enpoint.StartsWith("/api/v"))
-                return "api";
-            return "mvc";
+            var requestId = httpContext.TraceIdentifier;
+            httpContext.Response.ContentType = "application/json";
+            httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            await httpContext.Response.WriteAsJsonAsync(new APIResponse(false, "Internal server error", exception.Message, requestId));
         }
     }
 

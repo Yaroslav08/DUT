@@ -1,6 +1,4 @@
-﻿using DUT.Constants;
-
-namespace DUT.Web.Middlewares
+﻿namespace DUT.Web.Middlewares
 {
     public class AccessTokenMiddleware
     {
@@ -12,31 +10,14 @@ namespace DUT.Web.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var token = TryGetToken(context);
+            var token = context.Request.Query["access_token"].ToString();
 
             if (string.IsNullOrEmpty(context.Request.Headers["Authorization"]) &&
                     !string.IsNullOrEmpty(token))
             {
                 context.Request.Headers["Authorization"] = $"Bearer {token}";
             }
-
             await _next(context);
-        }
-
-        private string TryGetToken(HttpContext context)
-        {
-            var token = context.Request.Query["access_token"].ToString();
-            if (!string.IsNullOrEmpty(token))
-            {
-                return token;
-            }
-
-            if (context.Request.Cookies.ContainsKey(Token.TokenCookiesName))
-            {
-                return context.Request.Cookies[Token.TokenCookiesName];
-            }
-
-            return null;
         }
     }
 

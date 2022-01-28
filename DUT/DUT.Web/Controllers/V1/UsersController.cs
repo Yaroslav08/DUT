@@ -2,8 +2,7 @@
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels.User;
 using Microsoft.AspNetCore.Mvc;
-
-namespace DUT.Web.Controllers.Api.V1
+namespace DUT.Web.Controllers.V1
 {
     [ApiVersion("1.0")]
     public class UsersController : ApiBaseController
