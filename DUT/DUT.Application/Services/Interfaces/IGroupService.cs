@@ -17,5 +17,6 @@ namespace DUT.Application.Services.Interfaces
         Task<Result<GroupInviteViewModel>> CreateGroupInviteAsync(GroupInviteCreateModel model);
         Task<Result<GroupInviteViewModel>> UpdateGroupInviteAsync(GroupInviteEditModel model);
         Task<Result<bool>> RemoveGroupInviteAsync(int groupId, Guid groupInviteId);
+        Task<Result<List<UserGroupRoleViewModel>>> GetAllGroupRolesAsync();
     }
 }

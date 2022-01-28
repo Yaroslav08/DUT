@@ -82,5 +82,11 @@ namespace DUT.Web.Controllers.V1
         {
             return JsonResult(await _groupService.SearchGroupsAsync(name));
         }
+
+        [HttpGet("roles")]
+        public async Task<IActionResult> GetGroupRoles()
+        {
+            return JsonResult(await _groupService.GetAllGroupRolesAsync());
+        }
     }
 }

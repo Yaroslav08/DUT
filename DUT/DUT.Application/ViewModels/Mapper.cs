@@ -2,6 +2,7 @@
 using DUT.Application.ViewModels.Apps;
 using DUT.Application.ViewModels.Faculty;
 using DUT.Application.ViewModels.Group;
+using DUT.Application.ViewModels.Group.GroupMember;
 using DUT.Application.ViewModels.Specialty;
 using DUT.Application.ViewModels.University;
 using DUT.Application.ViewModels.User;
@@ -30,6 +31,8 @@ namespace DUT.Application.ViewModels
                 .ForMember(x => x.Name, s => s.MapFrom(x => $"{x.Name} ({x.StartStudy.Year})"));
 
             CreateMap<Domain.Models.GroupInvite, GroupInviteViewModel>();
+
+            CreateMap<Domain.Models.UserGroupRole, UserGroupRoleViewModel>().ReverseMap();
 
 
             CreateMap<Domain.Models.User, UserViewModel>()

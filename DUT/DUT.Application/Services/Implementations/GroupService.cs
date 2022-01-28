@@ -120,6 +120,12 @@ namespace DUT.Application.Services.Implementations
             return Result<GroupInviteViewModel>.SuccessWithData(_mapper.Map<GroupInviteViewModel>(newGroupInvite));
         }
 
+        public async Task<Result<List<UserGroupRoleViewModel>>> GetAllGroupRolesAsync()
+        {
+            return Result<List<UserGroupRoleViewModel>>.SuccessWithData(
+                _mapper.Map<List<UserGroupRoleViewModel>>(await _db.UserGroupRoles.AsNoTracking().ToListAsync()));
+        }
+
         public async Task<Result<List<GroupViewModel>>> GetAllGroupsAsync(int count, int afterId)
         {
             var groups = await _db.Groups
