@@ -33,7 +33,7 @@ namespace DUT.Infrastructure.IoC
             #region Services
 
             services.AddScoped<IUniversityService, UniversityService>();
-            services.AddScoped<IIdentityService, FakeIdentityService>();
+            services.AddScoped<IIdentityService, HttpIdentityService>();
             services.AddScoped<IInitialService, InitialService>();
             services.AddScoped<IFacultyService, FacultyService>();
             services.AddScoped<ISpecialtyService, SpecialtyService>();
@@ -42,6 +42,9 @@ namespace DUT.Infrastructure.IoC
             services.AddScoped<IGroupService, GroupService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IPermissionService, PermissionService>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<ILocationService, LocationService>();
 
             #endregion
 

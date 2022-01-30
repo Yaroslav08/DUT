@@ -8,27 +8,12 @@ namespace DUT.Application.Services.Implementations
 {
     public class LocationService : ILocationService
     {
-        public async Task<Location> GetDbInfoAsync(string ip)
+        public async Task<Location> GetIpInfoAsync(string ip)
         {
-            var ipInfo = await GetIpInfoAsync(ip);
-            if (ipInfo == null)
-                return new Location
-                {
-                    IP = ip
-                };
-            return new Location
+            var location = new Location
             {
-                City = ipInfo.City,
-                Country = ipInfo.Country,
-                IP = ipInfo.Query,
-                Lat = ipInfo.Latitude,
-                Lon = ipInfo.Longitude,
-                Region = ipInfo.Region
+                IP = ip
             };
-        }
-
-        public async Task<IPGeo> GetIpInfoAsync(string ip)
-        {
             try
             {
                 using var httpClient = new HttpClient();
@@ -48,13 +33,19 @@ namespace DUT.Application.Services.Implementations
                 if (!resultFromApi.IsSuccessStatusCode)
                     return null;
                 var content = await resultFromApi.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<IPGeo>(content);
+                var res = JsonSerializer.Deserialize<IPGeo>(content);
+                location.Country = res.Country;
+                location.City = res.City;
+                location.Region = res.RegionName;
+                location.Lat = res.Latitude;
+                location.Lon = res.Longitude;
+                location.IP = res.Query;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                return null;
             }
+            return location;
         }
     }
 }

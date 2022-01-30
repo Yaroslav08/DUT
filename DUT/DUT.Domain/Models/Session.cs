@@ -5,7 +5,6 @@ namespace DUT.Domain.Models
 {
     public class Session : BaseModel<int>
     {
-        [Required, StringLength(150, MinimumLength = 1)]
         public AppModel App { get; set; }
         public ClientInfo Client { get; set; }
         public Location Location { get; set; }

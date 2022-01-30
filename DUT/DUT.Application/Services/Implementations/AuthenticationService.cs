@@ -24,14 +24,17 @@ namespace DUT.Application.Services.Implementations
         private readonly ITokenService _tokenService;
         private readonly IRoleService _roleService;
         private readonly IDetector _detector;
-        public AuthenticationService(DUTDbContext db, IDetector detector, IIdentityService identityService, ISessionManager sessionManager, IRoleService roleService, IHttpContextAccessor httpContextAccessor) : base(db)
+
+        public AuthenticationService(DUTDbContext db, IHttpContextAccessor httpContextAccessor, IIdentityService identityService, ISessionManager sessionManager, ILocationService locationService, ITokenService tokenService, IRoleService roleService, IDetector detector) : base(db)
         {
             _db = db;
-            _detector = detector;
+            _httpContextAccessor = httpContextAccessor;
             _identityService = identityService;
             _sessionManager = sessionManager;
+            _locationService = locationService;
+            _tokenService = tokenService;
             _roleService = roleService;
-            _httpContextAccessor = httpContextAccessor;
+            _detector = detector;
         }
 
         public async Task<Result<AuthenticationInfo>> ChangePasswordAsync(PasswordCreateModel model)
@@ -62,66 +65,75 @@ namespace DUT.Application.Services.Implementations
             });
         }
 
-        public async Task<Result<AuthenticationInfo>> LoginAsync(LoginCreateModel model)
+        public async Task<Result<JwtToken>> LoginByPasswordAsync(LoginCreateModel model)
         {
             var app = await _db.Apps
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.AppId == model.AppId && x.AppSecret == model.AppSecret);
 
             if (app == null)
-                return Result<AuthenticationInfo>.Error("App not found");
+                return Result<JwtToken>.Error("App not found");
 
             if (!app.IsActive)
-                return Result<AuthenticationInfo>.Error("Code already unactive");
+                return Result<JwtToken>.Error("App already unactive");
 
             if (!app.IsActiveByTime())
-                return Result<AuthenticationInfo>.Error("Code is expired");
+                return Result<JwtToken>.Error("App is expired");
 
             var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Login == model.Login);
             if (user == null)
-                return Result<AuthenticationInfo>.Error("User by login not found");
+                return Result<JwtToken>.Error("User by login not found");
 
             if (!model.Password.VerifyPasswordHash(user.PasswordHash))
             {
-                await _db.Notifications.AddAsync(NotificationsHelper.GetLoginAttemptNotification(model));
+                await _db.Notifications.AddAsync(NotificationsHelper.GetLoginAttemptNotification(model, user.Id));
                 await _db.SaveChangesAsync();
-                return Result<AuthenticationInfo>.Error("Password is incorrect");
+                return Result<JwtToken>.Error("Password is incorrect");
             }
 
-            var location = await _locationService.GetDbInfoAsync(model.IP);
+            if (model.Client == null)
+                model.Client = _detector.GetClientInfo();
+
+            var location = await _locationService.GetIpInfoAsync(model.IP);
+
+            var appDb = new AppModel
+            {
+                Id = app.Id,
+                Name = app.Name,
+                ShortName = app.ShortName,
+                Image = app.Image,
+                Description = app.Description
+            };
 
             var session = new Session
             {
-                App = new AppModel
-                {
-                    Id = app.Id,
-                    Name = app.Name,
-                    ShortName = app.ShortName,
-                    Image = app.Image,
-                    Description = app.Description
-                },
-                Client = model.Client,
                 IsActive = true,
+                App = appDb,
+                Client = model.Client,
                 Location = location,
-                UserId = user.Id
+                UserId = user.Id,
+                Token = "tempToken"
             };
 
-            var token = await _tokenService.GetUserTokenAsync(user.Id);
-
-            session.Token = token;
-            _sessionManager.AddSession(token);
+            session.PrepareToCreate(_identityService);
 
             await _db.Sessions.AddAsync(session);
 
-            await _db.Notifications.AddAsync(NotificationsHelper.GetLoginNotification(session));
+            await _db.SaveChangesAsync();
+
+            var jwtToken = await _tokenService.GetUserTokenAsync(user.Id, session.Id, "pwd");
+
+            session.Token = jwtToken.Token;
+
+            await _db.Notifications.AddAsync(NotificationsHelper.GetLoginNotification(session, user.Id));
+
+            _db.Sessions.Update(session);
 
             await _db.SaveChangesAsync();
 
-            return Result<AuthenticationInfo>.SuccessWithData(new AuthenticationInfo
-            {
-                User = user,
-                Session = session
-            });
+            _sessionManager.AddSession(jwtToken.Token);
+
+            return Result<JwtToken>.SuccessWithData(jwtToken);
         }
 
         public async Task<Result<bool>> LogoutAllAsync(int userId)
@@ -163,9 +175,6 @@ namespace DUT.Application.Services.Implementations
             session.IsActive = false;
             session.DeactivatedAt = now;
             session.DeactivatedBySessionId = _identityService.GetCurrentSessionId();
-            session.LastUpdatedFromIP = Defaults.IP;
-            session.LastUpdatedBy = Defaults.CreatedBy;
-            session.LastUpdatedAt = now;
             session.PrepareToUpdate(_identityService);
             _db.Sessions.Update(session);
             await _db.SaveChangesAsync();
@@ -188,9 +197,6 @@ namespace DUT.Application.Services.Implementations
             sessionToClose.IsActive = false;
             sessionToClose.DeactivatedAt = now;
             sessionToClose.DeactivatedBySessionId = _identityService.GetCurrentSessionId();
-            sessionToClose.LastUpdatedFromIP = Defaults.IP;
-            sessionToClose.LastUpdatedBy = Defaults.CreatedBy;
-            sessionToClose.LastUpdatedAt = now;
             sessionToClose.PrepareToUpdate(_identityService);
             _db.Sessions.Update(sessionToClose);
             await _db.Notifications.AddAsync(NotificationsHelper.GetLogoutNotification(sessionToClose));

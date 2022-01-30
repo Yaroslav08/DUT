@@ -9,5 +9,7 @@ namespace DUT.Constants
         public const string UserName = ClaimTypes.Name;
         public const string FullName = ClaimTypes.GivenName;
         public const string Login = "Login";
+        public const string AuthenticationMethod = ClaimTypes.AuthenticationMethod;
+        public const string Role = ClaimTypes.Role;
     }
 }

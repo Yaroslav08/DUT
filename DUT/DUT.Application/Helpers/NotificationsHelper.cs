@@ -46,7 +46,7 @@ namespace DUT.Application.Helpers
             };
         }
 
-        public static Notification GetLoginNotification(Session session)
+        public static Notification GetLoginNotification(Session session, int userId)
         {
             return new Notification
             {
@@ -60,10 +60,11 @@ namespace DUT.Application.Helpers
                 IsImportant = true,
                 IsRead = false,
                 ReadAt = null,
+                UserId = userId
             };
         }
 
-        public static Notification GetLoginAttemptNotification(LoginCreateModel loginModel)
+        public static Notification GetLoginAttemptNotification(LoginCreateModel loginModel, int userId)
         {
             return new Notification
             {
@@ -77,6 +78,7 @@ namespace DUT.Application.Helpers
                 IsImportant = true,
                 IsRead = false,
                 ReadAt = null,
+                UserId = userId
             };
         }
 

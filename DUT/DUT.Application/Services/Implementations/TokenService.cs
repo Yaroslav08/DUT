@@ -1,0 +1,69 @@
+﻿using DUT.Application.Services.Interfaces;
+using DUT.Application.ViewModels.Identity;
+using DUT.Constants;
+using DUT.Infrastructure.Data.Context;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+
+namespace DUT.Application.Services.Implementations
+{
+    public class TokenService : ITokenService
+    {
+        private readonly DUTDbContext _db;
+        public TokenService(DUTDbContext db)
+        {
+            _db = db;
+        }
+
+        public async Task<JwtToken> GetUserTokenAsync(int userId, int sessionId, string authType)
+        {
+            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId);
+            return await GetUserTokenAsync(user, sessionId, authType);
+        }
+
+        public async Task<JwtToken> GetUserTokenAsync(DUT.Domain.Models.User user, int sessionId, string authType)
+        {
+            if (user == null)
+                return null;
+
+            var currentUserRole = await _db.UserRoles
+                .Where(x => x.UserId == user.Id)
+                .Include(x => x.Role)
+                .Select(x => x.Role)
+                .FirstOrDefaultAsync();
+
+            var claims = new List<Claim>();
+            claims.Add(new Claim(CustomClaimTypes.CurrentSessionId, sessionId.ToString()));
+            claims.Add(new Claim(CustomClaimTypes.Login, user.Login));
+            claims.Add(new Claim(CustomClaimTypes.UserId, user.Id.ToString()));
+            claims.Add(new Claim(CustomClaimTypes.UserName, user.UserName));
+            claims.Add(new Claim(CustomClaimTypes.FullName, $"{user.LastName} {user.FirstName}"));
+            claims.Add(new Claim(CustomClaimTypes.AuthenticationMethod, authType));
+            claims.Add(new Claim(CustomClaimTypes.Role, currentUserRole.Name));
+
+            //ToDo: later add claims from the database
+
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
+                    ClaimsIdentity.DefaultRoleClaimType);
+            var now = DateTime.Now;
+            var expiredAt = now.Add(TimeSpan.FromMinutes(TokenOptions.LifeTimeInDays));
+            var jwt = new JwtSecurityToken(
+                    issuer: TokenOptions.Issuer,
+                    audience: TokenOptions.Audience,
+                    notBefore: now,
+                    claims: claimsIdentity.Claims,
+                    expires: expiredAt,
+                    signingCredentials: new SigningCredentials(TokenOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+            return new JwtToken
+            {
+                Token = encodedJwt,
+                ExpiredAt = expiredAt,
+                Claims = jwt.Claims,
+                TokenId = jwt.Id
+            };
+        }
+    }
+}

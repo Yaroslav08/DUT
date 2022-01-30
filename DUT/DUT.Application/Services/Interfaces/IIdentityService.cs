@@ -11,5 +11,6 @@
         string GetBearerToken();
         string GetIP();
         string GetRole();
+        string GetAuthenticationMethod();
     }
 }

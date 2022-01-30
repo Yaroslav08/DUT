@@ -67,7 +67,13 @@ namespace DUT.Application.Services.Implementations
 
         public string GetRole()
         {
-            var claim = _httpContext.User.Claims.FirstOrDefault(s => s.Type == ClaimTypes.Role);
+            var claim = _httpContext.User.Claims.FirstOrDefault(s => s.Type == CustomClaimTypes.Role);
+            return claim.Value;
+        }
+
+        public string GetAuthenticationMethod()
+        {
+            var claim = _httpContext.User.Claims.FirstOrDefault(s => s.Type == CustomClaimTypes.AuthenticationMethod);
             return claim.Value;
         }
     }

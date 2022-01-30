@@ -9,7 +9,7 @@ namespace DUT.Application.Services.Implementations
 
         public SessionManager()
         {
-            _tokens = new List<string>(5);
+            _tokens = DownloadContentAsync().GetAwaiter().GetResult();
         }
 
         public SessionManager(string[] tokens)
@@ -19,7 +19,7 @@ namespace DUT.Application.Services.Implementations
 
         public bool AddSession(string token)
         {
-            if(_tokens.Contains(token))
+            if (_tokens.Contains(token))
                 return false;
             _tokens.Add(token);
             return true;
@@ -52,11 +52,16 @@ namespace DUT.Application.Services.Implementations
             return false;
         }
 
-        private async Task<T> DownloadContentAsync<T>()
+        private async Task<List<string>> DownloadContentAsync()
         {
             using var sr = new StreamReader(path);
             var content = await sr.ReadToEndAsync();
-            return JsonSerializer.Deserialize<T>(content);
+            var res = JsonSerializer.Deserialize<List<string>>(content);
+            if (res == null || res.Count == 0)
+            {
+                return new List<string>(5);
+            }
+            return res;
         }
 
         private async Task UploadContentAsync(object data)

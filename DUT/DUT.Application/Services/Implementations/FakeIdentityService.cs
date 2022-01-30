@@ -49,5 +49,10 @@ namespace DUT.Application.Services.Implementations
         {
             return Roles.Admin;
         }
+
+        public string GetAuthenticationMethod()
+        {
+            return "pwd";
+        }
     }
 }
