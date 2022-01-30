@@ -49,14 +49,21 @@ namespace DUT.Domain.Models
         }
         public User() { }
 
-
         public bool IsLocked()
         {
             var isLocked = false;
             if (LockoutEnd == null)
                 isLocked = false;
-            if (LockoutEnd.HasValue && LockoutEnd.Value > DateTime.Now)
-                isLocked = true;
+            if (LockoutEnd.HasValue)
+            {
+                if (LockoutEnd.Value > DateTime.Now)
+                    isLocked = true;
+                else
+                {
+                    LockoutEnd = null;
+                    isLocked = false;
+                }
+            }
             return isLocked;
         }
     }
