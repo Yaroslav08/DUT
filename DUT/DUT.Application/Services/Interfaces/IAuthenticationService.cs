@@ -10,7 +10,7 @@ namespace DUT.Application.Services.Interfaces
         Task<Result<JwtToken>> LoginByPasswordAsync(LoginCreateModel model);
         Task<Result<AuthenticationInfo>> ChangePasswordAsync(PasswordCreateModel model);
         Task<Result<bool>> LogoutAsync();
-        Task<Result<bool>> LogoutBySessionIdAsync(int id);
+        Task<Result<bool>> LogoutBySessionIdAsync(Guid id);
         Task<Result<bool>> LogoutAllAsync(int userId);
     }
 }

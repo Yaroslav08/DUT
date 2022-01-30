@@ -17,13 +17,13 @@ namespace DUT.Application.Services.Implementations
             _db = db;
         }
 
-        public async Task<JwtToken> GetUserTokenAsync(int userId, int sessionId, string authType)
+        public async Task<JwtToken> GetUserTokenAsync(int userId, Guid sessionId, string authType)
         {
             var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId);
             return await GetUserTokenAsync(user, sessionId, authType);
         }
 
-        public async Task<JwtToken> GetUserTokenAsync(DUT.Domain.Models.User user, int sessionId, string authType)
+        public async Task<JwtToken> GetUserTokenAsync(DUT.Domain.Models.User user, Guid sessionId, string authType)
         {
             if (user == null)
                 return null;

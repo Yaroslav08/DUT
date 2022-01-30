@@ -5,7 +5,7 @@ namespace DUT.Application.ViewModels.Session
 {
     public class SessionViewModel
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public DateTime CreatedAt { get; set; }
         public AppModel App { get; set; }
         public ClientInfo Client { get; set; }

@@ -37,10 +37,10 @@ namespace DUT.Application.Services.Implementations
             return claim.Value;
         }
 
-        public int GetCurrentSessionId()
+        public Guid GetCurrentSessionId()
         {
             var claim = _httpContext.User.Claims.FirstOrDefault(s => s.Type == CustomClaimTypes.CurrentSessionId);
-            return Convert.ToInt32(claim.Value);
+            return Guid.Parse(claim.Value);
         }
 
         public string GetIdentityData()

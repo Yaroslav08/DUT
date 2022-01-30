@@ -5,9 +5,9 @@ namespace DUT.Application.Services.Implementations
 {
     public class FakeIdentityService : IIdentityService
     {
-        public int GetCurrentSessionId()
+        public Guid GetCurrentSessionId()
         {
-            return 1;
+            return new Guid("85204B5B-45C2-4425-A8CE-13198EB289E4");
         }
 
         public string GetIdentityData()

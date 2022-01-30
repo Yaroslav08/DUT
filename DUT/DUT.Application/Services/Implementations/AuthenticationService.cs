@@ -105,8 +105,11 @@ namespace DUT.Application.Services.Implementations
                 Description = app.Description
             };
 
+            var sessionId = Guid.NewGuid();
+
             var session = new Session
             {
+                Id = sessionId,
                 IsActive = true,
                 App = appDb,
                 Client = model.Client,
@@ -117,17 +120,13 @@ namespace DUT.Application.Services.Implementations
 
             session.PrepareToCreate();
 
-            await _db.Sessions.AddAsync(session);
-
-            await _db.SaveChangesAsync();
-
-            var jwtToken = await _tokenService.GetUserTokenAsync(user.Id, session.Id, "pwd");
+            var jwtToken = await _tokenService.GetUserTokenAsync(user.Id, sessionId, "pwd");
 
             session.Token = jwtToken.Token;
 
             await _db.Notifications.AddAsync(NotificationsHelper.GetLoginNotification(session, user.Id));
 
-            _db.Sessions.Update(session);
+            await _db.Sessions.AddAsync(session);
 
             await _db.SaveChangesAsync();
 
@@ -188,7 +187,7 @@ namespace DUT.Application.Services.Implementations
             return Result<bool>.SuccessWithData(true);
         }
 
-        public async Task<Result<bool>> LogoutBySessionIdAsync(int id)
+        public async Task<Result<bool>> LogoutBySessionIdAsync(Guid id)
         {
             var sessionToClose = await _db.Sessions.FirstOrDefaultAsync(x => x.Id == id);
             if (sessionToClose == null)

@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace DUT.Domain.Models
 {
     public class BaseModel
@@ -15,6 +17,14 @@ namespace DUT.Domain.Models
     public class BaseModel<T> : BaseModel
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public T Id { get; set; }
+    }
+
+    public class BaseModelWithoutIdentity<T> : BaseModel
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public T Id { get; set; }
     }
 }

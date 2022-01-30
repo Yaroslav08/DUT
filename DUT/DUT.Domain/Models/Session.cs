@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DUT.Domain.Models
 {
-    public class Session : BaseModel<int>
+    public class Session : BaseModelWithoutIdentity<Guid>
     {
         public AppModel App { get; set; }
         public ClientInfo Client { get; set; }
@@ -11,7 +11,7 @@ namespace DUT.Domain.Models
         [Required]
         public bool IsActive { get; set; }
         public DateTime? DeactivatedAt { get; set; }
-        public int DeactivatedBySessionId { get; set; }
+        public Guid DeactivatedBySessionId { get; set; }
         [StringLength(5000, MinimumLength = 5)]
         public string Token { get; set; }
         public int UserId { get; set; }

@@ -21,7 +21,7 @@ namespace DUT.Application.Services.Implementations
             _identityService = identityService;
         }
 
-        public async Task<Result<SessionViewModel>> GetSessionByIdAsync(int sessionId)
+        public async Task<Result<SessionViewModel>> GetSessionByIdAsync(Guid sessionId)
         {
             var session = await _db.Sessions.AsNoTracking().FirstOrDefaultAsync(x => x.Id == sessionId);
             if (session == null)

@@ -59,7 +59,7 @@ namespace DUT.Web.Controllers.V1
         }
 
         [HttpGet("sessions/{id}")]
-        public async Task<IActionResult> GetSessionById(int id)
+        public async Task<IActionResult> GetSessionById(Guid id)
         {
             return JsonResult(await _sessionService.GetSessionByIdAsync(id));
         }

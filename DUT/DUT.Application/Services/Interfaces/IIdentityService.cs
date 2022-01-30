@@ -6,7 +6,7 @@
         string GetUserName();
         string GetFullName();
         string GetLoginEmail();
-        int GetCurrentSessionId();
+        Guid GetCurrentSessionId();
         string GetIdentityData();
         string GetBearerToken();
         string GetIP();

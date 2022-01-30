@@ -7,6 +7,6 @@ namespace DUT.Application.Services.Interfaces
     {
         Task<Result<List<SessionViewModel>>> GetAllSessionsByUserIdAsync(int userId);
         Task<Result<List<SessionViewModel>>> GetActiveSessionsByUserIdAsync(int userId);
-        Task<Result<SessionViewModel>> GetSessionByIdAsync(int sessionId);
+        Task<Result<SessionViewModel>> GetSessionByIdAsync(Guid sessionId);
     }
 }
