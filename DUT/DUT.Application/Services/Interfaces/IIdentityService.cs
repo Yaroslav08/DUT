@@ -10,5 +10,6 @@
         string GetIdentityData();
         string GetBearerToken();
         string GetIP();
+        string GetRole();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using DUT.Application.Services.Interfaces;
 using DUT.Constants;
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace DUT.Application.Services.Implementations
 {
@@ -62,6 +63,12 @@ namespace DUT.Application.Services.Implementations
         public string GetIP()
         {
             return _httpContext.Connection.RemoteIpAddress.ToString();
+        }
+
+        public string GetRole()
+        {
+            var claim = _httpContext.User.Claims.FirstOrDefault(s => s.Type == ClaimTypes.Role);
+            return claim.Value;
         }
     }
 }

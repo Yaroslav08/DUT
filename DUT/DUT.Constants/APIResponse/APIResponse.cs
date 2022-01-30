@@ -25,6 +25,11 @@
             return new APIResponse(false, error, null, data);
         }
 
+        public static APIResponse ForbiddenResposne()
+        {
+            return new APIResponse(false, "Forbidden", "You are missing access rights", null);
+        }
+
         public static APIResponse NotFoundResponse(string error = "Resource not found")
         {
             return new APIResponse(false, error, null, null);

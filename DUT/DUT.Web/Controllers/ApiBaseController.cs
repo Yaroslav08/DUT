@@ -1,12 +1,14 @@
 ﻿using DUT.Application.ViewModels;
 using DUT.Constants.APIResponse;
 using Microsoft.AspNetCore.Mvc;
+
 namespace DUT.Web.Controllers
 {
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     public class ApiBaseController : Controller
     {
+        [NonAction]
         public IActionResult JsonResult<T>(Result<T> result)
         {
             if (result.IsNotFound)
@@ -17,6 +19,13 @@ namespace DUT.Web.Controllers
                 return Ok(APIResponse.OkResponse(result.Data));
             HttpContext.Response.StatusCode = 500;
             return Json(APIResponse.InternalServerError(HttpContext.TraceIdentifier));
+        }
+
+        [NonAction]
+        public IActionResult JsonForbiddenResult()
+        {
+            HttpContext.Response.StatusCode = 403;
+            return Json(APIResponse.ForbiddenResposne());
         }
     }
 }

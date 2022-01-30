@@ -1,4 +1,5 @@
 ﻿using DUT.Application.Services.Interfaces;
+using DUT.Constants;
 
 namespace DUT.Application.Services.Implementations
 {
@@ -42,6 +43,11 @@ namespace DUT.Application.Services.Implementations
         public string GetIP()
         {
             return "34.43.119.37";
+        }
+
+        public string GetRole()
+        {
+            return Roles.Admin;
         }
     }
 }

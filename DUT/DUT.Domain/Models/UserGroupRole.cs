@@ -32,5 +32,6 @@
 
 
         public bool CanUpdateImage { get; set; }
+        public bool CanEditInfo { get; set; }
     }
 }
