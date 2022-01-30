@@ -54,6 +54,8 @@ namespace DUT.Application.Services.Implementations
 
         private async Task<List<string>> DownloadContentAsync()
         {
+            if (!File.Exists(path))
+                return new List<string>(5);
             using var sr = new StreamReader(path);
             var content = await sr.ReadToEndAsync();
             var res = JsonSerializer.Deserialize<List<string>>(content);

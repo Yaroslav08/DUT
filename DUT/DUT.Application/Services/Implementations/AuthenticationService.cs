@@ -115,7 +115,7 @@ namespace DUT.Application.Services.Implementations
                 Token = "tempToken"
             };
 
-            session.PrepareToCreate(_identityService);
+            session.PrepareToCreate();
 
             await _db.Sessions.AddAsync(session);
 

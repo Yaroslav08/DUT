@@ -3,6 +3,7 @@ using DUT.Application.ViewModels.Apps;
 using DUT.Application.ViewModels.Faculty;
 using DUT.Application.ViewModels.Group;
 using DUT.Application.ViewModels.Group.GroupMember;
+using DUT.Application.ViewModels.Session;
 using DUT.Application.ViewModels.Specialty;
 using DUT.Application.ViewModels.University;
 using DUT.Application.ViewModels.User;
@@ -42,6 +43,8 @@ namespace DUT.Application.ViewModels
             CreateMap<Domain.Models.App, AppViewModel>().ReverseMap();
             CreateMap<Domain.Models.App, AppEditModel>().ReverseMap();
             CreateMap<Domain.Models.App, AppCreateModel>().ReverseMap();
+
+            CreateMap<Domain.Models.Session, SessionViewModel>().ReverseMap();
         }
 
         private string BuildFullName(Domain.Models.User user)

@@ -6,16 +6,20 @@ using Microsoft.AspNetCore.Mvc;
 namespace DUT.Web.Controllers.V1
 {
     [ApiVersion("1.0")]
+    [Authorize]
     public class IdentityController : ApiBaseController
     {
         private readonly IAuthenticationService _authenticationService;
-        public IdentityController(IAuthenticationService authenticationService)
+        private readonly ISessionService _sessionService;
+        private readonly IIdentityService _identityService;
+        public IdentityController(IAuthenticationService authenticationService, ISessionService sessionService, IIdentityService identityService)
         {
             _authenticationService = authenticationService;
+            _sessionService = sessionService;
+            _identityService = identityService;
         }
 
         [HttpGet("claims")]
-        [Authorize]
         public IActionResult GetClaims()
         {
             var data = User.Claims.Select(x => new
@@ -27,12 +31,14 @@ namespace DUT.Web.Controllers.V1
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginCreateModel model)
         {
             return JsonResult(await _authenticationService.LoginByPasswordAsync(model));
         }
 
         [HttpPost("registration")]
+        [AllowAnonymous]
         public async Task<IActionResult> Registration([FromBody] RegisterViewModel model)
         {
             return JsonResult(await _authenticationService.RegisterAsync(model));
@@ -42,6 +48,28 @@ namespace DUT.Web.Controllers.V1
         public async Task<IActionResult> Logout()
         {
             return JsonResult(await _authenticationService.LogoutAsync());
+        }
+
+        [HttpGet("sessions")]
+        public async Task<IActionResult> GetActiveSessions(int userId = default)
+        {
+            if (userId == default || userId < 0)
+                userId = _identityService.GetUserId();
+            return JsonResult(await _sessionService.GetActiveSessionsByUserIdAsync(userId));
+        }
+
+        [HttpGet("sessions/{id}")]
+        public async Task<IActionResult> GetSessionById(int id)
+        {
+            return JsonResult(await _sessionService.GetSessionByIdAsync(id));
+        }
+
+        [HttpGet("sessions/unactive")]
+        public async Task<IActionResult> GetAllSessions(int userId = default)
+        {
+            if (userId == default || userId < 0)
+                userId = _identityService.GetUserId();
+            return JsonResult(await _sessionService.GetAllSessionsByUserIdAsync(userId));
         }
     }
 }

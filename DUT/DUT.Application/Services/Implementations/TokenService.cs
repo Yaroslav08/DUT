@@ -48,7 +48,7 @@ namespace DUT.Application.Services.Implementations
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
                     ClaimsIdentity.DefaultRoleClaimType);
             var now = DateTime.Now;
-            var expiredAt = now.Add(TimeSpan.FromMinutes(TokenOptions.LifeTimeInDays));
+            var expiredAt = now.Add(TimeSpan.FromDays(TokenOptions.LifeTimeInDays));
             var jwt = new JwtSecurityToken(
                     issuer: TokenOptions.Issuer,
                     audience: TokenOptions.Audience,

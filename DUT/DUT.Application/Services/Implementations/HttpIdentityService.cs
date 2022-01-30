@@ -1,7 +1,6 @@
 ﻿using DUT.Application.Services.Interfaces;
 using DUT.Constants;
 using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
 
 namespace DUT.Application.Services.Implementations
 {
