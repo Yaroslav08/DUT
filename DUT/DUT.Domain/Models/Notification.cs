@@ -22,6 +22,7 @@
         LoginAttempt,
         ChangePassword,
         Logout,
-        NewPost
+        NewPost,
+        Locked
     }
 }

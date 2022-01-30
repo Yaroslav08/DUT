@@ -50,7 +50,7 @@ namespace DUT.Application.Services.Implementations
                 return Result<AuthenticationInfo>.Error("This passwords are match");
 
             user.PasswordHash = model.NewPassword.GeneratePasswordHash();
-            
+
             user.PrepareToUpdate(_identityService);
 
             _db.Users.Update(user);
@@ -84,9 +84,35 @@ namespace DUT.Application.Services.Implementations
             if (user == null)
                 return Result<JwtToken>.Error("User by login not found");
 
+            if (user.LockoutEnabled)
+            {
+                if (user.IsLocked())
+                {
+                    return Result<JwtToken>.Error($"Your account has been locked up to {user.LockoutEnd.Value.ToString("HH:mm (dd.MM.yyyy)")}");
+                }
+
+                if (user.AccessFailedCount == 5)
+                {
+                    user.AccessFailedCount = 0;
+                    user.LockoutEnd = DateTime.Now.AddHours(1);
+                    var notifyLogin = NotificationsHelper.GetLockedNotification();
+                    notifyLogin.UserId = user.Id;
+                    _db.Users.Update(user);
+                    await _db.Notifications.AddAsync(notifyLogin);
+                    await _db.SaveChangesAsync();
+
+                    return Result<JwtToken>.Error($"Account locked up to {user.LockoutEnd.Value.ToString("HH:mm (dd.MM.yyyy)")}");
+                }
+            }
+
             if (!model.Password.VerifyPasswordHash(user.PasswordHash))
             {
-                await _db.Notifications.AddAsync(NotificationsHelper.GetLoginAttemptNotification(model, user.Id));
+                user.AccessFailedCount++;
+                _db.Users.Update(user);
+                model.IP = _identityService.GetIP();
+                var loginAttemptNotify = NotificationsHelper.GetLoginAttemptNotification(model);
+                loginAttemptNotify.UserId = user.Id;
+                await _db.Notifications.AddAsync(loginAttemptNotify);
                 await _db.SaveChangesAsync();
                 return Result<JwtToken>.Error("Password is incorrect");
             }
@@ -124,7 +150,10 @@ namespace DUT.Application.Services.Implementations
 
             session.Token = jwtToken.Token;
 
-            await _db.Notifications.AddAsync(NotificationsHelper.GetLoginNotification(session, user.Id));
+            var loginNotify = NotificationsHelper.GetLoginNotification(session);
+            loginNotify.UserId = user.Id;
+
+            await _db.Notifications.AddAsync(loginNotify);
 
             await _db.Sessions.AddAsync(session);
 

@@ -1,10 +1,9 @@
-﻿using DUT.Constants;
+﻿using DUT.Application.ViewModels.Identity;
+using DUT.Constants;
 using DUT.Domain.Models;
-using Extensions.DeviceDetector.Models;
 using Extensions.Converters;
+using Extensions.DeviceDetector.Models;
 using System.Text;
-using DUT.Application.ViewModels.User;
-using DUT.Application.ViewModels.Identity;
 
 namespace DUT.Application.Helpers
 {
@@ -46,7 +45,7 @@ namespace DUT.Application.Helpers
             };
         }
 
-        public static Notification GetLoginNotification(Session session, int userId)
+        public static Notification GetLoginNotification(Session session)
         {
             return new Notification
             {
@@ -59,17 +58,16 @@ namespace DUT.Application.Helpers
                 Type = NotificationType.NewLogin,
                 IsImportant = true,
                 IsRead = false,
-                ReadAt = null,
-                UserId = userId
+                ReadAt = null
             };
         }
 
-        public static Notification GetLoginAttemptNotification(LoginCreateModel loginModel, int userId)
+        public static Notification GetLoginAttemptNotification(LoginCreateModel loginModel)
         {
             return new Notification
             {
                 Title = "Спроба входу",
-                Content = $"Увага! Щойно було виконано спроба входу на ваш акаунт [{loginModel.IP}] з паролем ({loginModel.Password})",
+                Content = $"Увага! Щойно було виконано спроба входу на ваш акаунт з паролем ({loginModel.Password}) [{loginModel.IP}]",
                 ImageUrl = "https://icon-library.com/images/hack-icon/hack-icon-19.jpg",
                 CreatedAt = DateTime.Now,
                 CreatedBy = Defaults.CreatedBy,
@@ -77,8 +75,7 @@ namespace DUT.Application.Helpers
                 Type = NotificationType.LoginAttempt,
                 IsImportant = true,
                 IsRead = false,
-                ReadAt = null,
-                UserId = userId
+                ReadAt = null
             };
         }
 
@@ -127,6 +124,23 @@ namespace DUT.Application.Helpers
                 CreatedBy = Defaults.CreatedBy,
                 CreatedFromIP = "::1",
                 Type = NotificationType.Logout,
+                IsImportant = true,
+                IsRead = false,
+                ReadAt = null,
+            };
+        }
+
+        public static Notification GetLockedNotification()
+        {
+            return new Notification
+            {
+                Title = "Блокування",
+                Content = $"Увага! Через велику кількість невдалих спроб увійти ваш акаунт був заблокован на 1 годину, спробуйте пізніше",
+                ImageUrl = "https://media.istockphoto.com/vectors/lock-icon-vector-id936681148?k=20&m=936681148&s=612x612&w=0&h=j6fxNWrJ09iE7khUsDWetKn_PwWydgIS0yFJBEonGow=",
+                CreatedAt = DateTime.Now,
+                CreatedBy = Defaults.CreatedBy,
+                CreatedFromIP = "::1",
+                Type = NotificationType.Locked,
                 IsImportant = true,
                 IsRead = false,
                 ReadAt = null,

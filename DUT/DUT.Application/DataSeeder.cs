@@ -214,6 +214,7 @@ namespace DUT.Application
             {
                 var newUser1 = new User("Ярослав", "Юрійович", "Мудрик", "yaroslav.mudryk@gmail.com", "Yarik08");
                 newUser1.PasswordHash = Defaults.Password.GeneratePasswordHash();
+                newUser1.LockoutEnabled = true;
                 newUser1.PrepareToCreate();
                 db.Users.Add(newUser1);
                 db.SaveChanges();
