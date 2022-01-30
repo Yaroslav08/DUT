@@ -46,6 +46,7 @@ namespace DUT.Infrastructure.IoC
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<ILocationService, LocationService>();
             services.AddScoped<ISessionService, SessionService>();
+            services.AddScoped<INotificationService, NotificationService>();
 
             #endregion
 
