@@ -1,4 +1,5 @@
-﻿using DUT.Application.Extensions;
+﻿using AutoMapper;
+using DUT.Application.Extensions;
 using DUT.Application.Helpers;
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels;
@@ -17,6 +18,7 @@ namespace DUT.Application.Services.Implementations
     public class AuthenticationService : BaseService<User>, IAuthenticationService
     {
         private readonly DUTDbContext _db;
+        private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IIdentityService _identityService;
         private readonly ISessionManager _sessionManager;
@@ -25,7 +27,7 @@ namespace DUT.Application.Services.Implementations
         private readonly IRoleService _roleService;
         private readonly IDetector _detector;
 
-        public AuthenticationService(DUTDbContext db, IHttpContextAccessor httpContextAccessor, IIdentityService identityService, ISessionManager sessionManager, ILocationService locationService, ITokenService tokenService, IRoleService roleService, IDetector detector) : base(db)
+        public AuthenticationService(DUTDbContext db, IHttpContextAccessor httpContextAccessor, IIdentityService identityService, ISessionManager sessionManager, ILocationService locationService, ITokenService tokenService, IRoleService roleService, IDetector detector, IMapper mapper) : base(db)
         {
             _db = db;
             _httpContextAccessor = httpContextAccessor;
@@ -35,6 +37,31 @@ namespace DUT.Application.Services.Implementations
             _tokenService = tokenService;
             _roleService = roleService;
             _detector = detector;
+            _mapper = mapper;
+        }
+
+        public async Task<Result<UserViewModel>> BlockUserConfigAsync(BlockUserModel model)
+        {
+            var currentRole = _identityService.GetRole();
+            if (currentRole != Roles.Admin || currentRole != Roles.Moderator)
+                return Result<UserViewModel>.Error("Access denited");
+
+            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(s => s.Id == model.UserId);
+            if (user == null)
+                return Result<UserViewModel>.NotFound("User not found");
+            var count = model.AccessFailedCount;
+            if (count < 0 || count > 5)
+                model.AccessFailedCount = 0;
+
+            user.LockoutEnabled = model.LockoutEnabled;
+            user.LockoutEnd = model.LockoutEnd;
+            user.AccessFailedCount = model.AccessFailedCount;
+
+            user.PrepareToUpdate(_identityService);
+            _db.Users.Update(user);
+            await _db.SaveChangesAsync();
+
+            return Result<UserViewModel>.SuccessWithData(_mapper.Map<UserViewModel>(user));
         }
 
         public async Task<Result<AuthenticationInfo>> ChangePasswordAsync(PasswordCreateModel model)

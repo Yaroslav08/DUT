@@ -98,5 +98,27 @@ namespace DUT.Application.Services.Implementations
 
             return Result<List<UserShortViewModel>>.SuccessWithData(_mapper.Map<List<UserShortViewModel>>(result));
         }
+
+        public async Task<Result<UserViewModel>> UpdateUsernameAsync(UsernameUpdateModel model)
+        {
+            if (_identityService.GetRole() != Roles.Admin || model.UserId != _identityService.GetUserId())
+                return Result<UserViewModel>.Error("Access denited");
+
+            var userToUpdate = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.UserId);
+            if (userToUpdate == null)
+                return Result<UserViewModel>.NotFound("User by id not found");
+
+            if (userToUpdate.UserName == model.Username)
+                return Result<UserViewModel>.Error("Username equals current you");
+
+            if (await IsExistAsync(s => s.UserName == model.Username))
+                return Result<UserViewModel>.Error("Username is already busy");
+
+            userToUpdate.UserName = model.Username;
+            userToUpdate.PrepareToUpdate(_identityService);
+            _db.Users.Update(userToUpdate);
+            await _db.SaveChangesAsync();
+            return Result<UserViewModel>.SuccessWithData(_mapper.Map<UserViewModel>(userToUpdate));
+        }
     }
 }

@@ -8,9 +8,11 @@ namespace DUT.Web.Controllers.V1
     public class UsersController : ApiBaseController
     {
         private readonly IUserService _userService;
-        public UsersController(IUserService userService)
+        private readonly IIdentityService _identityService;
+        public UsersController(IUserService userService, IIdentityService identityService)
         {
             _userService = userService;
+            _identityService = identityService;
         }
 
         [HttpGet]
@@ -35,6 +37,14 @@ namespace DUT.Web.Controllers.V1
         public async Task<IActionResult> CreateUser([FromBody] UserCreateModel model)
         {
             return JsonResult(await _userService.CreateUserAsync(model));
+        }
+
+        [HttpPatch("username")]
+        public async Task<IActionResult> UpdateUsername([FromBody] UsernameUpdateModel model)
+        {
+            if (model.UserId == null)
+                model.UserId = _identityService.GetUserId();
+            return JsonResult(await _userService.UpdateUsernameAsync(model));
         }
     }
 }

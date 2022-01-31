@@ -71,5 +71,11 @@ namespace DUT.Web.Controllers.V1
                 userId = _identityService.GetUserId();
             return JsonResult(await _sessionService.GetAllSessionsByUserIdAsync(userId));
         }
+
+        [HttpPost("config")]
+        public async Task<IActionResult> ConfigUser([FromBody] BlockUserModel model)
+        {
+            return JsonResult(await _authenticationService.BlockUserConfigAsync(model));
+        }
     }
 }
