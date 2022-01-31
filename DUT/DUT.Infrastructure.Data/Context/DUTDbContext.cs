@@ -1,8 +1,6 @@
 ﻿using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Configurations;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-
 namespace DUT.Infrastructure.Data.Context
 {
     public class DUTDbContext : DbContext
