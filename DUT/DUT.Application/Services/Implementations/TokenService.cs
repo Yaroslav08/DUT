@@ -1,6 +1,7 @@
 ﻿using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels.Identity;
 using DUT.Constants;
+using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -41,13 +42,24 @@ namespace DUT.Application.Services.Implementations
             claims.Add(new Claim(CustomClaimTypes.UserName, user.UserName));
             claims.Add(new Claim(CustomClaimTypes.FullName, $"{user.LastName} {user.FirstName}"));
             claims.Add(new Claim(CustomClaimTypes.AuthenticationMethod, authType));
-            
-            foreach(var role in currentUserRoles)
+
+            foreach (var role in currentUserRoles)
             {
                 claims.Add(new Claim(CustomClaimTypes.Role, role.Name));
             }
 
-            //ToDo: later add claims from the database
+            var roleIds = currentUserRoles.Select(x => x.Id);
+
+            var permissionClaims = await _db.RoleClaims.Where(s => roleIds.Contains(s.RoleId)).ToListAsync();
+
+            if (permissionClaims != null && permissionClaims.Count > 0)
+            {
+                permissionClaims = (List<RoleClaim>)permissionClaims.Distinct();
+                foreach (var permissionClaim in permissionClaims)
+                {
+                    claims.Add(new Claim(permissionClaim.Type, permissionClaim.Value));
+                }
+            }
 
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
                     ClaimsIdentity.DefaultRoleClaimType);

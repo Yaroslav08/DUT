@@ -8,6 +8,8 @@ namespace DUT.Domain.Models
         public string Type { get; set; }
         [Required, StringLength(500)]
         public string Value { get; set; }
+        [StringLength(500, MinimumLength = 1)]
+        public string DisplayName { get; set; }
         public int RoleId { get; set; }
         public Role Role { get; set; }
     }

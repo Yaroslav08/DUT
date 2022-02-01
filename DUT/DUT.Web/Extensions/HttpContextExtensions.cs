@@ -8,12 +8,15 @@ namespace DUT.Web.Extensions
         {
             var endpoint = httpContext.GetEndpoint();
             var metadata = endpoint.Metadata;
-            foreach (var item in metadata)
+
+            var existAuthAttrbt = metadata.Any(s => s is AuthorizeAttribute);
+            if (existAuthAttrbt)
             {
-                if (item is AuthorizeAttribute)
+                if (metadata.Any(s => s is AllowAnonymousAttribute))
                 {
-                    return true;
+                    return false;
                 }
+                return true;
             }
             return false;
         }
