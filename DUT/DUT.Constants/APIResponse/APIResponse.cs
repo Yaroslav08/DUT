@@ -25,6 +25,11 @@
             return new APIResponse(false, error, null, data);
         }
 
+        public static APIResponse UnauthorizedResposne(string error = "Unauthorized")
+        {
+            return new APIResponse(false, error, "Access denited", null);
+        }
+
         public static APIResponse ForbiddenResposne()
         {
             return new APIResponse(false, "Forbidden", "You are missing access rights", null);
