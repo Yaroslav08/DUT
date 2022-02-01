@@ -65,10 +65,10 @@ namespace DUT.Application.Services.Implementations
             return _httpContext.Connection.RemoteIpAddress.ToString();
         }
 
-        public string GetRole()
+        public IEnumerable<string> GetRoles()
         {
-            var claim = _httpContext.User.Claims.FirstOrDefault(s => s.Type == CustomClaimTypes.Role);
-            return claim.Value;
+            var claim = _httpContext.User.Claims.Where(s => s.Type == CustomClaimTypes.Role);
+            return claim.Select(x => x.Value);
         }
 
         public string GetAuthenticationMethod()

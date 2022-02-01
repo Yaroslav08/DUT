@@ -47,9 +47,9 @@ namespace DUT.Application.Services.Implementations
             return "34.43.119.37";
         }
 
-        public string GetRole()
+        public IEnumerable<string> GetRoles()
         {
-            return Roles.Admin;
+            return new string[] { Roles.Admin }.AsEnumerable();
         }
 
         public string GetAuthenticationMethod()

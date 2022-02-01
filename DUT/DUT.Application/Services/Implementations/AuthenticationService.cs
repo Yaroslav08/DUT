@@ -42,8 +42,8 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<UserViewModel>> BlockUserConfigAsync(BlockUserModel model)
         {
-            var currentRole = _identityService.GetRole();
-            if (currentRole != Roles.Admin || currentRole != Roles.Moderator)
+            var currentRoles = _identityService.GetRoles();
+            if (currentRoles.Contains(Roles.Admin) || currentRoles.Contains(Roles.Moderator))
                 return Result<UserViewModel>.Error("Access denited");
 
             var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(s => s.Id == model.UserId);

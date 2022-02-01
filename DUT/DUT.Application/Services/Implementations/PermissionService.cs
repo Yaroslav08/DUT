@@ -18,81 +18,10 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<bool> HasPermissionAsync(PermissionAction action, object data = null)
         {
-            var role = _identityService.GetRole();
+            var roles = _identityService.GetRoles();
+            if (roles.Contains(Roles.Admin))
+                return true;
 
-            if (action == PermissionAction.CreateUniversity)
-            {
-                if (role == Roles.Admin)
-                    return true;
-            }
-            if (action == PermissionAction.EditUniversity)
-            {
-                if (role == Roles.Admin)
-                    return true;
-            }
-            if (action == PermissionAction.CreateFaculty)
-            {
-                if (role == Roles.Admin)
-                    return true;
-            }
-            if (action == PermissionAction.EditFaculty)
-            {
-                if (role == Roles.Admin)
-                    return true;
-            }
-            if (action == PermissionAction.RemoveFaculty)
-            {
-                if (role == Roles.Admin)
-                    return true;
-            }
-            if (action == PermissionAction.CreateSpecialty)
-            {
-                if (role == Roles.Admin)
-                    return true;
-            }
-            if (action == PermissionAction.EditSpecialty)
-            {
-                if (role == Roles.Admin)
-                    return true;
-            }
-            if (action == PermissionAction.RemoveSpecialty)
-            {
-                if (role == Roles.Admin)
-                    return true;
-            }
-            if (action == PermissionAction.CreateGroup)
-            {
-                if (role == Roles.Teacher || role == Roles.Moderator || role == Roles.Admin)
-                    return true;
-            }
-            if (action == PermissionAction.EditGroup)
-            {
-                if (role == Roles.Moderator || role == Roles.Admin)
-                    return true;
-                else
-                {
-                    int groupId = Convert.ToInt32(data);
-                    int currentUserId = _identityService.GetUserId();
-                    var userGroup = await _db.UserGroups
-                        .AsNoTracking()
-                        .Include(x => x.UserGroupRole)
-                        .FirstOrDefaultAsync(x => x.UserId == currentUserId && x.GroupId == groupId);
-                    if (userGroup == null)
-                        return false;
-
-                    var groupRole = userGroup.UserGroupRole;
-
-                    if (groupRole.Permissions.CanEditInfo)
-                    {
-                        return true;
-                    }
-                }
-            }
-            if (action == PermissionAction.RemoveGroup)
-            {
-                if (role == Roles.Admin)
-                    return true;
-            }
             return false;
         }
 

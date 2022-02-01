@@ -12,7 +12,7 @@ namespace DUT.Application.Services.Interfaces
         string GetIdentityData();
         string GetBearerToken();
         string GetIP();
-        string GetRole();
+        IEnumerable<string> GetRoles();
         string GetAuthenticationMethod();
         UserIdentity GetUserDetails();
     }

@@ -28,11 +28,11 @@ namespace DUT.Application.Services.Implementations
             if (user == null)
                 return null;
 
-            var currentUserRole = await _db.UserRoles
+            var currentUserRoles = await _db.UserRoles
                 .Where(x => x.UserId == user.Id)
                 .Include(x => x.Role)
                 .Select(x => x.Role)
-                .FirstOrDefaultAsync();
+                .ToListAsync();
 
             var claims = new List<Claim>();
             claims.Add(new Claim(CustomClaimTypes.CurrentSessionId, sessionId.ToString()));
@@ -41,7 +41,11 @@ namespace DUT.Application.Services.Implementations
             claims.Add(new Claim(CustomClaimTypes.UserName, user.UserName));
             claims.Add(new Claim(CustomClaimTypes.FullName, $"{user.LastName} {user.FirstName}"));
             claims.Add(new Claim(CustomClaimTypes.AuthenticationMethod, authType));
-            claims.Add(new Claim(CustomClaimTypes.Role, currentUserRole.Name));
+            
+            foreach(var role in currentUserRoles)
+            {
+                claims.Add(new Claim(CustomClaimTypes.Role, role.Name));
+            }
 
             //ToDo: later add claims from the database
 

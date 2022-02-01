@@ -101,7 +101,7 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<UserViewModel>> UpdateUsernameAsync(UsernameUpdateModel model)
         {
-            if (_identityService.GetRole() != Roles.Admin || model.UserId != _identityService.GetUserId())
+            if (_identityService.GetRoles().Contains(Roles.Admin) || model.UserId != _identityService.GetUserId())
                 return Result<UserViewModel>.Error("Access denited");
 
             var userToUpdate = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.UserId);
