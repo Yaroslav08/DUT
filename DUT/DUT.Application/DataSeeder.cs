@@ -95,13 +95,17 @@ namespace DUT.Application
                 role2.PrepareToCreate();
                 listRoles.Add(role2);
 
-                var role3 = new Role(Roles.Teacher);
+                var role3 = new Role(Roles.Developer);
                 role3.PrepareToCreate();
                 listRoles.Add(role3);
 
-                var role4 = new Role(Roles.Student);
+                var role4 = new Role(Roles.Teacher);
                 role4.PrepareToCreate();
                 listRoles.Add(role4);
+
+                var role5 = new Role(Roles.Student);
+                role5.PrepareToCreate();
+                listRoles.Add(role5);
 
                 db.Roles.AddRange(listRoles);
                 count++;
@@ -229,6 +233,13 @@ namespace DUT.Application
             #endregion
 
             db.Dispose();
+        }
+
+        private static bool ConfigClaimsWithRoles(DUTDbContext _db)
+        {
+
+
+            return true;
         }
     }
 }

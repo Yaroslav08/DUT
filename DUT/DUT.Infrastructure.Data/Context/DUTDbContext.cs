@@ -20,9 +20,7 @@ namespace DUT.Infrastructure.Data.Context
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserLogin> UserLogins { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
-        public DbSet<Claim> Claims { get; set; }
         public DbSet<RoleClaim> RoleClaims { get; set; }
-
         public DbSet<Session> Sessions { get; set; }
         public DbSet<University> Universities { get; set; }
         public DbSet<Faculty> Faculties { get; set; }
