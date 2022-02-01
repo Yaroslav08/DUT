@@ -1,4 +1,5 @@
 ﻿using DUT.Application.Services.Interfaces;
+using DUT.Application.ViewModels.Identity;
 using DUT.Constants;
 using DUT.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
@@ -93,6 +94,17 @@ namespace DUT.Application.Services.Implementations
                     return true;
             }
             return false;
+        }
+
+        public async Task<bool> HasPermissionAsync(string claimType, string claimValue, object data = null)
+        {
+            UserIdentity currentUser = _identityService.GetUserDetails();
+            if (currentUser.IsAdministrator)
+                return true;
+
+
+
+            return currentUser.Claims.Any(x => x.Type == claimType && x.Value == claimValue);
         }
     }
 }

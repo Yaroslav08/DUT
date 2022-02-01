@@ -1,4 +1,6 @@
-﻿namespace DUT.Application.Services.Interfaces
+﻿using DUT.Application.ViewModels.Identity;
+
+namespace DUT.Application.Services.Interfaces
 {
     public interface IIdentityService
     {
@@ -12,5 +14,6 @@
         string GetIP();
         string GetRole();
         string GetAuthenticationMethod();
+        UserIdentity GetUserDetails();
     }
 }

@@ -3,6 +3,7 @@
     public interface IPermissionService
     {
         Task<bool> HasPermissionAsync(PermissionAction action, object data = null);
+        Task<bool> HasPermissionAsync(string claimType, string claimValue, object data = null);
     }
 
     public enum PermissionAction

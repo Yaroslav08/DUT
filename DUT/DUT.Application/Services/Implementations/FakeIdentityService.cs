@@ -1,5 +1,7 @@
 ﻿using DUT.Application.Services.Interfaces;
+using DUT.Application.ViewModels.Identity;
 using DUT.Constants;
+using System.Security.Claims;
 
 namespace DUT.Application.Services.Implementations
 {
@@ -53,6 +55,23 @@ namespace DUT.Application.Services.Implementations
         public string GetAuthenticationMethod()
         {
             return "pwd";
+        }
+
+        public UserIdentity GetUserDetails()
+        {
+            return new UserIdentity
+            {
+                CurrentSessionId = GetCurrentSessionId(),
+                Fullname = GetFullName(),
+                Login = GetLoginEmail(),
+                Username = GetUserName(),
+                Id = GetUserId(),
+                Roles = new string[] { "Administrator", "Developer" },
+                Claims = new List<Claim>
+                {
+                    new Claim("University", "Create")
+                }
+            };
         }
     }
 }

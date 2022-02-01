@@ -1,4 +1,5 @@
 ﻿using DUT.Application.Services.Interfaces;
+using DUT.Application.ViewModels.Identity;
 using DUT.Constants;
 using Microsoft.AspNetCore.Http;
 
@@ -74,6 +75,22 @@ namespace DUT.Application.Services.Implementations
         {
             var claim = _httpContext.User.Claims.FirstOrDefault(s => s.Type == CustomClaimTypes.AuthenticationMethod);
             return claim.Value;
+        }
+
+        public UserIdentity GetUserDetails()
+        {
+            var claims = _httpContext.User.Claims;
+            var roles = claims.Where(s => s.Type == CustomClaimTypes.Role);
+            return new UserIdentity
+            {
+                CurrentSessionId = GetCurrentSessionId(),
+                Fullname = GetFullName(),
+                Id = GetUserId(),
+                Login = GetLoginEmail(),
+                Username = GetUserName(),
+                Claims = claims,
+                Roles = roles.Select(s => s.Value),
+            };
         }
     }
 }
