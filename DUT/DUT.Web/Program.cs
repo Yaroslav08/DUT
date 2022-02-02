@@ -2,14 +2,21 @@ using DUT.Application;
 using DUT.Constants;
 using DUT.Infrastructure.Data.Context;
 using DUT.Infrastructure.IoC;
+using DUT.Web.Filters;
 using DUT.Web.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 #region Services
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 builder.Services.AddApiVersioning(options =>
 {
@@ -38,14 +45,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddDUTServices(builder.Configuration);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add(new ModelStateValidatorAttribute());
+}).AddJsonOptions(options => options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull);
 
 builder.Services.AddSwaggerGen(s =>
 {
     s.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
-        Title = "USN API",
+        Title = "DUT API",
     });
     s.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
