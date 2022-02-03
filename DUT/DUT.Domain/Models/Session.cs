@@ -11,9 +11,10 @@ namespace DUT.Domain.Models
         [Required]
         public bool IsActive { get; set; }
         public DateTime? DeactivatedAt { get; set; }
-        public Guid DeactivatedBySessionId { get; set; }
+        public Guid? DeactivatedBySessionId { get; set; }
         [StringLength(5000, MinimumLength = 5)]
         public string Token { get; set; }
+        public DateTime ExpiredAt { get; set; }
         public int UserId { get; set; }
         public User User { get; set; }
     }

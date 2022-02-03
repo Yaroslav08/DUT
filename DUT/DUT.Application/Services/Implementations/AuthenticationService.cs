@@ -4,6 +4,7 @@ using DUT.Application.Helpers;
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.Identity;
+using DUT.Application.ViewModels.Session;
 using DUT.Application.ViewModels.User;
 using DUT.Constants;
 using DUT.Domain.Models;
@@ -167,15 +168,15 @@ namespace DUT.Application.Services.Implementations
                 App = appDb,
                 Client = model.Client,
                 Location = location,
-                UserId = user.Id,
-                Token = "tempToken"
+                UserId = user.Id
             };
-
-            session.PrepareToCreate();
 
             var jwtToken = await _tokenService.GetUserTokenAsync(user.Id, sessionId, "pwd");
 
             session.Token = jwtToken.Token;
+            session.ExpiredAt = jwtToken.ExpiredAt;
+
+            session.PrepareToCreate();
 
             var loginNotify = NotificationsHelper.GetLoginNotification(session);
             loginNotify.UserId = user.Id;
@@ -186,7 +187,7 @@ namespace DUT.Application.Services.Implementations
 
             await _db.SaveChangesAsync();
 
-            _sessionManager.AddSession(jwtToken.Token);
+            _sessionManager.AddSession(new TokenModel(jwtToken.Token, jwtToken.ExpiredAt));
 
             return Result<JwtToken>.SuccessWithData(jwtToken);
         }
