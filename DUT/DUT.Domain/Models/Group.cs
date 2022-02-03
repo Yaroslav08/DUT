@@ -6,6 +6,7 @@ namespace DUT.Domain.Models
     {
         [Required, StringLength(50, MinimumLength = 1)]
         public string Name { get; set; }
+        public int IndexNumber { get; set; }
         [StringLength(1000, MinimumLength = 1)]
         public string Image { get; set; }
         [Required]

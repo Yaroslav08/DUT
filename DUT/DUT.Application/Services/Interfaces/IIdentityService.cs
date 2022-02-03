@@ -13,6 +13,7 @@ namespace DUT.Application.Services.Interfaces
         string GetBearerToken();
         string GetIP();
         IEnumerable<string> GetRoles();
+        IEnumerable<int> GetGroupMemberIds();
         string GetAuthenticationMethod();
         UserIdentity GetUserDetails();
     }

@@ -1,4 +1,5 @@
-﻿using DUT.Infrastructure.Data.Context;
+﻿using DUT.Domain.Models;
+using DUT.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -7,6 +8,7 @@ namespace DUT.Application.Services.Implementations
     public class BaseService<T> where T : class
     {
         private readonly DUTDbContext _db;
+        protected IEnumerable<T> Exists { get; set; }
         public BaseService(DUTDbContext db)
         {
             _db = db;
@@ -22,7 +24,12 @@ namespace DUT.Application.Services.Implementations
         public async Task<bool> IsExistAsync(Expression<Func<T, bool>> predicate = null)
         {
             var items = await _db.Set<T>().AsNoTracking().Where(predicate).ToListAsync();
-            return items.Any();
+            if (items != null && items.Count > 0)
+            {
+                Exists = items;
+                return true;
+            }
+            return false;
         }
     }
 }

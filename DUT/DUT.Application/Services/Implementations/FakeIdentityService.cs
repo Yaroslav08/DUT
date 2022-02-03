@@ -73,5 +73,10 @@ namespace DUT.Application.Services.Implementations
                 }
             };
         }
+
+        public IEnumerable<int> GetGroupMemberIds()
+        {
+            return new int[] { 1 }.AsEnumerable();
+        }
     }
 }

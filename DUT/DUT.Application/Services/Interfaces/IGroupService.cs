@@ -10,6 +10,7 @@ namespace DUT.Application.Services.Interfaces
         Task<Result<GroupViewModel>> GetGroupByIdAsync(int id);
         Task<Result<List<GroupViewModel>>> SearchGroupsAsync(string name);
         Task<Result<GroupViewModel>> CreateGroupAsync(GroupCreateModel model);
+        Task<Result<GroupViewModel>> IncreaseCourseOfGroupAsync(int groupId);
         Task<Result<List<GroupMemberViewModel>>> GetGroupMembersAsync(int groupId, int afterId = int.MaxValue, int count = 20, int status = 0);
         Task<Result<GroupMemberViewModel>> GetGroupMemberByIdAsync(int groupId, int memberId);
         Task<Result<GroupMemberViewModel>> UpdateGroupMemberAsync(GroupMemberEditModel model);

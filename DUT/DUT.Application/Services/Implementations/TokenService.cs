@@ -48,6 +48,17 @@ namespace DUT.Application.Services.Implementations
                 claims.Add(new Claim(CustomClaimTypes.Role, role.Name));
             }
 
+            var userGroups = await _db.UserGroups.AsNoTracking().Where(x => x.UserId == user.Id && x.Status == UserGroupStatus.Member).ToListAsync();
+
+            if (userGroups != null && userGroups.Any())
+            {
+                foreach (var userGroup in userGroups)
+                {
+                    claims.Add(new Claim(CustomClaimTypes.GroupMemberId, userGroup.Id.ToString()));
+                }
+            }
+
+
             var roleIds = currentUserRoles.Select(x => x.Id);
 
             var permissionClaims = await _db.RoleClaims.Where(s => roleIds.Contains(s.RoleId)).ToListAsync();

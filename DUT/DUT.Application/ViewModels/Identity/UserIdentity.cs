@@ -11,6 +11,7 @@ namespace DUT.Application.ViewModels.Identity
         public Guid CurrentSessionId { get; set; }
         public IEnumerable<Claim> Claims { get; set; }
         public IEnumerable<string> Roles { get; set; }
+        public IEnumerable<int> UserGroupIds { get; set; }
 
         public bool IsAdministrator
         {

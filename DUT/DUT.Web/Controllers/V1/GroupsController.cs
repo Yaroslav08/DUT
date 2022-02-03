@@ -20,6 +20,12 @@ namespace DUT.Web.Controllers.V1
             return JsonResult(await _groupService.CreateGroupAsync(model));
         }
 
+        [HttpPatch("{groupId}/increase-course")]
+        public async Task<IActionResult> IncreaseCourseInGroup(int groupId)
+        {
+            return JsonResult(await _groupService.IncreaseCourseOfGroupAsync(groupId));
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAllGroups(int afterId = int.MaxValue, int count = 20)
         {

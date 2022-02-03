@@ -58,13 +58,19 @@ namespace DUT.Application.Extensions
 
         public static IEnumerable<string> GetRoles(this HttpContext _httpContext)
         {
-            var claim = _httpContext.User.Claims.Where(s => s.Type == CustomClaimTypes.Role);
-            return claim.Select(x => x.Value);
+            var claims = _httpContext.User.Claims.Where(s => s.Type == CustomClaimTypes.Role);
+            return claims.Select(x => x.Value);
         }
         public static string GetAuthenticationMethod(this HttpContext _httpContext)
         {
             var claim = _httpContext.User.Claims.FirstOrDefault(s => s.Type == CustomClaimTypes.AuthenticationMethod);
             return claim.Value;
+        }
+
+        public static IEnumerable<int> GetGroupMemberIds(this HttpContext _httpContext)
+        {
+            var claims = _httpContext.User.Claims.Where(s => s.Type == CustomClaimTypes.GroupMemberId);
+            return claims.Select(x => Convert.ToInt32(x.Value));
         }
 
         public static UserIdentity GetUserDetails(this HttpContext _httpContext)
@@ -80,6 +86,7 @@ namespace DUT.Application.Extensions
                 Username = GetUserName(_httpContext),
                 Claims = claims,
                 Roles = roles.Select(s => s.Value),
+                UserGroupIds = GetGroupMemberIds(_httpContext)
             };
         }
     }

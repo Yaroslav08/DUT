@@ -8,7 +8,7 @@ using DUT.Constants;
 using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
-
+using DUT.Application.Validations;
 namespace DUT.Application.Services.Implementations
 {
     public class GroupService : BaseService<Group>, IGroupService
@@ -29,7 +29,12 @@ namespace DUT.Application.Services.Implementations
                 return Result<GroupViewModel>.Error("Same group already exist");
 
             if (!await _db.Specialties.AsNoTracking().AnyAsync(s => s.Id == model.SpecialtyId))
-                return Result<GroupViewModel>.Error("Specialty not found");
+                return Result<GroupViewModel>.NotFound("Specialty not found");
+
+            if (!model.TryValidateGroupName(out var error))
+            {
+                return Result<GroupViewModel>.Error(error);
+            }
 
             var newGroup = new Group
             {
@@ -39,6 +44,12 @@ namespace DUT.Application.Services.Implementations
                 SpecialtyId = model.SpecialtyId,
                 Image = model.Image ?? Defaults.GroupImage
             };
+
+            if (model.TryGetIndexForNumber(out var index))
+            {
+                newGroup.IndexNumber = index;
+            }
+
             newGroup.PrepareToCreate(_identityService);
 
             await _db.Groups.AddAsync(newGroup);
@@ -210,6 +221,25 @@ namespace DUT.Application.Services.Implementations
 
             var groupMembersToView = groupMembers.MapToViews(false);
             return Result<List<GroupMemberViewModel>>.SuccessWithData(groupMembersToView);
+        }
+
+        public async Task<Result<GroupViewModel>> IncreaseCourseOfGroupAsync(int groupId)
+        {
+            if (!await IsExistAsync(x => x.Id == groupId))
+                return Result<GroupViewModel>.NotFound($"Group with ID ({groupId}) not found");
+
+            var group = Exists.First();
+
+            if (group.Course >= 6)
+                return Result<GroupViewModel>.Error($"Group course can`t be more then {group.Course}");
+
+            group.IncreaseCourse();
+
+            group.PrepareToUpdate(_identityService);
+            _db.Groups.Update(group);
+            await _db.SaveChangesAsync();
+
+            return Result<GroupViewModel>.SuccessWithData(_mapper.Map<GroupViewModel>(group));
         }
 
         public async Task<Result<bool>> RemoveGroupInviteAsync(int groupId, Guid groupInviteId)

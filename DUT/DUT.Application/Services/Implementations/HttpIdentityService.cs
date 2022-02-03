@@ -68,5 +68,10 @@ namespace DUT.Application.Services.Implementations
         {
             return _httpContext.GetUserDetails();
         }
+
+        public IEnumerable<int> GetGroupMemberIds()
+        {
+            return _httpContext.GetGroupMemberIds();
+        }
     }
 }
