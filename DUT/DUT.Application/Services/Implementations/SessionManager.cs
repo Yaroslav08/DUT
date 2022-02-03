@@ -3,7 +3,6 @@ using DUT.Application.ViewModels.Session;
 using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
 using Microsoft.Extensions.DependencyInjection;
-
 namespace DUT.Application.Services.Implementations
 {
     public class SessionManager : ISessionManager
@@ -62,7 +61,11 @@ namespace DUT.Application.Services.Implementations
 
         public bool IsActiveSession(string token)
         {
-            return _tokens.Any(x => x.Token == token);
+            var tokenModel = _tokens.FirstOrDefault(x => x.Token == token);
+            var now = DateTime.Now;
+            if (tokenModel != null && tokenModel.ExpiredAt > now)
+                return true;
+            return false;
         }
 
         public IList<TokenModel> GetAllTokens()
