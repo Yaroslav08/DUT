@@ -1,20 +1,29 @@
 ﻿using DUT.Application.Services.Interfaces;
+using DUT.Infrastructure.Data.Context;
+using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 
 namespace DUT.Application.Services.Implementations
 {
-    public class SessionManager : ISessionManager, IAsyncDisposable
+    public class SessionManager : ISessionManager
     {
         private readonly IList<string> _tokens;
 
-        public SessionManager()
+        private IList<string> GetActualTokensFromDb(DUTDbContext db)
         {
-            _tokens = DownloadContentAsync().GetAwaiter().GetResult();
+            var sessions = db.Sessions.Where(s => s.IsActive).Select(s => s.Token).ToList();
+            if (sessions == null || !sessions.Any())
+                return new List<string>();
+            return sessions;
         }
 
-        public SessionManager(string[] tokens)
+        public SessionManager(IServiceScopeFactory _serviceScopeFactory)
         {
-            _tokens = new List<string>(tokens);
+            using var scope = _serviceScopeFactory.CreateScope();
+
+            var dbContext = scope.ServiceProvider.GetRequiredService<DUTDbContext>();
+
+            _tokens = GetActualTokensFromDb(dbContext);
         }
 
         public bool AddSession(string token)
@@ -23,11 +32,6 @@ namespace DUT.Application.Services.Implementations
                 return false;
             _tokens.Add(token);
             return true;
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            await UploadContentAsync(_tokens);
         }
 
         public List<string> GetAllTokens()
@@ -50,26 +54,6 @@ namespace DUT.Application.Services.Implementations
                 return true;
             }
             return false;
-        }
-
-        private async Task<List<string>> DownloadContentAsync()
-        {
-            if (!File.Exists(path))
-                return new List<string>(5);
-            using var sr = new StreamReader(path);
-            var content = await sr.ReadToEndAsync();
-            var res = JsonSerializer.Deserialize<List<string>>(content);
-            if (res == null || res.Count == 0)
-            {
-                return new List<string>(5);
-            }
-            return res;
-        }
-
-        private async Task UploadContentAsync(object data)
-        {
-            using var sw = new StreamWriter(path);
-            await sw.WriteAsync(JsonSerializer.Serialize(data));
         }
 
         public bool AddRangeSessions(IEnumerable<string> tokens)
@@ -103,7 +87,5 @@ namespace DUT.Application.Services.Implementations
             }
             return true;
         }
-
-        private readonly string path = "sessions.json";
     }
 }
