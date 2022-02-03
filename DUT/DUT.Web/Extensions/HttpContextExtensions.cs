@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using DUT.Application.ViewModels.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DUT.Web.Extensions
 {

@@ -43,6 +43,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddLogging(x =>
+{
+    x.AddConsole();
+});
+
 builder.Services.AddDUTServices(builder.Configuration);
 
 builder.Services.AddControllers(options =>
@@ -80,6 +85,7 @@ builder.Services.AddSwaggerGen(s =>
                     }
                 });
 });
+
 #endregion
 
 var app = builder.Build();
@@ -113,6 +119,7 @@ app.UseSessionHandler();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseStatistics();
 
 app.UseEndpoints(endpoints =>
 {

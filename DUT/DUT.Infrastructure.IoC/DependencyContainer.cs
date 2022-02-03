@@ -18,6 +18,7 @@ namespace DUT.Infrastructure.IoC
             services.AddDbContext<DUTDbContext>(options =>
             {
                 options.UseSqlServer(connString);
+                options.LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Error);
             });            
             #endregion
 

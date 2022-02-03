@@ -36,7 +36,7 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<List<NotificationViewModel>>> GetUserNotificationsAsync(int userId)
         {
-            if (userId != _identityService.GetUserId() || _identityService.GetRoles().Contains(Roles.Admin))
+            if (userId != _identityService.GetUserId() || !_identityService.GetRoles().Contains(Roles.Admin))
                 return Result<List<NotificationViewModel>>.Error("Access denited");
 
             var notifications = await _db.Notifications

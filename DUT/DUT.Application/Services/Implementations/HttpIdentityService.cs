@@ -1,6 +1,6 @@
-﻿using DUT.Application.Services.Interfaces;
+﻿using DUT.Application.Extensions;
+using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels.Identity;
-using DUT.Constants;
 using Microsoft.AspNetCore.Http;
 
 namespace DUT.Application.Services.Implementations
@@ -16,81 +16,57 @@ namespace DUT.Application.Services.Implementations
 
         public int GetUserId()
         {
-            var claim = _httpContext.User.Claims.FirstOrDefault(s => s.Type == CustomClaimTypes.UserId);
-            return Convert.ToInt32(claim.Value);
+            return _httpContext.GetUserId();
         }
 
         public string GetUserName()
         {
-            var claim = _httpContext.User.Claims.FirstOrDefault(s => s.Type == CustomClaimTypes.UserName);
-            return claim.Value;
+            return _httpContext.GetUserName();
         }
 
         public string GetFullName()
         {
-            var claim = _httpContext.User.Claims.FirstOrDefault(s => s.Type == CustomClaimTypes.FullName);
-            return claim.Value;
+            return _httpContext.GetFullName();
         }
 
         public string GetLoginEmail()
         {
-            var claim = _httpContext.User.Claims.FirstOrDefault(s => s.Type == CustomClaimTypes.Login);
-            return claim.Value;
+            return _httpContext.GetLoginEmail();
         }
 
         public Guid GetCurrentSessionId()
         {
-            var claim = _httpContext.User.Claims.FirstOrDefault(s => s.Type == CustomClaimTypes.CurrentSessionId);
-            return Guid.Parse(claim.Value);
+            return _httpContext.GetCurrentSessionId();
         }
 
         public string GetIdentityData()
         {
-            return $"{GetLoginEmail()} ({GetUserId()})";
+            return _httpContext.GetIdentityData();
         }
 
         public string GetBearerToken()
         {
-            var bearerWord = "Bearer ";
-            var bearerToken = _httpContext.Request.Headers["Authorization"].ToString();
-            if (bearerToken.StartsWith(bearerWord, StringComparison.OrdinalIgnoreCase))
-            {
-                return bearerToken.Substring(bearerWord.Length).Trim();
-            }
-            return bearerToken;
+            return _httpContext.GetBearerToken();
         }
 
         public string GetIP()
         {
-            return _httpContext.Connection.RemoteIpAddress.ToString();
+            return _httpContext.GetIP();
         }
 
         public IEnumerable<string> GetRoles()
         {
-            var claim = _httpContext.User.Claims.Where(s => s.Type == CustomClaimTypes.Role);
-            return claim.Select(x => x.Value);
+            return _httpContext.GetRoles();
         }
 
         public string GetAuthenticationMethod()
         {
-            var claim = _httpContext.User.Claims.FirstOrDefault(s => s.Type == CustomClaimTypes.AuthenticationMethod);
-            return claim.Value;
+            return _httpContext.GetAuthenticationMethod();
         }
 
         public UserIdentity GetUserDetails()
         {
-            var claims = _httpContext.User.Claims;
-            var roles = claims.Where(s => s.Type == CustomClaimTypes.Role);
-            return new UserIdentity
-            {
-                CurrentSessionId = GetCurrentSessionId(),
-                Fullname = GetFullName(),
-                Id = GetUserId(),
-                Login = GetLoginEmail(),
-                Username = GetUserName(),
-                Claims = claims,
-                Roles = roles.Select(s => s.Value),
-            };
+            return _httpContext.GetUserDetails();
         }
     }
 }

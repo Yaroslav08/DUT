@@ -17,7 +17,7 @@ namespace DUT.Application.ViewModels.Identity
             get
             {
                 return Roles == null ? false :
-                    Roles.Any(x => x.ToLower() == DUT.Constants.Roles.Admin.ToLower());
+                    Roles.Any(x => x.ToLower() == Constants.Roles.Admin.ToLower());
             }
         }
     }
