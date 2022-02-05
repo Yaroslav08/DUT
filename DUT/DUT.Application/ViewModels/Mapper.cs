@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DUT.Application.ViewModels.Apps;
+using DUT.Application.ViewModels.Diploma;
 using DUT.Application.ViewModels.Faculty;
 using DUT.Application.ViewModels.Group;
 using DUT.Application.ViewModels.Group.GroupMember;
@@ -48,6 +49,8 @@ namespace DUT.Application.ViewModels
             CreateMap<Domain.Models.Session, SessionViewModel>().ReverseMap();
 
             CreateMap<Domain.Models.Notification, NotificationViewModel>().ReverseMap();
+
+            CreateMap<Domain.Models.Diploma, DiplomaViewModel>().ReverseMap();
         }
 
         private string BuildFullName(Domain.Models.User user)

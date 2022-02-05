@@ -11,6 +11,8 @@ namespace DUT.Application.ViewModels.Group
         [Required]
         public DateTime StartStudy { get; set; }
         [Required]
+        public DateTime EndStudy { get; set; }
+        [Required]
         public int Course { get; set; }
         [Required]
         public int SpecialtyId { get; set; }

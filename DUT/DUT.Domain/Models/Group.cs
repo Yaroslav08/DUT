@@ -12,6 +12,8 @@ namespace DUT.Domain.Models
         [Required]
         public DateTime StartStudy { get; set; }
         [Required]
+        public DateTime EndStudy { get; set; }
+        [Required]
         public int Course { get; set; }
         public int SpecialtyId { get; set; }
         public Specialty Specialty { get; set; }

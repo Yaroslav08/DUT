@@ -41,6 +41,7 @@ namespace DUT.Application.Services.Implementations
                 Name = model.Name,
                 Course = model.Course,
                 StartStudy = model.StartStudy,
+                EndStudy = model.EndStudy,
                 SpecialtyId = model.SpecialtyId,
                 Image = model.Image ?? Defaults.GroupImage
             };

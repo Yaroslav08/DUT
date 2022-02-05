@@ -1,4 +1,5 @@
 ﻿using DUT.Application.ViewModels.Specialty;
+
 namespace DUT.Application.ViewModels.Group
 {
     public class GroupViewModel
@@ -9,6 +10,7 @@ namespace DUT.Application.ViewModels.Group
         public string Image { get; set; }
         public int Course { get; set; }
         public DateTime StartStudy { get; set; }
+        public DateTime EndStudy { get; set; }
         public int CountOfStudents { get; set; }
         public SpecialtyViewModel Specialty { get; set; }
         public List<GroupInviteViewModel> GroupInvites { get; set; }

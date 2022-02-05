@@ -53,7 +53,7 @@ builder.Services.AddDUTServices(builder.Configuration);
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(new ModelStateValidatorAttribute());
-}).AddJsonOptions(options => options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull);
+});
 
 builder.Services.AddSwaggerGen(s =>
 {

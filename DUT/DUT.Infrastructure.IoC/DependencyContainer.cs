@@ -48,6 +48,7 @@ namespace DUT.Infrastructure.IoC
             services.AddScoped<ILocationService, LocationService>();
             services.AddScoped<ISessionService, SessionService>();
             services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IDiplomaService, DiplomaService>();
 
             #endregion
 
