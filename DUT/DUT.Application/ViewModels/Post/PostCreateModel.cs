@@ -1,0 +1,21 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DUT.Application.ViewModels.Post
+{
+    public class PostCreateModel
+    {
+        [Required, StringLength(150, MinimumLength = 1)]
+        public string Title { get; set; }
+        [Required, StringLength(10000, MinimumLength = 5)]
+        public string Content { get; set; }
+        [Required]
+        public bool IsImportant { get; set; }
+        [Required]
+        public bool AvailableToComment { get; set; }
+        [Required]
+        public bool IsPublic { get; set; }
+        [Required]
+        public int GroupId { get; set; }
+        public int? FromUserId { get; set; }
+    }
+}

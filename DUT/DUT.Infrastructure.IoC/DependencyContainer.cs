@@ -49,6 +49,8 @@ namespace DUT.Infrastructure.IoC
             services.AddScoped<ISessionService, SessionService>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IDiplomaService, DiplomaService>();
+            services.AddScoped<IPostService, PostService>();
+            services.AddScoped<ICommentService, CommentService>();
 
             #endregion
 
