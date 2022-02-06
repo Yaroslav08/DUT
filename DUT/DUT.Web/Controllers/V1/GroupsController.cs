@@ -12,14 +12,10 @@ namespace DUT.Web.Controllers.V1
     {
         private readonly IGroupService _groupService;
         private readonly IIdentityService _identityService;
-        private readonly IPostService _postService;
-        private readonly ICommentService _commentService;
-        public GroupsController(IGroupService groupService, IIdentityService identityService, IPostService postService, ICommentService commentService)
+        public GroupsController(IGroupService groupService, IIdentityService identityService)
         {
             _groupService = groupService;
             _identityService = identityService;
-            _postService = postService;
-            _commentService = commentService;
         }
 
         #region Groups
@@ -120,14 +116,14 @@ namespace DUT.Web.Controllers.V1
         [HttpGet("{groupId}/posts")]
         public async Task<IActionResult> GetGroupPosts(int groupId, int offset = 0, int count = 20)
         {
-            return JsonResult(await _postService.GetPostsByGroupIdAsync(groupId, offset, count));
+            return JsonResult(await _groupService.GetGroupPostsAsync(groupId, offset, count));
         }
 
         [HttpPost("{groupId}/posts")]
         public async Task<IActionResult> CreatePost(int groupId, [FromBody] PostCreateModel model)
         {
             model.GroupId = groupId;
-            return JsonResult(await _postService.CreatePostAsync(model));
+            return JsonResult(await _groupService.CreateGroupPostAsync(model));
         }
 
         [HttpPut("{groupId}/posts/{postId}")]
@@ -135,19 +131,19 @@ namespace DUT.Web.Controllers.V1
         {
             model.Id = postId;
             model.GroupId = groupId;
-            return JsonResult(await _postService.UpdatePostAsync(model));
+            return JsonResult(await _groupService.UpdateGroupPostAsync(model));
         }
 
         [HttpGet("{groupId}/posts/{postId}")]
         public async Task<IActionResult> GetGroupPostById(int groupId, int postId)
         {
-            return JsonResult(await _postService.GetPostByIdAsync(postId, groupId));
+            return JsonResult(await _groupService.GetGroupPostByIdAsync(postId, groupId));
         }
 
         [HttpDelete("{groupId}/posts/{postId}")]
         public async Task<IActionResult> DeletePostById(int groupId, int postId)
         {
-            return JsonResult(await _postService.RemovePostAsync(postId, groupId));
+            return JsonResult(await _groupService.RemoveGroupPostAsync(postId, groupId));
         }
 
         #endregion
@@ -157,27 +153,29 @@ namespace DUT.Web.Controllers.V1
         [HttpGet("{groupId}/posts/{postId}/comments")]
         public async Task<IActionResult> GetPostComments(int groupId, int postId, int offset = 0, int count = 20)
         {
-            return JsonResult(await _commentService.GetCommentsByPostIdAsync(postId, offset, count));
+            return JsonResult(await _groupService.GetPostCommentsAsync(postId, offset, count));
         }
 
         [HttpPost("{groupId}/posts/{postId}/comments")]
         public async Task<IActionResult> CreateComment(int groupId, int postId, [FromBody] CommentCreateModel model)
         {
             model.PostId = postId;
-            return JsonResult(await _commentService.CreateCommentAsync(model));
+            model.GroupId = groupId;
+            return JsonResult(await _groupService.CreateCommentAsync(model));
         }
 
         [HttpPut("{groupId}/posts/{postId}/comments/{commentId}")]
         public async Task<IActionResult> UpdateComment(int groupId, int postId, long commentId, [FromBody] CommentEditModel model)
         {
             model.PostId = postId;
-            return JsonResult(await _commentService.UpdateCommentAsync(model));
+            model.GroupId = groupId;
+            return JsonResult(await _groupService.UpdateCommentAsync(model));
         }
 
         [HttpDelete("{groupId}/posts/{postId}/comments/{commentId}")]
         public async Task<IActionResult> RemoveComment(int groupId, int postId, long commentId)
         {
-            return JsonResult(await _commentService.RemoveCommentAsync(commentId));
+            return JsonResult(await _groupService.RemoveCommentAsync(groupId, postId, commentId));
         }
 
         #endregion
