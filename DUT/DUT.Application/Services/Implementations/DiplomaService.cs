@@ -135,5 +135,21 @@ namespace DUT.Application.Services.Implementations
 
             return Result<DiplomaViewModel>.SuccessWithData(_mapper.Map<DiplomaViewModel>(studentDiploma));
         }
+
+        public async Task<Result<DiplomaViewModel>> GetDiplomaByIdAsync(string id)
+        {
+            var diploma = await _db.Diplomas.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            if (diploma == null)
+                return Result<DiplomaViewModel>.NotFound("Diploma not found");
+            return Result<DiplomaViewModel>.SuccessWithData(_mapper.Map<DiplomaViewModel>(diploma));
+        }
+
+        public async Task<Result<DiplomaViewModel>> GetDiplomaTemplateByIdAsync(string id)
+        {
+            var diploma = await _db.Diplomas.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id && x.IsTemplate);
+            if (diploma == null)
+                return Result<DiplomaViewModel>.NotFound("Diploma not found");
+            return Result<DiplomaViewModel>.SuccessWithData(_mapper.Map<DiplomaViewModel>(diploma));
+        }
     }
 }

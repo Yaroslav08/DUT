@@ -10,6 +10,8 @@ namespace DUT.Application.Services.Interfaces
         Task<Result<DiplomaViewModel>> UpdateDiplomaTemplateAsync(DiplomaTemplateEditModel model);
         Task<Result<List<DiplomaViewModel>>> GetDiplomaTemplatesAsync();
         Task<Result<List<DiplomaViewModel>>> GetUserDiplomasAsync(int userId);
+        Task<Result<DiplomaViewModel>> GetDiplomaByIdAsync(string id);
+        Task<Result<DiplomaViewModel>> GetDiplomaTemplateByIdAsync(string id);
         Task<Result<bool>> RemoveDiplomaAsync(string diplomaId);
     }
 }

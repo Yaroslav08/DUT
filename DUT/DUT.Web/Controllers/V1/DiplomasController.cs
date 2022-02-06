@@ -17,6 +17,12 @@ namespace DUT.Web.Controllers.V1
             _identityService = identityService;
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetDiplomaById(string id)
+        {
+            return JsonResult(await _diplomaService.GetDiplomaByIdAsync(id));
+        }
+
         [HttpGet("my")]
         public async Task<IActionResult> GetMyDiplomas()
         {
@@ -33,6 +39,12 @@ namespace DUT.Web.Controllers.V1
         public async Task<IActionResult> CreateTemplate([FromBody] DiplomaTemplateCreateModel model)
         {
             return JsonResult(await _diplomaService.CreateDiplomaTemplateAsync(model));
+        }
+
+        [HttpGet("templates/{id}")]
+        public async Task<IActionResult> GetTemplateById(string id)
+        {
+            return JsonResult(await _diplomaService.GetDiplomaTemplateByIdAsync(id));
         }
 
         [HttpPost("templates/{id}")]
