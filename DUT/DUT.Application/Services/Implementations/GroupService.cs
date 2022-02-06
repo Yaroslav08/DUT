@@ -183,12 +183,11 @@ namespace DUT.Application.Services.Implementations
             return Result<List<GroupViewModel>>.SuccessWithData(groupsToView);
         }
 
-        public async Task<Result<GroupViewModel>> GetGroupByIdAsync(int id) //todo rewrite method
+        public async Task<Result<GroupViewModel>> GetGroupByIdAsync(int id)
         {
-            var group = await _db.Groups.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-            if (group == null)
+            if (!await IsExistAsync(s => s.Id == id))
                 return Result<GroupViewModel>.NotFound($"Group with ID ({id}) not found");
-            var groupToView = _mapper.Map<GroupViewModel>(group);
+            var groupToView = _mapper.Map<GroupViewModel>(Exists.First());
             groupToView.CountOfStudents = await _db.UserGroups.CountAsync(x => x.GroupId == id && x.Status == Domain.Models.UserGroupStatus.Member);
             return Result<GroupViewModel>.SuccessWithData(groupToView);
         }
