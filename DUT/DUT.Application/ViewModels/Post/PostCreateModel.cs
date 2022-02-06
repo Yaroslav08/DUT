@@ -16,6 +16,5 @@ namespace DUT.Application.ViewModels.Post
         public bool IsPublic { get; set; }
         [Required]
         public int GroupId { get; set; }
-        public int? FromUserId { get; set; }
     }
 }
