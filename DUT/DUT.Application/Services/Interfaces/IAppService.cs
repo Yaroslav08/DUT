@@ -1,9 +1,10 @@
 ﻿using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.Apps;
+using DUT.Domain.Models;
 
 namespace DUT.Application.Services.Interfaces
 {
-    public interface IAppService
+    public interface IAppService : IBaseService<App>
     {
         Task<Result<List<AppViewModel>>> GetAllAppsAsync();
         Task<Result<AppViewModel>> GetAppByIdAsync(int id);

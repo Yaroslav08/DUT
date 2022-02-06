@@ -1,9 +1,10 @@
 ﻿using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.University;
+using DUT.Domain.Models;
 
 namespace DUT.Application.Services.Interfaces
 {
-    public interface IUniversityService
+    public interface IUniversityService : IBaseService<University>
     {
         Task<Result<UniversityViewModel>> GetUniversityAsync();
         Task<Result<UniversityViewModel>> CreateUniversityAsync(UniversityCreateModel model);

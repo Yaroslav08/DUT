@@ -10,12 +10,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DUT.Application.Services.Implementations
 {
-    public class AppService : IAppService
+    public class AppService : BaseService<App>, IAppService
     {
         private readonly DUTDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
-        public AppService(DUTDbContext db, IMapper mapper, IIdentityService identityService)
+        public AppService(DUTDbContext db, IMapper mapper, IIdentityService identityService) : base(db)
         {
             _db = db;
             _mapper = mapper;

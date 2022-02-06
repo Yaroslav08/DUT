@@ -1,12 +1,7 @@
 ﻿using DUT.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 namespace DUT.Application.Services.Interfaces
 {
-    public interface IRoleService
+    public interface IRoleService : IBaseService<Role>
     {
         Task<Role> GetRoleByIdAsync(int id);
         Task<Role> GetRoleByNameAsync(string name);

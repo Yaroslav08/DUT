@@ -2,7 +2,6 @@
 using DUT.Application.Extensions;
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels;
-using DUT.Application.ViewModels.Faculty;
 using DUT.Application.ViewModels.Specialty;
 using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;

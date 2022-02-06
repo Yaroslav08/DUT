@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DUT.Application.Services.Implementations
 {
-    public class RoleService : IRoleService
+    public class RoleService : BaseService<Role>, IRoleService
     {
         private readonly DUTDbContext _db;
-        public RoleService(DUTDbContext db)
+        public RoleService(DUTDbContext db) : base(db)
         {
             _db = db;
         }

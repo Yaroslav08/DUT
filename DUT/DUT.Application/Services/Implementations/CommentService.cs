@@ -8,12 +8,12 @@ using DUT.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 namespace DUT.Application.Services.Implementations
 {
-    public class CommentService : ICommentService
+    public class CommentService : BaseService<PostComment>, ICommentService
     {
         private readonly DUTDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
-        public CommentService(DUTDbContext db, IMapper mapper, IIdentityService identityService)
+        public CommentService(DUTDbContext db, IMapper mapper, IIdentityService identityService) : base(db)
         {
             _db = db;
             _mapper = mapper;
@@ -35,7 +35,7 @@ namespace DUT.Application.Services.Implementations
             return Result<CommentViewModel>.SuccessWithData(_mapper.Map<CommentViewModel>(newComment));
         }
 
-        public async Task<Result<List<CommentViewModel>>> GetPostCommentsAsync(int postId, int skip = 0, int count = 20)
+        public async Task<Result<List<CommentViewModel>>> GetCommentsByPostIdAsync(int postId, int skip = 0, int count = 20)
         {
             var comments = await _db.PostComments
                 .AsNoTracking()

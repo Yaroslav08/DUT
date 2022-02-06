@@ -1,10 +1,11 @@
 ﻿using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.Identity;
 using DUT.Application.ViewModels.User;
+using DUT.Domain.Models;
 
 namespace DUT.Application.Services.Interfaces
 {
-    public interface IAuthenticationService
+    public interface IAuthenticationService : IBaseService<User>
     {
         Task<Result<AuthenticationInfo>> RegisterAsync(RegisterViewModel model);
         Task<Result<JwtToken>> LoginByPasswordAsync(LoginCreateModel model);

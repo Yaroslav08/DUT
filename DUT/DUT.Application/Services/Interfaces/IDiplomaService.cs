@@ -1,8 +1,10 @@
 ﻿using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.Diploma;
+using DUT.Domain.Models;
+
 namespace DUT.Application.Services.Interfaces
 {
-    public interface IDiplomaService
+    public interface IDiplomaService : IBaseService<Diploma>
     {
         Task<Result<bool>> CreateTemplatesAutomaticallyAsync();
         Task<Result<DiplomaViewModel>> CreateDiplomaBasicOnTemplateAsync(DiplomaCreateModel model, string templateId);

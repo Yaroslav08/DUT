@@ -12,12 +12,12 @@ using System.Collections.Generic;
 
 namespace DUT.Application.Services.Implementations
 {
-    public class NotificationService : INotificationService
+    public class NotificationService : BaseService<Notification>, INotificationService
     {
         private readonly DUTDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
-        public NotificationService(DUTDbContext db, IMapper mapper, IIdentityService identityService)
+        public NotificationService(DUTDbContext db, IMapper mapper, IIdentityService identityService) : base(db)
         {
             _db = db;
             _mapper = mapper;

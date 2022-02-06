@@ -1,9 +1,11 @@
 ﻿using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.Faculty;
 using DUT.Application.ViewModels.Specialty;
+using DUT.Domain.Models;
+
 namespace DUT.Application.Services.Interfaces
 {
-    public interface IFacultyService
+    public interface IFacultyService : IBaseService<Faculty>
     {
         Task<Result<FacultyViewModel>> CreateFacultyAsync(FacultyCreateModel model);
         Task<Result<FacultyViewModel>> UpdateFacultyAsync(FacultyEditModel model);

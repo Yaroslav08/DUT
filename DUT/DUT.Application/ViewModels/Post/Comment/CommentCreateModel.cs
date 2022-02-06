@@ -9,5 +9,6 @@ namespace DUT.Application.ViewModels.Post.Comment
         [Required]
         public bool IsPublic { set; get; }
         public int PostId { get; set; }
+        public int GroupId { get; set; }
     }
 }

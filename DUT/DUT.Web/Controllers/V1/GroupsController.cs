@@ -120,7 +120,7 @@ namespace DUT.Web.Controllers.V1
         [HttpGet("{groupId}/posts")]
         public async Task<IActionResult> GetGroupPosts(int groupId, int offset = 0, int count = 20)
         {
-            return JsonResult(await _postService.GetGroupPostsAsync(groupId, offset, count));
+            return JsonResult(await _postService.GetPostsByGroupIdAsync(groupId, offset, count));
         }
 
         [HttpPost("{groupId}/posts")]
@@ -157,7 +157,7 @@ namespace DUT.Web.Controllers.V1
         [HttpGet("{groupId}/posts/{postId}/comments")]
         public async Task<IActionResult> GetPostComments(int groupId, int postId, int offset = 0, int count = 20)
         {
-            return JsonResult(await _commentService.GetPostCommentsAsync(postId, offset, count));
+            return JsonResult(await _commentService.GetCommentsByPostIdAsync(postId, offset, count));
         }
 
         [HttpPost("{groupId}/posts/{postId}/comments")]

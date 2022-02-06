@@ -1,16 +1,16 @@
 ﻿using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels.Identity;
 using DUT.Constants;
+using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
 
 namespace DUT.Application.Services.Implementations
 {
-    public class PermissionService : IPermissionService
+    public class PermissionService :BaseService<User>, IPermissionService
     {
         private readonly DUTDbContext _db;
         private readonly IIdentityService _identityService;
-        public PermissionService(DUTDbContext db, IIdentityService identityService)
+        public PermissionService(DUTDbContext db, IIdentityService identityService) : base(db)
         {
             _db = db;
             _identityService = identityService;

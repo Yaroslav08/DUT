@@ -9,12 +9,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DUT.Application.Services.Implementations
 {
-    public class PostService : IPostService
+    public class PostService : BaseService<Post>, IPostService
     {
         private readonly DUTDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
-        public PostService(DUTDbContext db, IMapper mapper, IIdentityService identityService)
+        public PostService(DUTDbContext db, IMapper mapper, IIdentityService identityService) : base(db)
         {
             _db = db;
             _mapper = mapper;
@@ -39,7 +39,7 @@ namespace DUT.Application.Services.Implementations
             return Result<PostViewModel>.SuccessWithData(_mapper.Map<PostViewModel>(newPost));
         }
 
-        public async Task<Result<List<PostViewModel>>> GetGroupPostsAsync(int groupId, int skip = 0, int count = 20)
+        public async Task<Result<List<PostViewModel>>> GetPostsByGroupIdAsync(int groupId, int skip = 0, int count = 20)
         {
             var posts = await _db.Posts
                 .AsNoTracking()
