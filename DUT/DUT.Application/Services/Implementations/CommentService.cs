@@ -47,9 +47,9 @@ namespace DUT.Application.Services.Implementations
             return Result<List<CommentViewModel>>.SuccessWithData(_mapper.Map<List<CommentViewModel>>(comments));
         }
 
-        public async Task<Result<bool>> RemoveCommentAsync(long postId)
+        public async Task<Result<bool>> RemoveCommentAsync(long commentId)
         {
-            var postToRemove = await _db.PostComments.FindAsync(postId);
+            var postToRemove = await _db.PostComments.FindAsync(commentId);
             if (postToRemove == null)
                 return Result<bool>.NotFound("Comment not found");
             _db.PostComments.Remove(postToRemove);

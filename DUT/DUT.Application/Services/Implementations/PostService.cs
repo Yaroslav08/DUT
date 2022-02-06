@@ -66,11 +66,14 @@ namespace DUT.Application.Services.Implementations
             return Result<PostViewModel>.SuccessWithData(postToView);
         }
 
-        public async Task<Result<bool>> RemovePostAsync(int postId)
+        public async Task<Result<bool>> RemovePostAsync(int postId, int groupId)
         {
             var postToDelete = await _db.Posts.AsNoTracking().FirstOrDefaultAsync(x => x.Id == postId);
             if (postToDelete == null)
                 return Result<bool>.NotFound("Post not found");
+
+            if(postToDelete.GroupId != groupId)
+                return Result<bool>.NotFound("This group don`t have current post");
 
             _db.Posts.Remove(postToDelete);
             await _db.SaveChangesAsync();

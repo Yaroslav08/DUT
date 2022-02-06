@@ -8,6 +8,6 @@ namespace DUT.Application.Services.Interfaces
         Task<Result<PostViewModel>> GetPostByIdAsync(int postId, int groupId);
         Task<Result<PostViewModel>> CreatePostAsync(PostCreateModel model);
         Task<Result<PostViewModel>> UpdatePostAsync(PostEditModel model);
-        Task<Result<bool>> RemovePostAsync(int postId);
+        Task<Result<bool>> RemovePostAsync(int postId, int groupId);
     }
 }
