@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DUT.Application.Extensions;
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.Faculty;
@@ -32,13 +33,11 @@ namespace DUT.Application.Services.Implementations
                 return Result<SpecialtyViewModel>.NotFound("Faculty not found");
             var newSpecialty = new Specialty
             {
-                CreatedAt = DateTime.Now,
-                CreatedBy = _identityService.GetIdentityData(),
-                CreatedFromIP = model.IP,
                 Code = model.Code,
                 Name = model.Name,
                 FacultyId = model.FacultyId
             };
+            newSpecialty.PrepareToCreate(_identityService);
             await _db.Specialties.AddAsync(newSpecialty);
             await _db.SaveChangesAsync();
 
@@ -93,9 +92,7 @@ namespace DUT.Application.Services.Implementations
             currentSpecialty.Name = model.Name;
             currentSpecialty.Code = model.Code;
             currentSpecialty.FacultyId = model.FacultyId;
-            currentSpecialty.LastUpdatedAt = DateTime.Now;
-            currentSpecialty.LastUpdatedBy = _identityService.GetIdentityData();
-            currentSpecialty.LastUpdatedFromIP = model.IP;
+            currentSpecialty.PrepareToUpdate(_identityService);
             _db.Specialties.Update(currentSpecialty);
             await _db.SaveChangesAsync();
             return Result<SpecialtyViewModel>.SuccessWithData(_mapper.Map<SpecialtyViewModel>(currentSpecialty));

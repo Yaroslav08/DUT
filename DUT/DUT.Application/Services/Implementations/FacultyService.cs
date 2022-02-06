@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DUT.Application.Extensions;
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.Faculty;
@@ -27,12 +28,10 @@ namespace DUT.Application.Services.Implementations
                 return Result<FacultyViewModel>.Error("Faculty already exist");
             var faculty = new Faculty
             {
-                CreatedAt = DateTime.Now,
-                CreatedBy = _identityService.GetIdentityData(),
-                CreatedFromIP = model.IP,
                 Name = model.Name,
                 UniversityId = 1
             };
+            faculty.PrepareToCreate(_identityService);
             await _db.Faculties.AddAsync(faculty);
             await _db.SaveChangesAsync();
             return Result<FacultyViewModel>.SuccessWithData(_mapper.Map<FacultyViewModel>(faculty));
@@ -44,9 +43,7 @@ namespace DUT.Application.Services.Implementations
             if (currentFaculty == null)
                 return Result<FacultyViewModel>.NotFound();
             currentFaculty.Name = model.Name;
-            currentFaculty.LastUpdatedAt = DateTime.Now;
-            currentFaculty.LastUpdatedBy = _identityService.GetIdentityData();
-            currentFaculty.LastUpdatedFromIP = model.IP;
+            currentFaculty.PrepareToUpdate(_identityService);
             _db.Faculties.Update(currentFaculty);
             await _db.SaveChangesAsync();
             return Result<FacultyViewModel>.SuccessWithData(_mapper.Map<FacultyViewModel>(currentFaculty));

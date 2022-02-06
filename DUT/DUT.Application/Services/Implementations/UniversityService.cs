@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DUT.Application.Extensions;
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.University;
@@ -33,10 +34,7 @@ namespace DUT.Application.Services.Implementations
                 NameEng = model.NameEng,
                 ShortNameEng = model.ShortNameEng
             };
-
-            newUniversity.CreatedAt = DateTime.Now;
-            newUniversity.CreatedBy = _identityService.GetIdentityData();
-            newUniversity.CreatedFromIP = model.IP;
+            newUniversity.PrepareToCreate(_identityService);
 
             await _db.Universities.AddAsync(newUniversity);
             await _db.SaveChangesAsync();
@@ -47,7 +45,7 @@ namespace DUT.Application.Services.Implementations
         {
             var university = await _db.Universities.AsNoTracking().FirstOrDefaultAsync();
             if (university == null)
-                return Result<UniversityViewModel>.NotFound();
+                return Result<UniversityViewModel>.NotFound("University not found");
             var universityViewModel = _mapper.Map<UniversityViewModel>(university);
             return Result<UniversityViewModel>.SuccessWithData(universityViewModel);
         }
@@ -62,10 +60,7 @@ namespace DUT.Application.Services.Implementations
             updatedUniversity.ShortName = model.ShortName;
             updatedUniversity.NameEng = model.NameEng;
             updatedUniversity.ShortNameEng = model.ShortNameEng;
-
-            updatedUniversity.LastUpdatedAt = DateTime.Now;
-            updatedUniversity.LastUpdatedBy = _identityService.GetIdentityData();
-            updatedUniversity.LastUpdatedFromIP = "::1";
+            updatedUniversity.PrepareToUpdate(_identityService);
 
             _db.Universities.Update(updatedUniversity);
             await _db.SaveChangesAsync();
