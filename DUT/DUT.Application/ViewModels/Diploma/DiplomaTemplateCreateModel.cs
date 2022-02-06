@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DUT.Domain.Models
+namespace DUT.Application.ViewModels.Diploma
 {
-    public class Diploma : BaseModelWithoutIdentity<string>
+    public class DiplomaTemplateCreateModel
     {
         [Required, StringLength(250, MinimumLength = 5)]
         public string Name { get; set; }
@@ -20,11 +20,7 @@ namespace DUT.Domain.Models
         public string Specialty { get; set; }
         [Required]
         public string Qualification { get; set; }
-        public string UniversityStamp { get; set; }
-        public string DirectorSignature { get; set; }
-        public bool IsTemplate { get; set; }
-
-        public int? UserId { get; set; }
-        public User User { get; set; }
+        public string UniversityStampPath { get; set; }
+        public string DirectorSignaturePath { get; set; }
     }
 }

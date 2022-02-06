@@ -77,7 +77,7 @@ namespace DUT.Application.Services.Implementations
             return Result<bool>.Success();
         }
 
-        public async Task<Result<PostViewModel>> UpdatePostAsync(PostEditModel model)s
+        public async Task<Result<PostViewModel>> UpdatePostAsync(PostEditModel model)
         {
             var postToUpdate = await _db.Posts.AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.Id);
             if (postToUpdate == null)

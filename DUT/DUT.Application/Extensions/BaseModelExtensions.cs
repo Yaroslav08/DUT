@@ -7,6 +7,9 @@ namespace DUT.Application.Extensions
     {
         public static BaseModel PrepareToCreate(this BaseModel baseModel, IIdentityService identityService = null)
         {
+            baseModel.LastUpdatedAt = null;
+            baseModel.LastUpdatedBy = null;
+            baseModel.LastUpdatedFromIP = null;
             baseModel.CreatedAt = DateTime.Now;
             baseModel.CreatedBy = identityService is null ? Defaults.CreatedBy : identityService.GetIdentityData();
             baseModel.CreatedFromIP = identityService is null ? Defaults.IP : identityService.GetIP();
