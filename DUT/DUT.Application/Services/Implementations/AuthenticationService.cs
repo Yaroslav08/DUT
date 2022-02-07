@@ -209,7 +209,10 @@ namespace DUT.Application.Services.Implementations
             });
 
             _db.Sessions.UpdateRange(sessions);
-            await _db.Notifications.AddAsync(NotificationsHelper.GetAllLogoutNotification());
+
+            var notify = NotificationsHelper.GetAllLogoutNotification();
+            notify.UserId = userId;
+            await _db.Notifications.AddAsync(notify);
             await _db.SaveChangesAsync();
 
             _sessionManager.RemoveRangeSession(tokens);
@@ -235,12 +238,13 @@ namespace DUT.Application.Services.Implementations
             _db.Sessions.Update(session);
             await _db.SaveChangesAsync();
 
-            var notify = NotificationsHelper.GetLogoutNotification(session);
+            _sessionManager.RemoveSession(token);
 
+            var notify = NotificationsHelper.GetLogoutNotification(session);
+            notify.UserId = _identityService.GetUserId();
             await _db.Notifications.AddAsync(notify);
             await _db.SaveChangesAsync();
 
-            _sessionManager.RemoveSession(token);
             return Result<bool>.SuccessWithData(true);
         }
 
@@ -255,7 +259,9 @@ namespace DUT.Application.Services.Implementations
             sessionToClose.DeactivatedBySessionId = _identityService.GetCurrentSessionId();
             sessionToClose.PrepareToUpdate(_identityService);
             _db.Sessions.Update(sessionToClose);
-            await _db.Notifications.AddAsync(NotificationsHelper.GetLogoutNotification(sessionToClose));
+            var notify = NotificationsHelper.GetLogoutNotification(sessionToClose);
+            notify.UserId = sessionToClose.UserId;
+            await _db.Notifications.AddAsync(notify);
             await _db.SaveChangesAsync();
             _sessionManager.RemoveSession(sessionToClose.Token);
             return Result<bool>.Success();
