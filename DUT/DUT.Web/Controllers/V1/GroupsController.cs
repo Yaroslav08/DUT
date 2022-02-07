@@ -11,11 +11,13 @@ namespace DUT.Web.Controllers.V1
     public class GroupsController : ApiBaseController
     {
         private readonly IGroupService _groupService;
+        private readonly ISubjectService _subjectService;
         private readonly IIdentityService _identityService;
-        public GroupsController(IGroupService groupService, IIdentityService identityService)
+        public GroupsController(IGroupService groupService, IIdentityService identityService, ISubjectService subjectService)
         {
             _groupService = groupService;
             _identityService = identityService;
+            _subjectService = subjectService;
         }
 
         #region Groups
@@ -176,6 +178,19 @@ namespace DUT.Web.Controllers.V1
         public async Task<IActionResult> RemoveComment(int groupId, int postId, long commentId)
         {
             return JsonResult(await _groupService.RemoveCommentAsync(groupId, postId, commentId));
+        }
+
+        #endregion
+
+        #region Subjects
+
+        [HttpGet("{groupId}/subjects")]
+        public async Task<IActionResult> GetGroupSubjects(int groupId)
+        {
+            return JsonResult(await _subjectService.SearchSubjectsAsync(new Application.Options.SearchSubjectOptions
+            {
+                GroupId = groupId,
+            }));
         }
 
         #endregion

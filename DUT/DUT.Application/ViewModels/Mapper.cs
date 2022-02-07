@@ -4,11 +4,13 @@ using DUT.Application.ViewModels.Diploma;
 using DUT.Application.ViewModels.Faculty;
 using DUT.Application.ViewModels.Group;
 using DUT.Application.ViewModels.Group.GroupMember;
+using DUT.Application.ViewModels.Lesson;
 using DUT.Application.ViewModels.Notification;
 using DUT.Application.ViewModels.Post;
 using DUT.Application.ViewModels.Post.Comment;
 using DUT.Application.ViewModels.Session;
 using DUT.Application.ViewModels.Specialty;
+using DUT.Application.ViewModels.Subject;
 using DUT.Application.ViewModels.University;
 using DUT.Application.ViewModels.User;
 using System.Text;
@@ -56,6 +58,9 @@ namespace DUT.Application.ViewModels
 
             CreateMap<Domain.Models.PostComment, CommentViewModel>().ReverseMap();
             CreateMap<Domain.Models.Post, PostViewModel>().ReverseMap();
+
+            CreateMap<Domain.Models.Subject, SubjectViewModel>().ReverseMap();
+            CreateMap<Domain.Models.Lesson, LessonViewModel>().ReverseMap();
         }
 
         private string BuildFullName(Domain.Models.User user)

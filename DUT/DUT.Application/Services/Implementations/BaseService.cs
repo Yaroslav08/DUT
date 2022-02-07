@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 namespace DUT.Application.Services.Implementations
 {
-    public class BaseService<T> : IBaseService<T> where T : class
+    public class BaseService<T> : IAsyncDisposable, IBaseService<T> where T : class
     {
         private readonly DUTDbContext _db;
         public IEnumerable<T> Exists { get; set; }
@@ -27,6 +27,11 @@ namespace DUT.Application.Services.Implementations
                 return true;
             }
             return false;
+        }
+
+        public ValueTask DisposeAsync()
+        {
+            return _db.DisposeAsync();
         }
     }
 }

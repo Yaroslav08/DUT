@@ -5,7 +5,7 @@ namespace DUT.Application.Extensions
     public static class SearchOptionsExtensions
     {
         private static int DefaultCount = 20;
-        private static int MaxCount = DefaultCount * 5;
+        private static int MaxCount = DefaultCount * 4;
         private static int DefaultOffset = 0;
         public static void PrepareOptions(this SearchOptions searchOptions)
         {

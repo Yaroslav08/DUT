@@ -1,7 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-namespace DUT.Domain.Models
+﻿using DUT.Domain.Models;
+using System.ComponentModel.DataAnnotations;
+namespace DUT.Application.ViewModels.Subject
 {
-    public class Subject : BaseModel<int>
+    public class SubjectCreateModel
     {
         [Required, StringLength(200, MinimumLength = 1)]
         public string Name { get; set; }
@@ -16,12 +17,7 @@ namespace DUT.Domain.Models
         [Required]
         public bool IsTemplate { get; set; }
         public SubjectConfig Config { get; set; }
-
-        public int? GroupId { get; set; }
-        public Group Group { get; set; }
-
         public int TeacherId { get; set; }
-        public User Teacher { get; set; }
-        public List<Lesson> Lessons { get; set; }
+        public int? GroupId { get; set; }
     }
 }
