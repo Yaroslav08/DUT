@@ -65,7 +65,6 @@ namespace DUT.Application.Services.Implementations
 
             if (permissionClaims != null && permissionClaims.Count > 0)
             {
-                permissionClaims = (List<RoleClaim>)permissionClaims.Distinct();
                 foreach (var permissionClaim in permissionClaims)
                 {
                     claims.Add(new Claim(permissionClaim.Type, permissionClaim.Value));

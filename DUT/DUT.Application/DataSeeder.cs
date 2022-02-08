@@ -1,8 +1,10 @@
 ﻿using DUT.Application.Extensions;
+using DUT.Application.Helpers;
 using DUT.Constants;
 using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
 using Extensions.Password;
+using Microsoft.EntityFrameworkCore;
 
 namespace DUT.Application
 {
@@ -218,10 +220,16 @@ namespace DUT.Application
             {
                 var newUser1 = new User("Ярослав", "Юрійович", "Мудрик", "yaroslav.mudryk@gmail.com", "Yarik08");
                 newUser1.PasswordHash = Defaults.Password.GeneratePasswordHash();
-                newUser1.LockoutEnabled = true;
+                newUser1.LockoutEnabled = false;
                 newUser1.PrepareToCreate();
                 db.Users.Add(newUser1);
                 db.SaveChanges();
+
+                var notify = NotificationsHelper.GetWelcomeNotification();
+                notify.UserId = newUser1.Id;
+                db.Notifications.Add(notify);
+                db.SaveChanges();
+
                 var userRole = new UserRole
                 {
                     UserId = newUser1.Id,
@@ -232,13 +240,74 @@ namespace DUT.Application
             }
             #endregion
 
+            ConfigClaimsWithRoles(db);
+
             db.Dispose();
         }
 
         private static bool ConfigClaimsWithRoles(DUTDbContext _db)
         {
+            if (!_db.RoleClaims.Any())
+            {
+                var adminRole = _db.Roles.AsNoTracking().FirstOrDefault(s => s.Name == Roles.Admin);
+                var adminClaims = new List<RoleClaim>();
+                adminClaims.Add(new RoleClaim
+                {
+                    DisplayName = "Створення університету",
+                    RoleId = adminRole.Id,
+                    Type = PermissionClaims.University,
+                    Value = Permissions.CanCreate
+                });
+                adminClaims.Add(new RoleClaim
+                {
+                    DisplayName = "Редагування університету",
+                    RoleId = adminRole.Id,
+                    Type = PermissionClaims.University,
+                    Value = Permissions.CanEdit
+                });
+                adminClaims.Add(new RoleClaim
+                {
+                    DisplayName = "Видалення університету",
+                    RoleId = adminRole.Id,
+                    Type = PermissionClaims.University,
+                    Value = Permissions.CanRemove
+                });
+                adminClaims.Add(new RoleClaim
+                {
+                    DisplayName = "Перегляд інформації про університет",
+                    RoleId = adminRole.Id,
+                    Type = PermissionClaims.University,
+                    Value = Permissions.CanView
+                });
+
+                adminClaims.ForEach(x =>
+                {
+                    x.PrepareToCreate();
+                });
+
+                _db.RoleClaims.AddRange(adminClaims);
+                _db.SaveChanges();
 
 
+                var studentRole = _db.Roles.AsNoTracking().FirstOrDefault(s => s.Name == Roles.Student);
+                var studentClaims = new List<RoleClaim>();
+                studentClaims.Add(new RoleClaim
+                {
+                    DisplayName = "Перегляд інфомрації про університет",
+                    RoleId = studentRole.Id,
+                    Type = PermissionClaims.University,
+                    Value = Permissions.CanView
+                });
+
+
+                studentClaims.ForEach(x =>
+                {
+                    x.PrepareToCreate();
+                });
+
+                _db.RoleClaims.AddRange(studentClaims);
+                _db.SaveChanges();
+            }
             return true;
         }
     }
