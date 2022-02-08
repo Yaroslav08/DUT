@@ -1,6 +1,4 @@
-﻿using DUT.Application.ViewModels.Identity;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Authorization;
 
 namespace DUT.Web.Extensions
 {
@@ -21,13 +19,6 @@ namespace DUT.Web.Extensions
                 return true;
             }
             return false;
-        }
-
-        public static bool HasEmail(this ClaimsPrincipal user, IEnumerable<string> emails)
-        {
-            if (!user.Identity.IsAuthenticated)
-                return false;
-            return user.Claims.Any(s => s.Type == ClaimTypes.Email && emails.Contains(s.Value));
         }
     }
 }
