@@ -10,6 +10,6 @@
         public static readonly string Notifications = "Notifications";
         public static readonly string Sessions = "Sessions";
         public static readonly string Apps = "Apps";
-        public static readonly string Roles = "";
+        public static readonly string Permissions = "Permissions";
     }
 }

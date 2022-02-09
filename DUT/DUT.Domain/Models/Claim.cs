@@ -10,5 +10,6 @@ namespace DUT.Domain.Models
         public string Value { get; set; }
         [StringLength(500, MinimumLength = 1)]
         public string DisplayName { get; set; }
+        public List<RoleClaim> RoleClaims { get; set; }
     }
 }

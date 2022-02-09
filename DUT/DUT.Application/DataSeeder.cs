@@ -240,73 +240,283 @@ namespace DUT.Application
             }
             #endregion
 
-            ConfigClaimsWithRoles(db);
+            ConfigNewClaims(db);
 
             db.Dispose();
         }
 
-        private static bool ConfigClaimsWithRoles(DUTDbContext _db)
+        private static bool ConfigNewClaims(DUTDbContext _db)
         {
-            if (!_db.RoleClaims.Any())
+            if (!_db.Claims.Any())
             {
-                var adminRole = _db.Roles.AsNoTracking().FirstOrDefault(s => s.Name == Roles.Admin);
-                var adminClaims = new List<RoleClaim>();
-                adminClaims.Add(new RoleClaim
+                var claims = new List<Claim>();
+
+                #region Permission
+
+                claims.Add(new Claim
+                {
+                    Type = PermissionClaims.Permissions,
+                    Value = Permissions.All,
+                    DisplayName = "Створення, перегляд, редагування, видалення, ролей та дозволів"
+                });
+
+                #endregion
+
+
+                #region University
+
+                claims.Add(new Claim
                 {
                     DisplayName = "Створення університету",
-                    RoleId = adminRole.Id,
                     Type = PermissionClaims.University,
                     Value = Permissions.CanCreate
                 });
-                adminClaims.Add(new RoleClaim
+                claims.Add(new Claim
                 {
                     DisplayName = "Редагування університету",
-                    RoleId = adminRole.Id,
                     Type = PermissionClaims.University,
                     Value = Permissions.CanEdit
                 });
-                adminClaims.Add(new RoleClaim
+                claims.Add(new Claim
                 {
                     DisplayName = "Видалення університету",
-                    RoleId = adminRole.Id,
                     Type = PermissionClaims.University,
                     Value = Permissions.CanRemove
                 });
-                adminClaims.Add(new RoleClaim
+                claims.Add(new Claim
                 {
                     DisplayName = "Перегляд інформації про університет",
-                    RoleId = adminRole.Id,
                     Type = PermissionClaims.University,
                     Value = Permissions.CanView
                 });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Усі дії пов'язані з університетом",
+                    Type = PermissionClaims.University,
+                    Value = Permissions.All
+                });
 
-                adminClaims.ForEach(x =>
+                #endregion
+
+
+                #region Faculty
+
+                claims.Add(new Claim
+                {
+                    DisplayName = "Створення інституту",
+                    Type = PermissionClaims.Faculties,
+                    Value = Permissions.CanCreate
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Редагування інституту",
+                    Type = PermissionClaims.Faculties,
+                    Value = Permissions.CanEdit
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Видалення інституту",
+                    Type = PermissionClaims.Faculties,
+                    Value = Permissions.CanRemove
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Перегляд інформації про інститут",
+                    Type = PermissionClaims.Faculties,
+                    Value = Permissions.CanView
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Перегляд інформації про всі інститути",
+                    Type = PermissionClaims.Faculties,
+                    Value = Permissions.CanViewAll
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Усі дії пов'язані з інститутом",
+                    Type = PermissionClaims.Faculties,
+                    Value = Permissions.All
+                });
+
+                #endregion
+
+
+                #region Specialty
+
+                claims.Add(new Claim
+                {
+                    DisplayName = "Створення спеціальності",
+                    Type = PermissionClaims.Specialties,
+                    Value = Permissions.CanCreate
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Редагування спеціальності",
+                    Type = PermissionClaims.Specialties,
+                    Value = Permissions.CanEdit
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Видалення спеціальності",
+                    Type = PermissionClaims.Specialties,
+                    Value = Permissions.CanRemove
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Перегляд інформації про спеціальність",
+                    Type = PermissionClaims.Specialties,
+                    Value = Permissions.CanView
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Перегляд інформації про всі спеціальності",
+                    Type = PermissionClaims.Specialties,
+                    Value = Permissions.CanViewAll
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Усі дії пов'язані з спеціальністю",
+                    Type = PermissionClaims.Specialties,
+                    Value = Permissions.All
+                });
+
+                #endregion
+
+
+                #region Group
+
+                claims.Add(new Claim
+                {
+                    DisplayName = "Створення групи",
+                    Type = PermissionClaims.Groups,
+                    Value = Permissions.CanCreate
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Редагування групи",
+                    Type = PermissionClaims.Groups,
+                    Value = Permissions.CanEdit
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Видалення групи",
+                    Type = PermissionClaims.Groups,
+                    Value = Permissions.CanRemove
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Перегляд інформації про групу",
+                    Type = PermissionClaims.Groups,
+                    Value = Permissions.CanView
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Перегляд інформації про всі групи",
+                    Type = PermissionClaims.Groups,
+                    Value = Permissions.CanViewAll
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Пошук груп",
+                    Type = PermissionClaims.Groups,
+                    Value = Permissions.Search
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Усі дії пов'язані з групами",
+                    Type = PermissionClaims.Groups,
+                    Value = Permissions.All
+                });
+
+                #endregion
+
+
+                #region User
+
+                claims.Add(new Claim
+                {
+                    DisplayName = "Створення користувача",
+                    Type = PermissionClaims.Users,
+                    Value = Permissions.CanCreate
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Редагування користувача",
+                    Type = PermissionClaims.Users,
+                    Value = Permissions.CanEdit
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Видалення користувача",
+                    Type = PermissionClaims.Users,
+                    Value = Permissions.CanRemove
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Перегляд інформації про користувача",
+                    Type = PermissionClaims.Users,
+                    Value = Permissions.CanView
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Перегляд інформації про всіх користувачів",
+                    Type = PermissionClaims.Users,
+                    Value = Permissions.CanViewAll
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Пошук користувачів",
+                    Type = PermissionClaims.Users,
+                    Value = Permissions.Search
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Усі дії пов'язані з користувачами",
+                    Type = PermissionClaims.Users,
+                    Value = Permissions.All
+                });
+
+                #endregion
+
+
+                #region Save Claims
+
+                claims.ForEach(x =>
                 {
                     x.PrepareToCreate();
                 });
 
-                _db.RoleClaims.AddRange(adminClaims);
+                _db.Claims.AddRange(claims);
                 _db.SaveChanges();
 
+                #endregion
 
-                var studentRole = _db.Roles.AsNoTracking().FirstOrDefault(s => s.Name == Roles.Student);
-                var studentClaims = new List<RoleClaim>();
-                studentClaims.Add(new RoleClaim
+
+                #region Set roles to admin
+
+                var adminRole = _db.Roles.AsNoTracking().FirstOrDefault(s => s.Name == Roles.Admin);
+
+
+                var adminRoleClaims = new List<RoleClaim>();
+
+                foreach(var roleClaim in claims)
                 {
-                    DisplayName = "Перегляд інфомрації про університет",
-                    RoleId = studentRole.Id,
-                    Type = PermissionClaims.University,
-                    Value = Permissions.CanView
-                });
+                    adminRoleClaims.Add(new RoleClaim
+                    {
+                        RoleId = adminRole.Id,
+                        ClaimId = roleClaim.Id
+                    });
+                }
 
-
-                studentClaims.ForEach(x =>
+                adminRoleClaims.ForEach(x =>
                 {
                     x.PrepareToCreate();
                 });
 
-                _db.RoleClaims.AddRange(studentClaims);
+                _db.RoleClaims.AddRange(adminRoleClaims);
                 _db.SaveChanges();
+
+                #endregion
             }
             return true;
         }

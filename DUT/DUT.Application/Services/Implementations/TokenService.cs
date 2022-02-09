@@ -35,17 +35,17 @@ namespace DUT.Application.Services.Implementations
                 .Select(x => x.Role)
                 .ToListAsync();
 
-            var claims = new List<Claim>();
-            claims.Add(new Claim(CustomClaimTypes.CurrentSessionId, sessionId.ToString()));
-            claims.Add(new Claim(CustomClaimTypes.Login, user.Login));
-            claims.Add(new Claim(CustomClaimTypes.UserId, user.Id.ToString()));
-            claims.Add(new Claim(CustomClaimTypes.UserName, user.UserName));
-            claims.Add(new Claim(CustomClaimTypes.FullName, $"{user.LastName} {user.FirstName}"));
-            claims.Add(new Claim(CustomClaimTypes.AuthenticationMethod, authType));
+            var claims = new List<System.Security.Claims.Claim>();
+            claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.CurrentSessionId, sessionId.ToString()));
+            claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.Login, user.Login));
+            claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.UserId, user.Id.ToString()));
+            claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.UserName, user.UserName));
+            claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.FullName, $"{user.LastName} {user.FirstName}"));
+            claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.AuthenticationMethod, authType));
 
             foreach (var role in currentUserRoles)
             {
-                claims.Add(new Claim(CustomClaimTypes.Role, role.Name));
+                claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.Role, role.Name));
             }
 
             var userGroups = await _db.UserGroups.AsNoTracking().Where(x => x.UserId == user.Id && x.Status == UserGroupStatus.Member).ToListAsync();
@@ -54,20 +54,20 @@ namespace DUT.Application.Services.Implementations
             {
                 foreach (var userGroup in userGroups)
                 {
-                    claims.Add(new Claim(CustomClaimTypes.GroupMemberId, userGroup.Id.ToString()));
+                    claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.GroupMemberId, userGroup.Id.ToString()));
                 }
             }
 
 
             var roleIds = currentUserRoles.Select(x => x.Id);
 
-            var permissionClaims = await _db.RoleClaims.Where(s => roleIds.Contains(s.RoleId)).ToListAsync();
+            var roleClaims = await _db.RoleClaims.Where(s => roleIds.Contains(s.RoleId)).Include(s => s.Claim).ToListAsync();
 
-            if (permissionClaims != null && permissionClaims.Count > 0)
+            if (roleClaims != null && roleClaims.Count > 0)
             {
-                foreach (var permissionClaim in permissionClaims)
+                foreach (var roleClaim in roleClaims)
                 {
-                    claims.Add(new Claim(permissionClaim.Type, permissionClaim.Value));
+                    claims.Add(new System.Security.Claims.Claim(roleClaim.Claim.Type, roleClaim.Claim.Value));
                 }
             }
 
