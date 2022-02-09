@@ -37,7 +37,7 @@ namespace DUT.Infrastructure.Data.Context
         public DbSet<Lesson> Lessons { get; set; }
         public DbSet<App> Apps { get; set; }
         public DbSet<LoginAttempt> LoginAttempts { get; set; }
-        public DbSet<Diploma> Diplomas { get; set;}
+        public DbSet<Diploma> Diplomas { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -50,6 +50,18 @@ namespace DUT.Infrastructure.Data.Context
             builder.ApplyConfiguration(new PostCommentConfiguration());
             builder.ApplyConfiguration(new LoginAttemptConfiguration());
             builder.ApplyConfiguration(new UserConfiguration());
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            foreach (var entity in ChangeTracker.Entries().Where(s => s.State == EntityState.Modified))
+            {
+                if (entity.Entity is BaseModel baseModel)
+                {
+                    baseModel.Version++;
+                }
+            }
+            return base.SaveChangesAsync(cancellationToken);
         }
     }
 }

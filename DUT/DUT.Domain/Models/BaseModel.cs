@@ -13,6 +13,8 @@ namespace DUT.Domain.Models
         public DateTime? LastUpdatedAt { get; set; }
         public string LastUpdatedBy { get; set; }
         public string LastUpdatedFromIP { get; set; }
+
+        public int Version { get; set; }
     }
     public class BaseModel<T> : BaseModel
     {

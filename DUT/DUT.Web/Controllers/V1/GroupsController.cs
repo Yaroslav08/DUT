@@ -155,7 +155,7 @@ namespace DUT.Web.Controllers.V1
         [HttpGet("{groupId}/posts/{postId}/comments")]
         public async Task<IActionResult> GetPostComments(int groupId, int postId, int offset = 0, int count = 20)
         {
-            return JsonResult(await _groupService.GetPostCommentsAsync(postId, offset, count));
+            return JsonResult(await _groupService.GetPostCommentsAsync(groupId, postId, offset, count));
         }
 
         [HttpPost("{groupId}/posts/{postId}/comments")]
