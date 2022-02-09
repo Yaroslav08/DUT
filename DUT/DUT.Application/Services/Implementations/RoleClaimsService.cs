@@ -56,7 +56,7 @@ namespace DUT.Application.Services.Implementations
             });
 
             await _db.RoleClaims.AddRangeAsync(roleClaims);
-
+            await _db.SaveChangesAsync();
 
             return Result<RoleViewModel>.SuccessWithData(_mapper.Map<RoleViewModel>(newRole));
         }
@@ -96,6 +96,7 @@ namespace DUT.Application.Services.Implementations
                 }
                 else
                 {
+                    roleToView.ClaimIds = roleClaims.Select(x => x.Claim.Id).ToArray();
                     roleToView.Claims = _mapper.Map<List<ClaimViewModel>>(roleClaims.Select(s => s.Claim));
                 }
             }
