@@ -31,7 +31,8 @@ namespace DUT.Application.Services.Implementations
             if (currentUser.IsAdministrator)
                 return true;
 
-
+            if (currentUser.Claims.Any(s => s.Type == claimType && s.Value == Permissions.All))
+                return true;
 
             return currentUser.Claims.Any(x => x.Type == claimType && x.Value == claimValue);
         }
