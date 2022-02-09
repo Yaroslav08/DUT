@@ -13,6 +13,7 @@ namespace DUT.Application.Extensions
             baseModel.CreatedAt = DateTime.Now;
             baseModel.CreatedBy = identityService is null ? Defaults.CreatedBy : identityService.GetIdentityData();
             baseModel.CreatedFromIP = identityService is null ? Defaults.IP : identityService.GetIP();
+            baseModel.Version = 0;
             return baseModel;
         }
 
@@ -21,6 +22,7 @@ namespace DUT.Application.Extensions
             baseModel.LastUpdatedAt = DateTime.Now;
             baseModel.LastUpdatedBy = identityService is null ? Defaults.CreatedBy : identityService.GetIdentityData();
             baseModel.LastUpdatedFromIP = identityService is null ? Defaults.IP : identityService.GetIP();
+            baseModel.Version++;
             return baseModel;
         }
     }
