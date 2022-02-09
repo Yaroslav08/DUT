@@ -513,7 +513,11 @@ namespace DUT.Application
                     x.PrepareToCreate();
                 });
 
+                adminRole.ClaimsHash = claims.Select(s => s.Id).GetHashForClaimIds();
+                adminRole.CountClaims = adminRoleClaims.Count();
+
                 _db.RoleClaims.AddRange(adminRoleClaims);
+                _db.Roles.Update(adminRole);
                 _db.SaveChanges();
 
                 #endregion
