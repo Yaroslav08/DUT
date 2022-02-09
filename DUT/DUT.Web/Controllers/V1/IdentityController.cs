@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace DUT.Web.Controllers.V1
 {
     [ApiVersion("1.0")]
-    [Authorize]
     public class IdentityController : ApiBaseController
     {
         private readonly IAuthenticationService _authenticationService;

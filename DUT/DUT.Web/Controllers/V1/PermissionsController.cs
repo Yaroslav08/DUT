@@ -21,42 +21,32 @@ namespace DUT.Web.Controllers.V1
         [HttpGet("roles")]
         public async Task<IActionResult> GetAllRoles()
         {
-            if(!await _permissionService.HasPermissionAsync(PermissionClaims.Permissions, Permissions.All))
-            {
+            if (!_permissionService.HasPermission(PermissionClaims.Permissions, Permissions.All))
                 return JsonForbiddenResult();
-            }
-
             return JsonResult(await _roleClaimsService.GetAllRolesAsync());
         }
 
         [HttpGet("roles/{id}")]
         public async Task<IActionResult> GetRoleById(int id, bool withClaims = false)
         {
-            if (!await _permissionService.HasPermissionAsync(PermissionClaims.Permissions, Permissions.All))
-            {
+            if (!_permissionService.HasPermission(PermissionClaims.Permissions, Permissions.All))
                 return JsonForbiddenResult();
-            }
-
             return JsonResult(await _roleClaimsService.GetRoleByIdAsync(id, withClaims));
         }
 
         [HttpPost("roles")]
         public async Task<IActionResult> CreateRole([FromBody] RoleCreateModel model)
         {
-            if (!await _permissionService.HasPermissionAsync(PermissionClaims.Permissions, Permissions.All))
-            {
+            if (!_permissionService.HasPermission(PermissionClaims.Permissions, Permissions.All))
                 return JsonForbiddenResult();
-            }
             return JsonResult(await _roleClaimsService.CreateRoleAsync(model));
         }
 
         [HttpPut("roles/{id}")]
         public async Task<IActionResult> UpdateRole(int id, [FromBody] RoleEditModel model)
         {
-            if (!await _permissionService.HasPermissionAsync(PermissionClaims.Permissions, Permissions.All))
-            {
+            if (!_permissionService.HasPermission(PermissionClaims.Permissions, Permissions.All))
                 return JsonForbiddenResult();
-            }
             model.Id = id;
             return JsonResult(await _roleClaimsService.UpdateRoleAsync(model));
         }
@@ -64,30 +54,24 @@ namespace DUT.Web.Controllers.V1
         [HttpDelete("roles/{id}")]
         public async Task<IActionResult> RemoveRole(int id)
         {
-            if (!await _permissionService.HasPermissionAsync(PermissionClaims.Permissions, Permissions.All))
-            {
+            if (!_permissionService.HasPermission(PermissionClaims.Permissions, Permissions.All))
                 return JsonForbiddenResult();
-            }
             return JsonResult(await _roleClaimsService.RemoveRoleAsync(id));
         }
 
         [HttpGet("claims")]
         public async Task<IActionResult> GetAllClaims()
         {
-            if (!await _permissionService.HasPermissionAsync(PermissionClaims.Permissions, Permissions.All))
-            {
+            if (!_permissionService.HasPermission(PermissionClaims.Permissions, Permissions.All))
                 return JsonForbiddenResult();
-            }
             return JsonResult(await _roleClaimsService.GetClaimsAsync());
         }
 
         [HttpPut("claims/{id}")]
         public async Task<IActionResult> UpdateClaim(int id, [FromBody] ClaimEditModel model)
         {
-            if (!await _permissionService.HasPermissionAsync(PermissionClaims.Permissions, Permissions.All))
-            {
+            if (!_permissionService.HasPermission(PermissionClaims.Permissions, Permissions.All))
                 return JsonForbiddenResult();
-            }
             model.Id = id;
             return JsonResult(await _roleClaimsService.UpdateClaimAsync(model));
         }

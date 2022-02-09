@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DUT.Application.ViewModels.Group.GroupMember
 {
-    public class GroupMemberEditModel : RequestModel
+    public class GroupMemberEditModel
     {
         [Required]
         public int Id { get; set; }

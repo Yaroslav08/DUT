@@ -115,7 +115,7 @@ namespace DUT.Application.Services.Implementations
                 .AsNoTracking()
                 .Include(x => x.Group)
                 .Include(x => x.User)
-                .FirstOrDefaultAsync(x => x.UserId == model.UserId && x.Status == UserGroupStatus.Member);
+                .FirstOrDefaultAsync(x => x.UserId == _identityService.GetUserId() && x.Status == UserGroupStatus.Member);
 
             var group = userGroup.Group;
             var student = userGroup.User;
@@ -126,7 +126,7 @@ namespace DUT.Application.Services.Implementations
             studentDiploma.Series = model.Series;
             studentDiploma.Number = model.Number;
             studentDiploma.IsTemplate = false;
-            studentDiploma.UserId = model.UserId;
+            studentDiploma.UserId = _identityService.GetUserId();
 
             studentDiploma.PrepareToCreate(_identityService);
 

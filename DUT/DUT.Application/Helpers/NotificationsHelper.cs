@@ -62,12 +62,12 @@ namespace DUT.Application.Helpers
             };
         }
 
-        public static Notification GetLoginAttemptNotification(LoginCreateModel loginModel)
+        public static Notification GetLoginAttemptNotification(LoginCreateModel loginModel, string ip)
         {
             return new Notification
             {
                 Title = "Спроба входу",
-                Content = $"Увага! Щойно було виконано спроба входу на ваш акаунт з паролем ({loginModel.Password}) [{loginModel.IP}]",
+                Content = $"Увага! Щойно було виконано спроба входу на ваш акаунт з паролем ({loginModel.Password}) [{ip}]",
                 ImageUrl = "https://icon-library.com/images/hack-icon/hack-icon-19.jpg",
                 CreatedAt = DateTime.Now,
                 CreatedBy = Defaults.CreatedBy,

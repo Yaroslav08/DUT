@@ -2,7 +2,7 @@
 
 namespace DUT.Application.ViewModels.Apps
 {
-    public class AppCreateModel : RequestModel
+    public class AppCreateModel
     {
         [Required, StringLength(100, MinimumLength = 1)]
         public string Name { get; set; }

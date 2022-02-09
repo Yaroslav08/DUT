@@ -67,7 +67,7 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<AuthenticationInfo>> ChangePasswordAsync(PasswordCreateModel model)
         {
-            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(s => s.Id == model.UserId);
+            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(s => s.Id == _identityService.GetUserId());
             if (user == null)
                 return Result<AuthenticationInfo>.NotFound("User not found");
 
@@ -137,8 +137,7 @@ namespace DUT.Application.Services.Implementations
             {
                 user.AccessFailedCount++;
                 _db.Users.Update(user);
-                model.IP = _identityService.GetIP();
-                var loginAttemptNotify = NotificationsHelper.GetLoginAttemptNotification(model);
+                var loginAttemptNotify = NotificationsHelper.GetLoginAttemptNotification(model, _identityService.GetIP());
                 loginAttemptNotify.UserId = user.Id;
                 await _db.Notifications.AddAsync(loginAttemptNotify);
                 await _db.SaveChangesAsync();
@@ -148,7 +147,7 @@ namespace DUT.Application.Services.Implementations
             if (model.Client == null)
                 model.Client = _detector.GetClientInfo();
 
-            var location = await _locationService.GetIpInfoAsync(model.IP);
+            var location = await _locationService.GetIpInfoAsync(_identityService.GetIP());
 
             var appDb = new AppModel
             {

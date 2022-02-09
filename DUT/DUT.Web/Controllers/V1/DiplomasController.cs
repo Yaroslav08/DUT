@@ -6,7 +6,6 @@ using DUT.Application.ViewModels.Diploma;
 namespace DUT.Web.Controllers.V1
 {
     [ApiVersion("1.0")]
-    [Authorize]
     public class DiplomasController : ApiBaseController
     {
         private readonly IDiplomaService _diplomaService;

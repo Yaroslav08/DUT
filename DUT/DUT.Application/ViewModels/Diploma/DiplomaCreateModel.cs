@@ -2,7 +2,7 @@
 
 namespace DUT.Application.ViewModels.Diploma
 {
-    public class DiplomaCreateModel : RequestModel
+    public class DiplomaCreateModel
     {
         [Required, StringLength(5)]
         public string Series { get; set; }

@@ -3,11 +3,9 @@ using DUT.Application.ViewModels.University;
 using DUT.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
 namespace DUT.Web.Controllers.V1
 {
     [ApiVersion("1.0")]
-    [Authorize]
     public class UniversitiesController : ApiBaseController
     {
         private readonly IUniversityService _universityService;
@@ -23,7 +21,7 @@ namespace DUT.Web.Controllers.V1
         [HttpGet]
         public async Task<IActionResult> GetUniversity()
         {
-            if (!await _permissionService.HasPermissionAsync(PermissionClaims.University, Permissions.CanView))
+            if (!_permissionService.HasPermission(PermissionClaims.University, Permissions.CanView))
             {
                 return JsonForbiddenResult();
             }
@@ -33,7 +31,7 @@ namespace DUT.Web.Controllers.V1
         [HttpPost]
         public async Task<IActionResult> CreateUniversity([FromBody] UniversityCreateModel model)
         {
-            if (!await _permissionService.HasPermissionAsync(PermissionClaims.University, Permissions.CanCreate))
+            if (!_permissionService.HasPermission(PermissionClaims.University, Permissions.CanCreate))
             {
                 return JsonForbiddenResult();
             }
@@ -43,7 +41,7 @@ namespace DUT.Web.Controllers.V1
         [HttpPut]
         public async Task<IActionResult> EditUniversity([FromBody] UniversityEditModel model)
         {
-            if (!await _permissionService.HasPermissionAsync(PermissionClaims.University, Permissions.CanEdit))
+            if (!_permissionService.HasPermission(PermissionClaims.University, Permissions.CanEdit))
             {
                 return JsonForbiddenResult();
             }

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 namespace DUT.Application.ViewModels.User
 {
-    public class RegisterViewModel : RequestModel
+    public class RegisterViewModel
     {
         [Display(Name = "Ім'я:")]
         public string FirstName { get; set; }

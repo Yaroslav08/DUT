@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DUT.Application.ViewModels.Identity
 {
-    public class LoginCreateModel : RequestModel
+    public class LoginCreateModel
     {
         [Required, EmailAddress, StringLength(200, MinimumLength = 5)]
         public string Login { get; set; }

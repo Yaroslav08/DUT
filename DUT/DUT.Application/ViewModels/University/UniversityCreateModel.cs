@@ -2,7 +2,7 @@
 
 namespace DUT.Application.ViewModels.University
 {
-    public class UniversityCreateModel : RequestModel
+    public class UniversityCreateModel
     {
         [Required, StringLength(250)]
         public string Name { get; set; }

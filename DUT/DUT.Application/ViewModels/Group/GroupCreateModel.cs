@@ -2,7 +2,7 @@
 
 namespace DUT.Application.ViewModels.Group
 {
-    public class GroupCreateModel : RequestModel
+    public class GroupCreateModel
     {
         [Required, StringLength(50, MinimumLength = 1)]
         public string Name { get; set; }

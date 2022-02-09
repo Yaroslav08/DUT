@@ -2,7 +2,7 @@
 
 namespace DUT.Application.ViewModels.Specialty
 {
-    public class SpecialtyCreateModel : RequestModel
+    public class SpecialtyCreateModel
     {
         [Required, StringLength(100, MinimumLength = 1)]
         public string Name { get; set; }

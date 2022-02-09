@@ -1,23 +1,10 @@
-﻿namespace DUT.Application.Services.Interfaces
+﻿using DUT.Application.ViewModels.Identity;
+
+namespace DUT.Application.Services.Interfaces
 {
     public interface IPermissionService
     {
-        Task<bool> HasPermissionAsync(PermissionAction action, object data = null);
         Task<bool> HasPermissionAsync(string claimType, string claimValue, object data = null);
-    }
-
-    public enum PermissionAction
-    {
-        CreateUniversity,
-        EditUniversity,
-        CreateFaculty,
-        EditFaculty,
-        RemoveFaculty,
-        CreateSpecialty,
-        EditSpecialty,
-        RemoveSpecialty,
-        CreateGroup,
-        EditGroup,
-        RemoveGroup
+        bool HasPermission(string claimType, string claimValue, UserIdentity currentUser = null);
     }
 }
