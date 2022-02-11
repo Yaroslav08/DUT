@@ -25,6 +25,8 @@ builder.Services.AddApiVersioning(options =>
     options.ReportApiVersions = true;
 });
 
+builder.Services.AddResponseCompression(options => options.EnableForHttps = true);
+
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -103,6 +105,9 @@ else
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
+app.UseResponseCompression();
+
 app.UseAccessTokenHandler();
 
 app.UseGlobalErrorHandler();
