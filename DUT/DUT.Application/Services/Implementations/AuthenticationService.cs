@@ -25,10 +25,9 @@ namespace DUT.Application.Services.Implementations
         private readonly ISessionManager _sessionManager;
         private readonly ILocationService _locationService;
         private readonly ITokenService _tokenService;
-        private readonly IRoleService _roleService;
         private readonly IDetector _detector;
 
-        public AuthenticationService(DUTDbContext db, IHttpContextAccessor httpContextAccessor, IIdentityService identityService, ISessionManager sessionManager, ILocationService locationService, ITokenService tokenService, IRoleService roleService, IDetector detector, IMapper mapper) : base(db)
+        public AuthenticationService(DUTDbContext db, IHttpContextAccessor httpContextAccessor, IIdentityService identityService, ISessionManager sessionManager, ILocationService locationService, ITokenService tokenService, IDetector detector, IMapper mapper) : base(db)
         {
             _db = db;
             _httpContextAccessor = httpContextAccessor;
@@ -36,7 +35,6 @@ namespace DUT.Application.Services.Implementations
             _sessionManager = sessionManager;
             _locationService = locationService;
             _tokenService = tokenService;
-            _roleService = roleService;
             _detector = detector;
             _mapper = mapper;
         }
@@ -288,7 +286,7 @@ namespace DUT.Application.Services.Implementations
             await _db.Users.AddAsync(newUser);
             await _db.SaveChangesAsync();
 
-            var role = await _roleService.GetRoleByNameAsync(Roles.Student);
+            var role = await _db.Roles.AsNoTracking().FirstOrDefaultAsync(s => s.Name == Roles.Student);
 
             var userRole = new UserRole
             {

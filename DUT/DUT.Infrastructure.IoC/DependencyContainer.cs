@@ -38,7 +38,6 @@ namespace DUT.Infrastructure.IoC
             services.AddScoped<IInitialService, InitialService>();
             services.AddScoped<IFacultyService, FacultyService>();
             services.AddScoped<ISpecialtyService, SpecialtyService>();
-            services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IAppService, AppService>();
             services.AddScoped<IGroupService, GroupService>();
             services.AddScoped<IUserService, UserService>();
