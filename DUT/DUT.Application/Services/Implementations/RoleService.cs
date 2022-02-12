@@ -74,9 +74,10 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<RoleViewModel>> GetRoleByIdAsync(int id, bool withClaims)
         {
-            var role = await _db.Roles.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-            if (role == null)
+            if (!await IsExistAsync(s => s.Id == id))
                 return Result<RoleViewModel>.NotFound("Role not found");
+
+            var role = Exists.First();
 
             var roleToView = _mapper.Map<RoleViewModel>(role);
 
@@ -91,9 +92,10 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<RoleViewModel>> RemoveRoleAsync(int roleId)
         {
-            var roleToRemove = await _db.Roles.FindAsync(roleId);
-            if (roleToRemove == null)
+            if (!await IsExistAsync(s => s.Id == roleId))
                 return Result<RoleViewModel>.NotFound("Role not found");
+
+            var roleToRemove = Exists.First();
 
             var roleClaims = await _db.RoleClaims.Where(s => s.RoleId == roleId).ToListAsync();
             if (roleClaims.Any())
@@ -108,10 +110,10 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<RoleViewModel>> UpdateRoleAsync(RoleEditModel model)
         {
-            var roleToUpdate = await _db.Roles.AsNoTracking().FirstOrDefaultAsync(s => s.Id == model.Id);
-
-            if (roleToUpdate == null)
+            if (!await IsExistAsync(s => s.Id == model.Id))
                 return Result<RoleViewModel>.NotFound("Role not found");
+
+            var roleToUpdate = Exists.First();
 
             if (!CheckIsNeedToUpdateRole(roleToUpdate, model))
                 return Result<RoleViewModel>.SuccessWithData(_mapper.Map<RoleViewModel>(roleToUpdate));
@@ -143,6 +145,8 @@ namespace DUT.Application.Services.Implementations
 
             await _db.RoleClaims.AddRangeAsync(newRoleClaims);
             await _db.SaveChangesAsync();
+
+            //ToDo notify user with this role
 
             return Result<RoleViewModel>.SuccessWithData(_mapper.Map<RoleViewModel>(roleToUpdate));
         }
