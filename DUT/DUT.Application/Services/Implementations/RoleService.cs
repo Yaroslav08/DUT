@@ -9,16 +9,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DUT.Application.Services.Implementations
 {
-    public class RoleClaimsService : BaseService<Role>, IRoleClaimsService
+    public class RoleService : BaseService<Role>, IRoleService
     {
-        private readonly IIdentityService _identityService;
-        private readonly IMapper _mapper;
         private readonly DUTDbContext _db;
-        public RoleClaimsService(IIdentityService identityService, IMapper mapper, DUTDbContext db) : base(db)
+        private readonly IMapper _mapper;
+        private readonly IClaimService _claimService;
+        private readonly IIdentityService _identityService;
+        public RoleService(DUTDbContext db, IMapper mapper, IIdentityService identityService, IClaimService claimService) : base(db)
         {
-            _identityService = identityService;
-            _mapper = mapper;
             _db = db;
+            _mapper = mapper;
+            _identityService = identityService;
+            _claimService = claimService;
         }
 
         public async Task<Result<RoleViewModel>> CreateRoleAsync(RoleCreateModel model)
@@ -70,16 +72,7 @@ namespace DUT.Application.Services.Implementations
             return Result<List<RoleViewModel>>.SuccessWithData(rolesToView);
         }
 
-        public async Task<Result<List<ClaimViewModel>>> GetClaimsAsync()
-        {
-            var roles = await _db.Claims.AsNoTracking().ToListAsync();
-
-            var rolesToView = _mapper.Map<List<ClaimViewModel>>(roles);
-
-            return Result<List<ClaimViewModel>>.SuccessWithData(rolesToView);
-        }
-
-        public async Task<Result<RoleViewModel>> GetRoleByIdAsync(int id, bool withClaims = false)
+        public async Task<Result<RoleViewModel>> GetRoleByIdAsync(int id, bool withClaims)
         {
             var role = await _db.Roles.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             if (role == null)
@@ -89,32 +82,28 @@ namespace DUT.Application.Services.Implementations
 
             if (withClaims)
             {
-                var roleClaims = await _db.RoleClaims.AsNoTracking().Include(s => s.Claim).Where(s => s.RoleId == id).ToListAsync();
-                if (roleClaims == null || !roleClaims.Any())
-                {
-                    roleToView.Claims = null;
-                }
-                else
-                {
-                    roleToView.ClaimIds = roleClaims.Select(x => x.Claim.Id).ToArray();
-                    roleToView.Claims = _mapper.Map<List<ClaimViewModel>>(roleClaims.Select(s => s.Claim));
-                }
+                var res = await _claimService.GetClaimsByRoleIdAsync(role.Id);
+                if (res.IsSuccess)
+                    roleToView.Claims = res.Data;
             }
             return Result<RoleViewModel>.SuccessWithData(roleToView);
         }
 
-        public async Task<Result<ClaimViewModel>> UpdateClaimAsync(ClaimEditModel model)
+        public async Task<Result<RoleViewModel>> RemoveRoleAsync(int roleId)
         {
-            var claimToUpdate = await _db.Claims.FindAsync(model.Id);
-            if (claimToUpdate == null)
-                return Result<ClaimViewModel>.NotFound("Claim not found");
+            var roleToRemove = await _db.Roles.FindAsync(roleId);
+            if (roleToRemove == null)
+                return Result<RoleViewModel>.NotFound("Role not found");
 
-            claimToUpdate.DisplayName = model.DisplayName;
-
-            claimToUpdate.PrepareToUpdate(_identityService);
-            _db.Claims.Update(claimToUpdate);
+            var roleClaims = await _db.RoleClaims.Where(s => s.RoleId == roleId).ToListAsync();
+            if (roleClaims.Any())
+            {
+                _db.RoleClaims.RemoveRange(roleClaims);
+                await _db.SaveChangesAsync();
+            }
+            _db.Roles.Remove(roleToRemove);
             await _db.SaveChangesAsync();
-            return Result<ClaimViewModel>.SuccessWithData(_mapper.Map<ClaimViewModel>(claimToUpdate));
+            return Result<RoleViewModel>.Success();
         }
 
         public async Task<Result<RoleViewModel>> UpdateRoleAsync(RoleEditModel model)
@@ -158,35 +147,18 @@ namespace DUT.Application.Services.Implementations
             return Result<RoleViewModel>.SuccessWithData(_mapper.Map<RoleViewModel>(roleToUpdate));
         }
 
-        private bool CheckIsNeedToUpdateRole(Role currentRole, RoleEditModel updatedRole)
-        {
-            var countOfNewRoleClaims = updatedRole.ClaimsIds.Count();
-            var hash = updatedRole.ClaimsIds.GetHashForClaimIds();
-            return countOfNewRoleClaims == currentRole.CountClaims
-                && hash == currentRole.ClaimsHash;
-        }
-
         private async Task<bool> CheckClaimsAsync(int[] claimsIds)
         {
             var claims = await _db.Claims.AsNoTracking().Where(s => claimsIds.Contains(s.Id)).ToListAsync();
             return claims.Count == claimsIds.Count();
         }
 
-        public async Task<Result<RoleViewModel>> RemoveRoleAsync(int id)
+        private bool CheckIsNeedToUpdateRole(Role currentRole, RoleEditModel updatedRole)
         {
-            var roleToRemove = await _db.Roles.FindAsync(id);
-            if (roleToRemove == null)
-                return Result<RoleViewModel>.NotFound("Role not found");
-
-            var roleClaims = await _db.RoleClaims.Where(s => s.RoleId == id).ToListAsync();
-            if(roleClaims.Any())
-            {
-                _db.RoleClaims.RemoveRange(roleClaims);
-                await _db.SaveChangesAsync();
-            }
-            _db.Roles.Remove(roleToRemove);
-            await _db.SaveChangesAsync();
-            return Result<RoleViewModel>.Success();
+            var countOfNewRoleClaims = updatedRole.ClaimsIds.Count();
+            var hash = updatedRole.ClaimsIds.GetHashForClaimIds();
+            return countOfNewRoleClaims == currentRole.CountClaims
+                && hash == currentRole.ClaimsHash;
         }
     }
 }

@@ -9,12 +9,14 @@ namespace DUT.Web.Controllers.V1
     public class PermissionsController : ApiBaseController
     {
         private readonly IIdentityService _identityService;
-        private readonly IRoleClaimsService _roleClaimsService;
+        private readonly IRoleService _roleService;
+        private readonly IClaimService _claimService;
         private readonly IPermissionService _permissionService;
-        public PermissionsController(IIdentityService identityService, IRoleClaimsService roleClaimsService, IPermissionService permissionService)
+        public PermissionsController(IIdentityService identityService, IRoleService roleService, IClaimService claimService, IPermissionService permissionService)
         {
             _identityService = identityService;
-            _roleClaimsService = roleClaimsService;
+            _roleService = roleService;
+            _claimService = claimService;
             _permissionService = permissionService;
         }
 
@@ -23,7 +25,7 @@ namespace DUT.Web.Controllers.V1
         {
             if (!_permissionService.HasPermission(PermissionClaims.Permissions, Permissions.All))
                 return JsonForbiddenResult();
-            return JsonResult(await _roleClaimsService.GetAllRolesAsync());
+            return JsonResult(await _roleService.GetAllRolesAsync());
         }
 
         [HttpGet("roles/{id}")]
@@ -31,7 +33,7 @@ namespace DUT.Web.Controllers.V1
         {
             if (!_permissionService.HasPermission(PermissionClaims.Permissions, Permissions.All))
                 return JsonForbiddenResult();
-            return JsonResult(await _roleClaimsService.GetRoleByIdAsync(id, withClaims));
+            return JsonResult(await _roleService.GetRoleByIdAsync(id, withClaims));
         }
 
         [HttpPost("roles")]
@@ -39,7 +41,7 @@ namespace DUT.Web.Controllers.V1
         {
             if (!_permissionService.HasPermission(PermissionClaims.Permissions, Permissions.All))
                 return JsonForbiddenResult();
-            return JsonResult(await _roleClaimsService.CreateRoleAsync(model));
+            return JsonResult(await _roleService.CreateRoleAsync(model));
         }
 
         [HttpPut("roles/{id}")]
@@ -48,7 +50,7 @@ namespace DUT.Web.Controllers.V1
             if (!_permissionService.HasPermission(PermissionClaims.Permissions, Permissions.All))
                 return JsonForbiddenResult();
             model.Id = id;
-            return JsonResult(await _roleClaimsService.UpdateRoleAsync(model));
+            return JsonResult(await _roleService.UpdateRoleAsync(model));
         }
 
         [HttpDelete("roles/{id}")]
@@ -56,7 +58,7 @@ namespace DUT.Web.Controllers.V1
         {
             if (!_permissionService.HasPermission(PermissionClaims.Permissions, Permissions.All))
                 return JsonForbiddenResult();
-            return JsonResult(await _roleClaimsService.RemoveRoleAsync(id));
+            return JsonResult(await _roleService.RemoveRoleAsync(id));
         }
 
         [HttpGet("claims")]
@@ -64,7 +66,7 @@ namespace DUT.Web.Controllers.V1
         {
             if (!_permissionService.HasPermission(PermissionClaims.Permissions, Permissions.All))
                 return JsonForbiddenResult();
-            return JsonResult(await _roleClaimsService.GetClaimsAsync());
+            return JsonResult(await _claimService.GetAllClaimsAsync());
         }
 
         [HttpPut("claims/{id}")]
@@ -73,7 +75,7 @@ namespace DUT.Web.Controllers.V1
             if (!_permissionService.HasPermission(PermissionClaims.Permissions, Permissions.All))
                 return JsonForbiddenResult();
             model.Id = id;
-            return JsonResult(await _roleClaimsService.UpdateClaimAsync(model));
+            return JsonResult(await _claimService.UpdateClaimAsync(model));
         }
     }
 }
