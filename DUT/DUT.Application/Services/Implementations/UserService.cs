@@ -9,6 +9,7 @@ using DUT.Domain.Models;
 using Extensions.Password;
 using DUT.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
+using DUT.Application.ViewModels.Notification;
 
 namespace DUT.Application.Services.Implementations
 {
@@ -101,8 +102,9 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<UserViewModel>> UpdateUsernameAsync(UsernameUpdateModel model)
         {
-            if (_identityService.GetRoles().Contains(Roles.Admin) || model.UserId != _identityService.GetUserId())
-                return Result<UserViewModel>.Error("Access denited");
+            if (model.UserId != _identityService.GetUserId())
+                if (!_identityService.GetRoles().Contains(Roles.Admin))
+                    return Result<UserViewModel>.Error("Access denited");
 
             var userToUpdate = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.UserId);
             if (userToUpdate == null)

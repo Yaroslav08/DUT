@@ -23,6 +23,7 @@
         ChangePassword,
         Logout,
         NewPost,
-        Locked
+        Locked,
+        PermissionChanged
     }
 }

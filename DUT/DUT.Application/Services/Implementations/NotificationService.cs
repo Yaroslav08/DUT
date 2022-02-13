@@ -3,12 +3,10 @@ using DUT.Application.Extensions;
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.Notification;
-using DUT.Application.ViewModels.Session;
 using DUT.Constants;
 using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 
 namespace DUT.Application.Services.Implementations
 {
@@ -29,15 +27,19 @@ namespace DUT.Application.Services.Implementations
             var notification = await _db.Notifications.AsNoTracking().FirstOrDefaultAsync(x => x.Id == notifyId);
             if (notification == null)
                 return Result<NotificationViewModel>.NotFound("Notification not found");
-            if (notification.UserId != _identityService.GetUserId() || _identityService.GetRoles().Contains(Roles.Admin))
-                return Result<NotificationViewModel>.Error("Access denited");
+
+            if (notification.UserId != _identityService.GetUserId())
+                if (!_identityService.GetRoles().Contains(Roles.Admin))
+                    return Result<NotificationViewModel>.Error("Access denited");
+
             return Result<NotificationViewModel>.SuccessWithData(_mapper.Map<NotificationViewModel>(notification));
         }
 
         public async Task<Result<List<NotificationViewModel>>> GetUserNotificationsAsync(int userId)
         {
-            if (userId != _identityService.GetUserId() || !_identityService.GetRoles().Contains(Roles.Admin))
-                return Result<List<NotificationViewModel>>.Error("Access denited");
+            if (userId != _identityService.GetUserId())
+                if (!_identityService.GetRoles().Contains(Roles.Admin))
+                    return Result<List<NotificationViewModel>>.Error("Access denited");
 
             var notifications = await _db.Notifications
                 .AsNoTracking()
@@ -51,8 +53,10 @@ namespace DUT.Application.Services.Implementations
         public async Task<Result<NotificationViewModel>> ReadNotificationAsync(long notifyId)
         {
             var notification = await _db.Notifications.FirstOrDefaultAsync(x => x.Id == notifyId);
-            if (notification.UserId != _identityService.GetUserId() || _identityService.GetRoles().Contains(Roles.Admin))
-                return Result<NotificationViewModel>.Error("Access denited");
+
+            if (notification.UserId != _identityService.GetUserId())
+                if (!_identityService.GetRoles().Contains(Roles.Admin))
+                    return Result<NotificationViewModel>.Error("Access denited");
 
             if (notification.IsRead)
                 return Result<NotificationViewModel>.Error("Notification is already reading");
@@ -65,6 +69,29 @@ namespace DUT.Application.Services.Implementations
             await _db.SaveChangesAsync();
 
             return Result<NotificationViewModel>.SuccessWithData(_mapper.Map<NotificationViewModel>(notification));
+        }
+
+        public async Task<Result<bool>> SendNotifyByUserIdsAsync(Notification notification, IEnumerable<int> userIds)
+        {
+            var notifications = new List<Notification>();
+
+            foreach (int userId in userIds)
+            {
+                var notify = new Notification
+                {
+                    Title = notification.Title,
+                    Content = notification.Content,
+                    ImageUrl = notification.ImageUrl,
+                    IsImportant = notification.IsImportant,
+                    Type = notification.Type,
+                    UserId = userId
+                };
+                notify.PrepareToCreate();
+                notifications.Add(notify);
+            }
+            await _db.Notifications.AddRangeAsync(notifications);
+            await _db.SaveChangesAsync();
+            return Result<bool>.SuccessWithData(true);
         }
     }
 }

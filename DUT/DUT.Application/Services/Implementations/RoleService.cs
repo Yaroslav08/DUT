@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DUT.Application.Extensions;
+using DUT.Application.Helpers;
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.RoleClaim;
@@ -15,12 +16,14 @@ namespace DUT.Application.Services.Implementations
         private readonly IMapper _mapper;
         private readonly IClaimService _claimService;
         private readonly IIdentityService _identityService;
-        public RoleService(DUTDbContext db, IMapper mapper, IIdentityService identityService, IClaimService claimService) : base(db)
+        private readonly INotificationService _notificationService;
+        public RoleService(DUTDbContext db, IMapper mapper, IIdentityService identityService, IClaimService claimService, INotificationService notificationService) : base(db)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
             _claimService = claimService;
+            _notificationService = notificationService;
         }
 
         public async Task<Result<RoleViewModel>> CreateRoleAsync(RoleCreateModel model)
@@ -146,7 +149,9 @@ namespace DUT.Application.Services.Implementations
             await _db.RoleClaims.AddRangeAsync(newRoleClaims);
             await _db.SaveChangesAsync();
 
-            //ToDo notify user with this role
+            var userIds = await _db.UserRoles.AsNoTracking().Where(s => s.RoleId == model.Id).Select(s => s.UserId).ToListAsync();
+
+            var res = await _notificationService.SendNotifyByUserIdsAsync(NotificationsHelper.GetChangePermissionNotification(), userIds);
 
             return Result<RoleViewModel>.SuccessWithData(_mapper.Map<RoleViewModel>(roleToUpdate));
         }
@@ -161,8 +166,10 @@ namespace DUT.Application.Services.Implementations
         {
             var countOfNewRoleClaims = updatedRole.ClaimsIds.Count();
             var hash = updatedRole.ClaimsIds.GetHashForClaimIds();
-            return countOfNewRoleClaims == currentRole.CountClaims
-                && hash == currentRole.ClaimsHash;
+            var name = updatedRole.Name;
+            return countOfNewRoleClaims != currentRole.CountClaims
+                || hash != currentRole.ClaimsHash
+                || currentRole.Name != name;
         }
     }
 }

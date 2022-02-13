@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels;
+using DUT.Application.ViewModels.Notification;
 using DUT.Application.ViewModels.Session;
 using DUT.Constants;
 using DUT.Domain.Models;
@@ -27,24 +28,28 @@ namespace DUT.Application.Services.Implementations
             if (session == null)
                 return Result<SessionViewModel>.NotFound("Session not found");
 
-            if (session.UserId != _identityService.GetUserId() || !_identityService.GetRoles().Contains(Roles.Admin))
-                return Result<SessionViewModel>.Error("Access denited");
+            if (session.UserId != _identityService.GetUserId())
+                if (!_identityService.GetRoles().Contains(Roles.Admin))
+                    return Result<SessionViewModel>.Error("Access denited");
 
             return Result<SessionViewModel>.SuccessWithData(_mapper.Map<SessionViewModel>(session));
         }
 
         public async Task<Result<List<SessionViewModel>>> GetAllSessionsByUserIdAsync(int userId)
         {
-            if (userId != _identityService.GetUserId() || !_identityService.GetRoles().Contains(Roles.Admin))
-                return Result<List<SessionViewModel>>.Error("Access denited");
+            if (userId != _identityService.GetUserId())
+                if (!_identityService.GetRoles().Contains(Roles.Admin))
+                    return Result<List<SessionViewModel>>.Error("Access denited");
+
             var sessions = await _db.Sessions.AsNoTracking().Where(x => x.UserId == userId).ToListAsync();
             return Result<List<SessionViewModel>>.SuccessWithData(_mapper.Map<List<SessionViewModel>>(sessions));
         }
 
         public async Task<Result<List<SessionViewModel>>> GetActiveSessionsByUserIdAsync(int userId)
         {
-            if (userId != _identityService.GetUserId() || !_identityService.GetRoles().Contains(Roles.Admin))
-                return Result<List<SessionViewModel>>.Error("Access denited");
+            if (userId != _identityService.GetUserId())
+                if (!_identityService.GetRoles().Contains(Roles.Admin))
+                    return Result<List<SessionViewModel>>.Error("Access denited");
             var sessions = await _db.Sessions.AsNoTracking().Where(x => x.UserId == userId && x.IsActive).ToListAsync();
             return Result<List<SessionViewModel>>.SuccessWithData(_mapper.Map<List<SessionViewModel>>(sessions));
         }

@@ -9,5 +9,6 @@ namespace DUT.Application.Services.Interfaces
         Task<Result<List<NotificationViewModel>>> GetUserNotificationsAsync(int userId);
         Task<Result<NotificationViewModel>> GetNotificationByIdAsync(long notifyId);
         Task<Result<NotificationViewModel>> ReadNotificationAsync(long notifyId);
+        Task<Result<bool>> SendNotifyByUserIdsAsync(Notification notification, IEnumerable<int> userIds);
     }
 }

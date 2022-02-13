@@ -147,6 +147,23 @@ namespace DUT.Application.Helpers
             };
         }
 
+        public static Notification GetChangePermissionNotification()
+        {
+            return new Notification
+            {
+                Title = "Зміна дозволів",
+                Content = $"Увага! Через зміну дозволів до вашої ролі робота деякого функціоналу буде відбуватися не коректно. Будь-ласка перезайдіть на власний акаунт на всіх пристроях!",
+                ImageUrl = "https://www.sop.com.ua/images/icons/123.png",
+                CreatedAt = DateTime.Now,
+                CreatedBy = Defaults.CreatedBy,
+                CreatedFromIP = "::1",
+                Type = NotificationType.PermissionChanged,
+                IsImportant = true,
+                IsRead = false,
+                ReadAt = null,
+            };
+        }
+
         private static string GetDeviceInfo(ClientInfo clientInfo)
         {
             StringBuilder result = new StringBuilder();
