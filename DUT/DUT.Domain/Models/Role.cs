@@ -8,6 +8,7 @@ namespace DUT.Domain.Models
         public List<RoleClaim> RoleClaims { get; set; }
         public int? CountClaims { get; set; }
         public string ClaimsHash { get; set; }
+        public bool CanDelete { get; set; }
 
         public Role(string name)
         {

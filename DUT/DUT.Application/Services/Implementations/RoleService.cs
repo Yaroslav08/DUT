@@ -41,6 +41,7 @@ namespace DUT.Application.Services.Implementations
             var newRole = new Role
             {
                 Name = model.Name,
+                CanDelete = true,
                 CountClaims = model.ClaimsIds.Count(),
                 ClaimsHash = model.ClaimsIds.GetHashForClaimIds()
             };
@@ -99,6 +100,9 @@ namespace DUT.Application.Services.Implementations
                 return Result<RoleViewModel>.NotFound("Role not found");
 
             var roleToRemove = Exists.First();
+
+            if (!roleToRemove.CanDelete)
+                return Result<RoleViewModel>.Error("This role can`t remove");
 
             var roleClaims = await _db.RoleClaims.Where(s => s.RoleId == roleId).ToListAsync();
             if (roleClaims.Any())

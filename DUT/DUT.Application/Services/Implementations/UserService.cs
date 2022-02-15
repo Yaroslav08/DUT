@@ -10,6 +10,7 @@ using Extensions.Password;
 using DUT.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using DUT.Application.ViewModels.Notification;
+using DUT.Application.Helpers;
 
 namespace DUT.Application.Services.Implementations
 {
@@ -53,6 +54,11 @@ namespace DUT.Application.Services.Implementations
             userRole.PrepareToCreate(_identityService);
 
             await _db.UserRoles.AddAsync(userRole);
+
+            var notify = NotificationsHelper.GetWelcomeNotification();
+            notify.UserId = newUser.Id;
+
+            await _db.Notifications.AddAsync(notify);
             await _db.SaveChangesAsync();
 
             return Result<UserViewModel>.SuccessWithData(_mapper.Map<UserViewModel>(newUser)); ;
