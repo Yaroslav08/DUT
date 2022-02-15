@@ -7,7 +7,7 @@ namespace DUT.Application.Services.Interfaces
     {
         Task<Result<List<SubjectViewModel>>> GetAllSubjectsAsync(SearchSubjectOptions options);
         Task<Result<List<SubjectViewModel>>> SearchSubjectsAsync(SearchSubjectOptions options);
-        Task<Result<List<SubjectViewModel>>> GetAllTemplatesAsync();
+        Task<Result<List<SubjectViewModel>>> GetAllTemplatesAsync(SearchOptions searchOptions);
         Task<Result<SubjectViewModel>> GetSubjectByIdAsync(int subjectId);
         Task<Result<SubjectViewModel>> CreateSubjectAsync(SubjectCreateModel model);
     }

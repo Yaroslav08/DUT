@@ -10,6 +10,7 @@ using DUT.Application.ViewModels.Post;
 using DUT.Application.ViewModels.Post.Comment;
 using DUT.Application.ViewModels.RoleClaim;
 using DUT.Application.ViewModels.Session;
+using DUT.Application.ViewModels.Setting;
 using DUT.Application.ViewModels.Specialty;
 using DUT.Application.ViewModels.Subject;
 using DUT.Application.ViewModels.University;
@@ -65,6 +66,8 @@ namespace DUT.Application.ViewModels
 
             CreateMap<Domain.Models.Claim, ClaimViewModel>().ReverseMap();
             CreateMap<Domain.Models.Role, RoleViewModel>().ReverseMap();
+
+            CreateMap<Domain.Models.Setting, SettingViewModel>().ReverseMap();
         }
 
         private string BuildFullName(Domain.Models.User user)

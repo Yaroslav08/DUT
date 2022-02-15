@@ -39,6 +39,7 @@ namespace DUT.Infrastructure.Data.Context
         public DbSet<App> Apps { get; set; }
         public DbSet<LoginAttempt> LoginAttempts { get; set; }
         public DbSet<Diploma> Diplomas { get; set; }
+        public DbSet<Setting> Settings { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)

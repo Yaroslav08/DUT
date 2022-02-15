@@ -7,6 +7,7 @@ using DUT.Application.ViewModels.Subject;
 using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace DUT.Application.Services.Implementations
 {
@@ -71,9 +72,17 @@ namespace DUT.Application.Services.Implementations
             return Result<List<SubjectViewModel>>.SuccessWithData(subjectsToView);
         }
 
-        public async Task<Result<List<SubjectViewModel>>> GetAllTemplatesAsync()
+        public async Task<Result<List<SubjectViewModel>>> GetAllTemplatesAsync(SearchOptions searchOptions)
         {
-            var templateSubjects = await _db.Subjects.AsNoTracking().Where(x => x.IsTemplate).ToListAsync();
+            searchOptions.PrepareOptions();
+
+            var templateSubjects = await _db.Subjects
+                .AsNoTracking()
+                .Where(x => x.IsTemplate)
+                .Skip(searchOptions.Offset).Take(searchOptions.Count)
+                .OrderBy(s => s.Id)
+                .ToListAsync();
+
             var templateSubjectsToView = _mapper.Map<List<SubjectViewModel>>(templateSubjects);
             return Result<List<SubjectViewModel>>.SuccessWithData(templateSubjectsToView);
         }
@@ -82,6 +91,8 @@ namespace DUT.Application.Services.Implementations
         {
             options.PrepareOptions();
 
+            var setting = await _db.Settings.AsNoTracking().FirstOrDefaultAsync();
+
             var query = _db.Subjects.AsNoTracking();
 
             if (options.GroupId != null)
@@ -89,6 +100,9 @@ namespace DUT.Application.Services.Implementations
 
             if (options.IsTemplate != null)
                 query = query.Where(x => x.IsTemplate);
+
+            if (options.IsCurrentSemestr != null)
+                query = query.Where(GetCurrentSemestr(setting));
 
             if (options.Name != null)
                 query = query.Where(x => x.Name.Contains(options.Name));
@@ -112,6 +126,20 @@ namespace DUT.Application.Services.Implementations
                 return Result<SubjectViewModel>.NotFound("Subject not found");
             var subjectToView = _mapper.Map<SubjectViewModel>(subject);
             return Result<SubjectViewModel>.SuccessWithData(subjectToView);
+        }
+
+        private Expression<Func<Subject, bool>> GetCurrentSemestr(Setting setting)
+        {
+            var today = DateTime.Today;
+            if (today.Month >= setting.FirtsSemesterStart.Month && today.Month <= setting.FirtsSemesterEnd.Month)
+            {
+                return (x) => x.From.Month >= setting.FirtsSemesterStart.Month && x.To.Month <= setting.FirtsSemesterEnd.Month;
+            }
+            if (today.Month >= setting.SecondSemesterStart.Month && today.Month <= setting.SecondSemesterEnd.Month)
+            {
+                return (x) => x.From.Month >= setting.SecondSemesterStart.Month && x.To.Month <= setting.SecondSemesterEnd.Month;
+            }
+            return null;
         }
     }
 }

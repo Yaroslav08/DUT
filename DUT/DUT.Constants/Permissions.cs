@@ -25,6 +25,7 @@
             yield return CanRemove;
             yield return CanView;
             yield return CanViewAll;
+            yield return Search;
         }
     }
 }

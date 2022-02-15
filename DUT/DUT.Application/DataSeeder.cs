@@ -114,6 +114,27 @@ namespace DUT.Application
             }
             #endregion
 
+            #region Setting
+            if (!db.Settings.Any())
+            {
+                var now = DateTime.Now;
+
+                var newSetting = new Setting
+                {
+                    MaxCourseInUniversity = 6,
+                    FirtsSemesterStart = new DateTime(now.Year, 9, 1),
+                    FirtsSemesterEnd = new DateTime(now.Year, 12, 31),
+                    SecondSemesterStart = new DateTime(now.Year + 1, 1, 1),
+                    SecondSemesterEnd = new DateTime(now.Year + 1, 6, 30)
+                };
+                newSetting.PrepareToCreate();
+
+                db.Settings.Add(newSetting);
+
+                count++;
+            }
+            #endregion
+
             #region UserGroupRole
             if (!db.UserGroupRoles.Any())
             {
@@ -479,6 +500,36 @@ namespace DUT.Application
                 #endregion
 
 
+                #region Settings
+
+                claims.Add(new Claim
+                {
+                    DisplayName = "Створення налаштувань по замовченню",
+                    Type = PermissionClaims.Settings,
+                    Value = Permissions.CanCreate
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Редагування налаштувань по замовченню",
+                    Type = PermissionClaims.Settings,
+                    Value = Permissions.CanEdit
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Перегляд налаштувань по замовченню",
+                    Type = PermissionClaims.Settings,
+                    Value = Permissions.CanView
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Усі дії пов'язані з налаштуваннями по замовченню",
+                    Type = PermissionClaims.Settings,
+                    Value = Permissions.All
+                });
+
+                #endregion
+
+
                 #region Save Claims
 
                 claims.ForEach(x =>
@@ -499,7 +550,7 @@ namespace DUT.Application
 
                 var adminRoleClaims = new List<RoleClaim>();
 
-                foreach(var roleClaim in claims)
+                foreach (var roleClaim in claims)
                 {
                     adminRoleClaims.Add(new RoleClaim
                     {
