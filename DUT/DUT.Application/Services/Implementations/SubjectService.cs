@@ -69,11 +69,14 @@ namespace DUT.Application.Services.Implementations
             if (options.IsTemplate != null)
                 query = query.Where(x => x.IsTemplate);
 
-            if (options.IsCurrentSemestr != null)
+            if (options.IsCurrentSemestr != null && options.IsCurrentSemestr.Value)
                 query = query.Where(GetCurrentSemestr(setting));
 
             if (options.Name != null)
                 query = query.Where(x => x.Name.Contains(options.Name));
+
+            if (options.SubjectIds != null)
+                query = query.Where(s => options.SubjectIds.Contains(s.Id));
 
             query = query.Skip(options.Offset).Take(options.Count);
 
@@ -144,6 +147,22 @@ namespace DUT.Application.Services.Implementations
             await _db.SaveChangesAsync();
 
             return Result<SubjectViewModel>.SuccessWithData(_mapper.Map<SubjectViewModel>(subjectToUpdate));
+        }
+
+        public async Task<Result<SubjectViewModel>> GetGroupSubjectAsync(int groupId, int subjectId)
+        {
+            if (!await _groupService.IsExistAsync(s => s.Id == groupId))
+                return Result<SubjectViewModel>.NotFound($"Group with ID ({groupId}) not found");
+
+            var searchResult = await SearchSubjectsAsync(new SearchSubjectOptions
+            {
+                GroupId = groupId,
+                SubjectIds = new[] { subjectId }
+            });
+            if (!searchResult.Data.Any())
+                return Result<SubjectViewModel>.NotFound("Subject not found");
+
+            return Result<SubjectViewModel>.SuccessWithData(searchResult.Data[0]);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using DUT.Application.Services.Interfaces;
+﻿using DUT.Application.Options;
+using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels.Group;
 using DUT.Application.ViewModels.Group.GroupMember;
 using DUT.Application.ViewModels.Post;
@@ -185,15 +186,23 @@ namespace DUT.Web.Controllers.V1
         #region Subjects
 
         [HttpGet("{groupId}/subjects")]
-        public async Task<IActionResult> GetGroupSubjects(int groupId)
+        public async Task<IActionResult> GetGroupSubjects(int groupId, int offset = 0, int count = 20, bool isCurrentSemester = false)
         {
-            return JsonResult(await _subjectService.SearchSubjectsAsync(new Application.Options.SearchSubjectOptions
+            return JsonResult(await _subjectService.SearchSubjectsAsync(new SearchSubjectOptions
             {
                 GroupId = groupId,
+                Offset = offset,
+                Count = count,
+                IsCurrentSemestr = false
             }));
         }
 
-        #endregion
+        [HttpGet("{groupId}/subjects/{subjectId}")]
+        public async Task<IActionResult> GetGroupSubject(int groupId, int subjectId)
+        {
+            return JsonResult(await _subjectService.GetGroupSubjectAsync(groupId, subjectId));
+        }
 
+        #endregion
     }
 }
