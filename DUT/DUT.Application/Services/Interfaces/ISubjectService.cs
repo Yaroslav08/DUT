@@ -5,10 +5,9 @@ namespace DUT.Application.Services.Interfaces
 {
     public interface ISubjectService
     {
-        Task<Result<List<SubjectViewModel>>> GetAllSubjectsAsync(SearchSubjectOptions options);
         Task<Result<List<SubjectViewModel>>> SearchSubjectsAsync(SearchSubjectOptions options);
-        Task<Result<List<SubjectViewModel>>> GetAllTemplatesAsync(SearchOptions searchOptions);
         Task<Result<SubjectViewModel>> GetSubjectByIdAsync(int subjectId);
         Task<Result<SubjectViewModel>> CreateSubjectAsync(SubjectCreateModel model);
+        Task<Result<SubjectViewModel>> UpdateSubjectAsync(SubjectEditModel model);
     }
 }

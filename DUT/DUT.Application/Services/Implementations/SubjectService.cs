@@ -55,38 +55,6 @@ namespace DUT.Application.Services.Implementations
             return Result<SubjectViewModel>.SuccessWithData(_mapper.Map<SubjectViewModel>(newSubject));
         }
 
-        public async Task<Result<List<SubjectViewModel>>> GetAllSubjectsAsync(SearchSubjectOptions options)
-        {
-            var query = _db.Subjects
-                .AsNoTracking()
-                .Where(x => x.IsTemplate == options.IsTemplate)
-                .OrderBy(x => x.Id)
-                .Skip(options.Offset).Take(options.Count);
-
-            if (!string.IsNullOrEmpty(options.Name))
-                query = query.Where(s => s.Name.Contains(options.Name));
-
-            var subjects = await query.ToListAsync();
-
-            var subjectsToView = _mapper.Map<List<SubjectViewModel>>(subjects);
-            return Result<List<SubjectViewModel>>.SuccessWithData(subjectsToView);
-        }
-
-        public async Task<Result<List<SubjectViewModel>>> GetAllTemplatesAsync(SearchOptions searchOptions)
-        {
-            searchOptions.PrepareOptions();
-
-            var templateSubjects = await _db.Subjects
-                .AsNoTracking()
-                .Where(x => x.IsTemplate)
-                .Skip(searchOptions.Offset).Take(searchOptions.Count)
-                .OrderBy(s => s.Id)
-                .ToListAsync();
-
-            var templateSubjectsToView = _mapper.Map<List<SubjectViewModel>>(templateSubjects);
-            return Result<List<SubjectViewModel>>.SuccessWithData(templateSubjectsToView);
-        }
-
         public async Task<Result<List<SubjectViewModel>>> SearchSubjectsAsync(SearchSubjectOptions options)
         {
             options.PrepareOptions();
@@ -111,6 +79,8 @@ namespace DUT.Application.Services.Implementations
 
             query = query.OrderBy(x => x.Id);
 
+            query = query.Include(s => s.Teacher);
+
             var subjects = await query.ToListAsync();
             var subjectsToView = _mapper.Map<List<SubjectViewModel>>(subjects);
             return Result<List<SubjectViewModel>>.SuccessWithData(subjectsToView);
@@ -121,6 +91,7 @@ namespace DUT.Application.Services.Implementations
             var subject = await _db.Subjects
                 .AsNoTracking()
                 .Include(x => x.Teacher)
+                .Include(x => x.Group)
                 .FirstOrDefaultAsync(s => s.Id == subjectId);
             if (subject == null)
                 return Result<SubjectViewModel>.NotFound("Subject not found");
@@ -140,6 +111,39 @@ namespace DUT.Application.Services.Implementations
                 return (x) => x.From.Month >= setting.SecondSemesterStart.Month && x.To.Month <= setting.SecondSemesterEnd.Month;
             }
             return null;
+        }
+
+        public async Task<Result<SubjectViewModel>> UpdateSubjectAsync(SubjectEditModel model)
+        {
+            if (!await IsExistAsync(s => s.Id == model.Id))
+                return Result<SubjectViewModel>.NotFound("Subject not found");
+
+            if (!await _userService.IsExistAsync(s => s.Id == model.TeacherId))
+                return Result<SubjectViewModel>.NotFound("Teacher with this ID not found");
+
+            if (model.GroupId != null)
+                if (!await _groupService.IsExistAsync(s => s.Id == model.GroupId))
+                    return Result<SubjectViewModel>.NotFound($"Group with ID ({model.GroupId}) not found");
+
+            var subjectToUpdate = Exists.First();
+
+            subjectToUpdate.GroupId = model.GroupId;
+            subjectToUpdate.TeacherId = model.TeacherId;
+
+            subjectToUpdate.Name = model.Name;
+            subjectToUpdate.Description = model.Description;
+            subjectToUpdate.Config = model.Config;
+            subjectToUpdate.From = model.From;
+            subjectToUpdate.To = model.To;
+            subjectToUpdate.IsTemplate = model.IsTemplate;
+            subjectToUpdate.Semestr = model.Semestr;
+
+            subjectToUpdate.PrepareToUpdate(_identityService);
+
+            _db.Subjects.Update(subjectToUpdate);
+            await _db.SaveChangesAsync();
+
+            return Result<SubjectViewModel>.SuccessWithData(_mapper.Map<SubjectViewModel>(subjectToUpdate));
         }
     }
 }
