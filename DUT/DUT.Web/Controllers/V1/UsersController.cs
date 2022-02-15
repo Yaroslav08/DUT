@@ -26,6 +26,12 @@ namespace DUT.Web.Controllers.V1
             return JsonResult(await _userService.GetLastUsersAsync(5));
         }
 
+        [HttpGet("teachers")]
+        public async Task<IActionResult> GetTeachers(int offset = 0, int count = 20)
+        {
+            return JsonResult(await _userService.GetTeachersAsync(offset, count));
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {

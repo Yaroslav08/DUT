@@ -1,17 +1,15 @@
 ﻿using AutoMapper;
 using DUT.Application.Extensions;
+using DUT.Application.Helpers;
 using DUT.Application.Options;
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.User;
 using DUT.Constants;
 using DUT.Domain.Models;
-using Extensions.Password;
 using DUT.Infrastructure.Data.Context;
+using Extensions.Password;
 using Microsoft.EntityFrameworkCore;
-using DUT.Application.ViewModels.Notification;
-using DUT.Application.Helpers;
-
 namespace DUT.Application.Services.Implementations
 {
     public class UserService : BaseService<User>, IUserService
@@ -72,6 +70,26 @@ namespace DUT.Application.Services.Implementations
                 .Take(count)
                 .ToListAsync();
             return Result<List<UserShortViewModel>>.SuccessWithData(_mapper.Map<List<UserShortViewModel>>(lastUsers));
+        }
+
+        public async Task<Result<List<UserShortViewModel>>> GetTeachersAsync(int offset = 0, int count = 20)
+        {
+            var teachers = await _db.UserRoles
+                .Where(s => s.RoleId == 1)
+                .Include(s => s.User)
+                .OrderBy(s => s.UserId)
+                .Skip(offset).Take(count)
+                .Select(s => new UserShortViewModel
+                {
+                    Id = s.User.Id,
+                    FirstName = s.User.FirstName,
+                    LastName = s.User.LastName,
+                    UserName = s.User.UserName,
+                    Image = s.User.Image,
+                    JoinAt = s.User.JoinAt
+                })
+                .ToListAsync();
+            return Result<List<UserShortViewModel>>.SuccessWithData(teachers);
         }
 
         public async Task<Result<UserViewModel>> GetUserByIdAsync(int id)

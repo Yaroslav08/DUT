@@ -9,6 +9,7 @@ namespace DUT.Application.Services.Interfaces
     {
         Task<Result<UserViewModel>> CreateUserAsync(UserCreateModel model);
         Task<Result<List<UserShortViewModel>>> GetLastUsersAsync(int count);
+        Task<Result<List<UserShortViewModel>>> GetTeachersAsync(int offset = 0, int count = 20);
         Task<Result<UserViewModel>> GetUserByIdAsync(int id);
         Task<Result<UserViewModel>> UpdateUsernameAsync(UsernameUpdateModel model);
         Task<Result<List<UserShortViewModel>>> SearchUsersAsync(SearchUserOptions searchUserOptions);
