@@ -31,8 +31,9 @@ namespace DUT.Application.Services.Implementations
             if (!await _subjectService.IsExistAsync(s => s.Id == lesson.SubjectId))
                 return Result<LessonViewModel>.NotFound(typeof(Subject).NotFoundMessage(lesson.SubjectId));
 
-            if (!await _userService.IsExistAsync(s => s.Id == lesson.SubstituteTeacherId))
-                return Result<LessonViewModel>.NotFound(typeof(User).NotFoundMessage(lesson.SubstituteTeacherId));
+            if (lesson.SubstituteTeacherId.HasValue)
+                if (!await _userService.IsExistAsync(s => s.Id == lesson.SubstituteTeacherId))
+                    return Result<LessonViewModel>.NotFound(typeof(User).NotFoundMessage(lesson.SubstituteTeacherId));
 
             if (lesson.PreviewLessonId.HasValue)
                 if (!await IsExistAsync(s => s.Id == lesson.PreviewLessonId))
@@ -118,7 +119,7 @@ namespace DUT.Application.Services.Implementations
                 .AsNoTracking()
                 .Where(s => s.SubjectId == subjectId)
                 .Where(s => s.Date >= fromDate && s.Date <= toDate)
-                .OrderByDescending(s => s.Date)
+                .OrderBy(s => s.Date)
                 .ToListAsync();
 
             var lessonsToView = _mapper.Map<List<LessonViewModel>>(lessons);
@@ -147,8 +148,9 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<LessonViewModel>> UpdateLessonAsync(LessonEditModel lesson)
         {
-            if (!await _userService.IsExistAsync(s => s.Id == lesson.SubstituteTeacherId))
-                return Result<LessonViewModel>.NotFound(typeof(User).NotFoundMessage(lesson.SubstituteTeacherId));
+            if (lesson.SubstituteTeacherId.HasValue)
+                if (!await _userService.IsExistAsync(s => s.Id == lesson.SubstituteTeacherId))
+                    return Result<LessonViewModel>.NotFound(typeof(User).NotFoundMessage(lesson.SubstituteTeacherId));
 
             var currentLesson = await _db.Lessons.AsNoTracking().FirstOrDefaultAsync(s => s.Id == lesson.Id);
             if (currentLesson == null)
@@ -203,7 +205,7 @@ namespace DUT.Application.Services.Implementations
             if (toDate == null)
                 toDate = DateTime.Today.AddDays(14);
 
-            if (toDate > fromDate)
+            if (toDate < fromDate)
                 toDate = fromDate;
 
             if (toDate.Value.Subtract(fromDate.Value) > TimeSpan.FromDays(28))

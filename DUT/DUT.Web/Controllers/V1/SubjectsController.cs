@@ -11,9 +11,10 @@ namespace DUT.Web.Controllers.V1
     {
         private readonly ISubjectService _subjectService;
         private readonly ILessonService _lessonService;
-        public SubjectsController(ISubjectService subjectService)
+        public SubjectsController(ISubjectService subjectService, ILessonService lessonService)
         {
             _subjectService = subjectService;
+            _lessonService = lessonService;
         }
 
         #region Subjects
