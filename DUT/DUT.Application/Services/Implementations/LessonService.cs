@@ -3,6 +3,7 @@ using DUT.Application.Extensions;
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.Lesson;
+using DUT.Application.ViewModels.User;
 using DUT.Constants.Extensions;
 using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
@@ -13,20 +14,25 @@ namespace DUT.Application.Services.Implementations
     {
         private readonly IIdentityService _identityService;
         private readonly ISubjectService _subjectService;
+        private readonly IUserService _userService;
         private readonly IMapper _mapper;
         private readonly DUTDbContext _db;
-        public LessonService(IIdentityService identityService, ISubjectService subjectService, IMapper mapper, DUTDbContext db) : base(db)
+        public LessonService(IIdentityService identityService, ISubjectService subjectService, IMapper mapper, DUTDbContext db, IUserService userService) : base(db)
         {
             _identityService = identityService;
             _subjectService = subjectService;
             _mapper = mapper;
             _db = db;
+            _userService = userService;
         }
 
         public async Task<Result<LessonViewModel>> CreateLessonAsync(LessonCreateModel lesson)
         {
             if (!await _subjectService.IsExistAsync(s => s.Id == lesson.SubjectId))
                 return Result<LessonViewModel>.NotFound(typeof(Subject).NotFoundMessage(lesson.SubjectId));
+
+            if (!await _userService.IsExistAsync(s => s.Id == lesson.SubstituteTeacherId))
+                return Result<LessonViewModel>.NotFound(typeof(User).NotFoundMessage(lesson.SubstituteTeacherId));
 
             if (lesson.PreviewLessonId.HasValue)
                 if (!await IsExistAsync(s => s.Id == lesson.PreviewLessonId))
@@ -61,7 +67,8 @@ namespace DUT.Application.Services.Implementations
                 PreviewLessonId = lesson.PreviewLessonId,
                 NextLessonId = lesson.NextLessonId,
                 SubjectId = lesson.SubjectId,
-                Journal = null
+                Journal = null,
+                SubstituteTeacherId = lesson.SubstituteTeacherId,
             };
             newLesson.PrepareToCreate(_identityService);
 
@@ -84,6 +91,22 @@ namespace DUT.Application.Services.Implementations
             lessonToView.PreviewLesson = await GetSubLessonAsync(lesson.PreviewLessonId);
             lessonToView.NextLesson = await GetSubLessonAsync(lesson.NextLessonId);
 
+            if (lesson.SubstituteTeacherId.HasValue)
+            {
+                lessonToView.IsSubstitute = true;
+                lessonToView.SubstituteTeacher = await _db.Users.AsNoTracking().Select(s => new UserViewModel
+                {
+                    Id = s.Id,
+                    FirstName = s.FirstName,
+                    LastName = s.LastName,
+                    Image = s.Image,
+                    JoinAt = s.JoinAt,
+                    MiddleName = s.MiddleName,
+                    FullName = $"{s.LastName} {s.FirstName} {s.MiddleName}",
+                    UserName = s.UserName
+                }).FirstOrDefaultAsync(s => s.Id == lesson.SubstituteTeacherId);
+            }
+
             return Result<LessonViewModel>.SuccessWithData(lessonToView);
         }
 
@@ -99,6 +122,13 @@ namespace DUT.Application.Services.Implementations
                 .ToListAsync();
 
             var lessonsToView = _mapper.Map<List<LessonViewModel>>(lessons);
+
+            lessonsToView.ForEach(s =>
+            {
+                var lesson = lessons.First(x => x.Id == s.Id);
+                if (lesson.SubstituteTeacherId.HasValue)
+                    s.IsSubstitute = true;
+            });
 
             return Result<List<LessonViewModel>>.SuccessWithData(lessonsToView);
         }
@@ -117,6 +147,9 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<LessonViewModel>> UpdateLessonAsync(LessonEditModel lesson)
         {
+            if (!await _userService.IsExistAsync(s => s.Id == lesson.SubstituteTeacherId))
+                return Result<LessonViewModel>.NotFound(typeof(User).NotFoundMessage(lesson.SubstituteTeacherId));
+
             var currentLesson = await _db.Lessons.AsNoTracking().FirstOrDefaultAsync(s => s.Id == lesson.Id);
             if (currentLesson == null)
                 return Result<LessonViewModel>.NotFound(typeof(Lesson).NotFoundMessage(lesson.Id));
@@ -151,6 +184,7 @@ namespace DUT.Application.Services.Implementations
             currentLesson.Homework = lesson.Homework;
             currentLesson.NextLessonId = lesson.NextLessonId;
             currentLesson.PreviewLessonId = lesson.PreviewLessonId;
+            currentLesson.SubstituteTeacherId = lesson.SubstituteTeacherId;
 
             currentLesson.PrepareToUpdate(_identityService);
 

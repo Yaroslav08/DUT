@@ -1,4 +1,5 @@
 ﻿using DUT.Application.ViewModels.Subject;
+using DUT.Application.ViewModels.User;
 using DUT.Domain.Models;
 
 namespace DUT.Application.ViewModels.Lesson
@@ -13,6 +14,8 @@ namespace DUT.Application.ViewModels.Lesson
         public DateTime Date { get; set; }
         public LessonType LessonType { get; set; }
         public string Homework { get; set; }
+        public bool IsSubstitute { get; set; }
+        public UserViewModel SubstituteTeacher { get; set; }
         public LessonViewModel PreviewLesson { get; set; }
         public LessonViewModel NextLesson { get; set; }
         public SubjectViewModel Subject { get; set; }

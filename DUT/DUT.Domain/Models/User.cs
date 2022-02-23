@@ -37,6 +37,7 @@ namespace DUT.Domain.Models
         public List<Subject> Subjects { get; set; }
         public List<UserLogin> UserLogins { get; set; }
         public List<Diploma> Diplomas { get; set; }
+        public List<Lesson> Lessons { get; set; }
 
         public User(string firstName, string middleName, string lastName, string login, string userName)
         {

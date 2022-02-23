@@ -19,5 +19,6 @@ namespace DUT.Application.ViewModels.Lesson
         public int SubjectId { get; set; }
         public long? PreviewLessonId { get; set; }
         public long? NextLessonId { get; set; }
+        public int? SubstituteTeacherId { get; set; }
     }
 }

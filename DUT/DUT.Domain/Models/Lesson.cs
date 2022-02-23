@@ -15,12 +15,13 @@ namespace DUT.Domain.Models
         public LessonType LessonType { get; set; }
         [StringLength(1000, MinimumLength = 1)]
         public string Homework { get; set; }
+        public long? PreviewLessonId { get; set; }
+        public long? NextLessonId { get; set; }
 
         public int SubjectId { get; set; }
         public Subject Subject { get; set; }
-
-        public long? PreviewLessonId { get; set; }
-        public long? NextLessonId { get; set; }
+        public int? SubstituteTeacherId { get; set; }
+        public User SubstituteTeacher { get; set; }
     }
 
     public class Journal
