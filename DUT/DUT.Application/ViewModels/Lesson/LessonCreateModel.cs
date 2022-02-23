@@ -5,7 +5,7 @@ namespace DUT.Application.ViewModels.Lesson
 {
     public class LessonCreateModel
     {
-        [Required, StringLength(250, MinimumLength = 5)]
+        [Required, StringLength(250, MinimumLength = 2)]
         public string Theme { get; set; }
         [StringLength(1500, MinimumLength = 1)]
         public string Description { get; set; }
