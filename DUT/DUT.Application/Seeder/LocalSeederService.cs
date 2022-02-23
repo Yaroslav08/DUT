@@ -6,16 +6,22 @@ using DUT.Infrastructure.Data.Context;
 using Extensions.Password;
 using Microsoft.EntityFrameworkCore;
 
-namespace DUT.Application
+namespace DUT.Application.Seeder
 {
-    public class DataSeeder
+    public class LocalSeederService : ISeederService
     {
-        public static void SeedSystem(DUTDbContext db)
+        private readonly DUTDbContext _db;
+        public LocalSeederService(DUTDbContext db)
+        {
+            _db = db;
+        }
+
+        public async Task SeedSystemAsync()
         {
             int count = 0;
 
             #region Apps
-            if (!db.Apps.Any())
+            if (!await _db.Apps.AnyAsync())
             {
                 var listApps = new List<App>();
 
@@ -79,13 +85,13 @@ namespace DUT.Application
                 app4.PrepareToCreate();
                 listApps.Add(app4);
 
-                db.Apps.AddRange(listApps);
+                await _db.Apps.AddRangeAsync(listApps);
                 count++;
             }
             #endregion
 
             #region Roles
-            if (!db.Roles.Any())
+            if (!await _db.Roles.AnyAsync())
             {
                 var listRoles = new List<Role>();
 
@@ -114,13 +120,13 @@ namespace DUT.Application
                 role5.PrepareToCreate();
                 listRoles.Add(role5);
 
-                db.Roles.AddRange(listRoles);
+                await _db.Roles.AddRangeAsync(listRoles);
                 count++;
             }
             #endregion
 
             #region Setting
-            if (!db.Settings.Any())
+            if (!await _db.Settings.AnyAsync())
             {
                 var now = DateTime.Now;
 
@@ -134,14 +140,14 @@ namespace DUT.Application
                 };
                 newSetting.PrepareToCreate();
 
-                db.Settings.Add(newSetting);
+                await _db.Settings.AddAsync(newSetting);
 
                 count++;
             }
             #endregion
 
             #region UserGroupRole
-            if (!db.UserGroupRoles.Any())
+            if (!await _db.UserGroupRoles.AnyAsync())
             {
                 var listUserGroupRole = new List<UserGroupRole>();
 
@@ -203,7 +209,6 @@ namespace DUT.Application
                 groupRole2.PrepareToCreate();
                 listUserGroupRole.Add(groupRole2);
 
-
                 var groupRole3 = new UserGroupRole
                 {
                     Name = UserGroupRoles.Names.Student,
@@ -233,47 +238,42 @@ namespace DUT.Application
                 groupRole3.PrepareToCreate();
                 listUserGroupRole.Add(groupRole3);
 
-                db.UserGroupRoles.AddRange(listUserGroupRole);
+                await _db.UserGroupRoles.AddRangeAsync(listUserGroupRole);
                 count++;
             }
             #endregion
 
             if (count > 0)
-                db.SaveChanges();
+                await _db.SaveChangesAsync();
 
             #region Users
-            if (!db.Users.Any())
+            if (!await _db.Users.AnyAsync())
             {
                 var newUser1 = new User("Ярослав", "Юрійович", "Мудрик", "yaroslav.mudryk@gmail.com", "Yarik08");
                 newUser1.PasswordHash = Defaults.Password.GeneratePasswordHash();
                 newUser1.LockoutEnabled = false;
                 newUser1.PrepareToCreate();
-                db.Users.Add(newUser1);
-                db.SaveChanges();
+                await _db.Users.AddAsync(newUser1);
+                await _db.SaveChangesAsync();
 
                 var notify = NotificationsHelper.GetWelcomeNotification();
                 notify.UserId = newUser1.Id;
-                db.Notifications.Add(notify);
-                db.SaveChanges();
+                await _db.Notifications.AddAsync(notify);
+                await _db.SaveChangesAsync();
 
                 var userRole = new UserRole
                 {
                     UserId = newUser1.Id,
-                    RoleId = db.Roles.Where(x => x.Name == Roles.Admin).Select(s => new Role { Id = s.Id }).FirstOrDefault().Id,
+                    RoleId = (await _db.Roles.Where(x => x.Name == Roles.Admin).Select(s => new Role { Id = s.Id }).FirstOrDefaultAsync()).Id,
                 };
-                db.UserRoles.Add(userRole);
-                db.SaveChanges();
+                await _db.UserRoles.AddAsync(userRole);
+                await _db.SaveChangesAsync();
             }
             #endregion
 
-            ConfigNewClaims(db);
+            #region Claims
 
-            db.Dispose();
-        }
-
-        private static bool ConfigNewClaims(DUTDbContext _db)
-        {
-            if (!_db.Claims.Any())
+            if (!await _db.Claims.AnyAsync())
             {
                 var claims = new List<Claim>();
 
@@ -542,16 +542,15 @@ namespace DUT.Application
                     x.PrepareToCreate();
                 });
 
-                _db.Claims.AddRange(claims);
-                _db.SaveChanges();
+                await _db.Claims.AddRangeAsync(claims);
+                await _db.SaveChangesAsync();
 
                 #endregion
 
 
                 #region Set roles to admin
 
-                var adminRole = _db.Roles.AsNoTracking().FirstOrDefault(s => s.Name == Roles.Admin);
-
+                var adminRole = await _db.Roles.AsNoTracking().FirstOrDefaultAsync(s => s.Name == Roles.Admin);
 
                 var adminRoleClaims = new List<RoleClaim>();
 
@@ -569,12 +568,132 @@ namespace DUT.Application
                     x.PrepareToCreate();
                 });
 
-                _db.RoleClaims.AddRange(adminRoleClaims);
-                _db.SaveChanges();
+                await _db.RoleClaims.AddRangeAsync(adminRoleClaims);
+                await _db.SaveChangesAsync();
 
                 #endregion
             }
-            return true;
+
+            #endregion
+
+            #region Entities
+
+            #region University
+
+            int universityId = 0;
+
+            if (!await _db.Universities.AnyAsync())
+            {
+                var newUniversity = new University
+                {
+                    Name = "Державний університет телекомунікацій",
+                    NameEng = "State University of Telecommunications",
+                    ShortName = "ДУТ",
+                    ShortNameEng = "SUT"
+                };
+                newUniversity.PrepareToCreate();
+
+                await _db.Universities.AddAsync(newUniversity);
+                await _db.SaveChangesAsync();
+                universityId = newUniversity.Id;
+            }
+
+            #endregion
+
+
+            #region Faculties
+
+            List<Faculty> facuties = new List<Faculty>();
+
+            if (!await _db.Faculties.AnyAsync())
+            {
+                var listFaculties = new List<Faculty>();
+
+                listFaculties.Add(new Faculty
+                {
+                    Name = "Навчально-науковий інститут захисту інформації"
+                });
+                listFaculties.Add(new Faculty
+                {
+                    Name = "Навчально-Науковий Інститут Інформаційних Технологій"
+                });
+                listFaculties.Add(new Faculty
+                {
+                    Name = "Навчально-науковий інститут Телекомунікацій"
+                });
+                listFaculties.Add(new Faculty
+                {
+                    Name = "Навчально-науковий інститут менеджменту та підприємництва"
+                });
+                listFaculties.Add(new Faculty
+                {
+                    Name = "Навчально-науковий інститут заочного та дистанційного навчання"
+                });
+                listFaculties.Add(new Faculty
+                {
+                    Name = "Навчально-науковий інститут гуманітарних та природничих дисциплін"
+                });
+                listFaculties.Add(new Faculty
+                {
+                    Name = "Аспірантура"
+                });
+
+                listFaculties.ForEach(x =>
+                {
+                    x.UniversityId = universityId;
+                    x.PrepareToCreate();
+                });
+
+                await _db.Faculties.AddRangeAsync(listFaculties.ToArray());
+                await _db.SaveChangesAsync();
+                facuties.AddRange(listFaculties);
+            }
+
+            #endregion
+
+
+            #region Specialties
+
+            if (!await _db.Specialties.AnyAsync())
+            {
+                var listSpecialties = new List<Specialty>();
+
+                listSpecialties.Add(new Specialty
+                {
+                    Name = "Інженерія програмного забезпечення",
+                    Code = "121"
+                });
+                listSpecialties.Add(new Specialty
+                {
+                    Name = "Комп'ютерні науки",
+                    Code = "122"
+                });
+                listSpecialties.Add(new Specialty
+                {
+                    Name = "Комп'ютерна інженерія",
+                    Code = "123"
+                });
+
+                var facultyInfoId = GetFacultyIdByName("Навчально-Науковий Інститут Інформаційних Технологій");
+
+                listSpecialties.ForEach(x =>
+                {
+                    x.PrepareToCreate();
+                    x.FacultyId = facultyInfoId;
+                });
+
+                await _db.Specialties.AddRangeAsync(listSpecialties.ToArray());
+                await _db.SaveChangesAsync();
+            }
+
+            #endregion
+
+            int GetFacultyIdByName(string name)
+            {
+                return facuties.FirstOrDefault(x => x.Name == name).Id;
+            }
+
+            #endregion
         }
     }
 }

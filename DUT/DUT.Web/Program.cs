@@ -1,4 +1,5 @@
 using DUT.Application;
+using DUT.Application.Seeder;
 using DUT.Constants;
 using DUT.Infrastructure.Data.Context;
 using DUT.Infrastructure.IoC;
@@ -137,8 +138,8 @@ app.UseEndpoints(endpoints =>
 
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetService<DUTDbContext>();
-    DataSeeder.SeedSystem(context);
+    var seederService = scope.ServiceProvider.GetService<ISeederService>();
+    await seederService.SeedSystemAsync();
 }
 
 #endregion

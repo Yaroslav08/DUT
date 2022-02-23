@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Extensions.DeviceDetector;
+using DUT.Application.Seeder;
 
 namespace DUT.Infrastructure.IoC
 {
@@ -33,9 +34,9 @@ namespace DUT.Infrastructure.IoC
 
             #region Services
 
+            services.AddScoped<ISeederService, LocalSeederService>();
             services.AddScoped<IUniversityService, UniversityService>();
             services.AddScoped<IIdentityService, HttpIdentityService>();
-            services.AddScoped<IInitialService, InitialService>();
             services.AddScoped<IFacultyService, FacultyService>();
             services.AddScoped<ISpecialtyService, SpecialtyService>();
             services.AddScoped<IAppService, AppService>();
