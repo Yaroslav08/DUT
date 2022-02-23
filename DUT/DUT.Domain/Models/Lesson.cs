@@ -4,7 +4,7 @@ namespace DUT.Domain.Models
 {
     public class Lesson : BaseModel<long>
     {
-        [Required, StringLength(250, MinimumLength = 50)]
+        [Required, StringLength(250, MinimumLength = 5)]
         public string Theme { get; set; }
         [StringLength(1500, MinimumLength = 1)]
         public string Description { get; set; }
