@@ -16,6 +16,8 @@ namespace DUT.Web.Controllers.V1
             _subjectService = subjectService;
         }
 
+        #region Subjects
+
         [HttpPost]
         public async Task<IActionResult> CreateSubject([FromBody] SubjectCreateModel model)
         {
@@ -56,6 +58,7 @@ namespace DUT.Web.Controllers.V1
             return JsonResult(await _subjectService.UpdateSubjectAsync(model));
         }
 
+        #endregion
 
         #region Lessons
 
