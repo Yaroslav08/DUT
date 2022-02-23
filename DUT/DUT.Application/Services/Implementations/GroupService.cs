@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DUT.Application.Extensions;
+using DUT.Application.Options;
 using DUT.Application.Services.Interfaces;
 using DUT.Application.Validations;
 using DUT.Application.ViewModels;
@@ -344,15 +345,33 @@ namespace DUT.Application.Services.Implementations
             return await _postService.RemovePostAsync(postId, groupId);
         }
 
-        public async Task<Result<List<GroupViewModel>>> SearchGroupsAsync(string name)
+        public async Task<Result<List<GroupViewModel>>> SearchGroupsAsync(SearchGroupOptions options)
         {
-            var groups = await _db.Groups
-                .AsNoTracking()
-                .Where(s => s.Name.Contains(name))
-                .OrderByDescending(x => x.Id)
-                .ToListAsync();
-            if (groups == null || groups.Count == 0)
-                return Result<List<GroupViewModel>>.Success();
+            options.PrepareOptions();
+
+            var query = _db.Groups.AsNoTracking();
+
+            if (!string.IsNullOrEmpty(options.Name))
+                query = query.Where(s => s.Name.Contains(options.Name));
+
+            if (options.Course != null)
+                query = query.Where(s => s.Course == options.Course);
+
+            if (options.SpecialtyId != null)
+                query = query.Where(s => s.SpecialtyId == options.SpecialtyId);
+
+            if (options.From != null)
+                query = query.Where(s => s.StartStudy == options.From);
+
+            if (options.To != null)
+                query = query.Where(s => s.EndStudy == options.To);
+
+            query = query.Skip(options.Offset).Take(options.Count);
+
+            query = query.OrderBy(s => s.Name);
+
+            var groups = await query.ToListAsync();
+
             var groupsToView = _mapper.Map<List<GroupViewModel>>(groups);
             return Result<List<GroupViewModel>>.SuccessWithData(groupsToView);
         }

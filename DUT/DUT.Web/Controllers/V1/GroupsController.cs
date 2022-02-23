@@ -5,6 +5,7 @@ using DUT.Application.ViewModels.Group.GroupMember;
 using DUT.Application.ViewModels.Post;
 using DUT.Application.ViewModels.Post.Comment;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace DUT.Web.Controllers.V1
 {
@@ -48,9 +49,18 @@ namespace DUT.Web.Controllers.V1
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> SearchGroups(string name)
+        public async Task<IActionResult> SearchGroups([MinLength(2)] string name, int? course = null, int? specialtyId = null, DateTime? from = null, DateTime? to = null, int offset = 0, int count = 20)
         {
-            return JsonResult(await _groupService.SearchGroupsAsync(name));
+            return JsonResult(await _groupService.SearchGroupsAsync(new SearchGroupOptions
+            {
+                Name = name,
+                Course = course,
+                SpecialtyId = specialtyId,
+                From = from,
+                To = to,
+                Count = count,
+                Offset = offset
+            }));
         }
 
         [HttpGet("roles")]

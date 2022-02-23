@@ -1,4 +1,5 @@
-﻿using DUT.Application.ViewModels;
+﻿using DUT.Application.Options;
+using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.Group;
 using DUT.Application.ViewModels.Group.GroupMember;
 using DUT.Application.ViewModels.Post;
@@ -11,7 +12,7 @@ namespace DUT.Application.Services.Interfaces
     {
         Task<Result<List<GroupViewModel>>> GetAllGroupsAsync(int count, int afterId);
         Task<Result<GroupViewModel>> GetGroupByIdAsync(int id);
-        Task<Result<List<GroupViewModel>>> SearchGroupsAsync(string name);
+        Task<Result<List<GroupViewModel>>> SearchGroupsAsync(SearchGroupOptions options);
         Task<Result<GroupViewModel>> CreateGroupAsync(GroupCreateModel model);
         Task<Result<GroupViewModel>> IncreaseCourseOfGroupAsync(int groupId);
         Task<Result<List<GroupMemberViewModel>>> GetGroupMembersAsync(int groupId, int afterId = int.MaxValue, int count = 20, int status = 0);
