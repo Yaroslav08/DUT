@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DUT.Domain.Models
 {
@@ -7,6 +6,8 @@ namespace DUT.Domain.Models
     {
         [Required, StringLength(250, MinimumLength = 50)]
         public string Theme { get; set; }
+        [StringLength(1500, MinimumLength = 1)]
+        public string Description { get; set; }
         public Journal Journal { get; set; }
         [Required]
         public DateTime Date { get; set; }
@@ -19,14 +20,7 @@ namespace DUT.Domain.Models
         public Subject Subject { get; set; }
 
         public long? PreviewLessonId { get; set; }
-        public Lesson PreviewLesson { get; set; }
-        [InverseProperty("PreviewLesson")]
-        public virtual ICollection<Lesson> PreviewLessonChildren { get; set; }
-
         public long? NextLessonId { get; set; }
-        public Lesson NextLesson { get; set; }
-        [InverseProperty("NextLesson")]
-        public virtual ICollection<Lesson> NextLessonChildren { get; set; }
     }
 
     public class Journal

@@ -11,7 +11,7 @@ using System.Linq.Expressions;
 
 namespace DUT.Application.Services.Implementations
 {
-    public class SubjectService : BaseService<Subject>, ISubjectService, IBaseService<Subject>
+    public class SubjectService : BaseService<Subject>, ISubjectService
     {
         private readonly IIdentityService _identityService;
         private readonly IGroupService _groupService;

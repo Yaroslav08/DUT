@@ -54,6 +54,7 @@ namespace DUT.Infrastructure.IoC
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IClaimService, ClaimService>();
             services.AddScoped<ISettingService, SettingService>();
+            services.AddScoped<ILessonService, LessonService>();
 
             #endregion
 

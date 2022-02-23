@@ -20,6 +20,7 @@ namespace DUT.Application.Services.Implementations
         }
         public async Task<bool> IsExistAsync(Expression<Func<T, bool>> predicate = null)
         {
+            Exists = null;
             var items = await _db.Set<T>().AsNoTracking().Where(predicate).ToListAsync();
             if (items != null && items.Count > 0)
             {

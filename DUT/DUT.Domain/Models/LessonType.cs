@@ -2,7 +2,7 @@
 {
     public enum LessonType
     {
-        Lecture,
+        Lecture = 1,
         Laboratory,
         Practical,
         Individual,
