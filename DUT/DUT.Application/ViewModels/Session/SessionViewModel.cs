@@ -11,6 +11,7 @@ namespace DUT.Application.ViewModels.Session
         public ClientInfo Client { get; set; }
         public Domain.Models.Location Location { get; set; }
         public bool IsActive { get; set; }
+        public bool IsCurrent { get; set; }
         public DateTime? DeactivatedAt { get; set; }
     }
 }

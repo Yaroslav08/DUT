@@ -18,6 +18,8 @@ namespace DUT.Web.Controllers.V1
             _identityService = identityService;
         }
 
+        #region Identity
+
         [HttpGet("claims")]
         public IActionResult GetClaims()
         {
@@ -49,12 +51,22 @@ namespace DUT.Web.Controllers.V1
             return JsonResult(await _authenticationService.LogoutAsync());
         }
 
-        [HttpGet("sessions")]
-        public async Task<IActionResult> GetActiveSessions(int userId = default)
+        [HttpPost("config")]
+        public async Task<IActionResult> ConfigUser([FromBody] BlockUserModel model)
         {
-            if (userId == default || userId < 0)
+            return JsonResult(await _authenticationService.BlockUserConfigAsync(model));
+        }
+
+        #endregion
+
+        #region Sessions
+
+        [HttpGet("sessions")]
+        public async Task<IActionResult> GetActiveSessions(int userId = default, int q = 0, int offset = 0, int limit = 20)
+        {
+            if (userId == default || userId < 1)
                 userId = _identityService.GetUserId();
-            return JsonResult(await _sessionService.GetActiveSessionsByUserIdAsync(userId));
+            return JsonResult(await _sessionService.GetAllSessionsByUserIdAsync(userId, q, offset, limit));
         }
 
         [HttpGet("sessions/{id}")]
@@ -63,18 +75,20 @@ namespace DUT.Web.Controllers.V1
             return JsonResult(await _sessionService.GetSessionByIdAsync(id));
         }
 
-        [HttpGet("sessions/unactive")]
-        public async Task<IActionResult> GetAllSessions(int userId = default)
+        [HttpDelete("sessions")]
+        public async Task<IActionResult> CloseSessions(int userId = default, bool withCurrent = false)
         {
-            if (userId == default || userId < 0)
+            if (userId == default || userId < 1)
                 userId = _identityService.GetUserId();
-            return JsonResult(await _sessionService.GetAllSessionsByUserIdAsync(userId));
+            return JsonResult(await _sessionService.CloseAllSessionsAsync(userId, withCurrent));
         }
 
-        [HttpPost("config")]
-        public async Task<IActionResult> ConfigUser([FromBody] BlockUserModel model)
+        [HttpDelete("sessions/{id}")]
+        public async Task<IActionResult> CloseSessionById(Guid sessionId)
         {
-            return JsonResult(await _authenticationService.BlockUserConfigAsync(model));
+            return JsonResult(await _sessionService.CloseSessionByIdAsync(sessionId));
         }
+
+        #endregion
     }
 }
