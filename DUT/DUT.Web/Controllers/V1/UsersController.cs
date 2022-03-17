@@ -37,6 +37,8 @@ namespace DUT.Web.Controllers.V1
         {
             if (!_permissionService.HasPermission(PermissionClaims.Users, Permissions.CanView))
                 return JsonForbiddenResult();
+            if (id == _identityService.GetUserId())
+                return await GetMe();
             return JsonResult(await _userService.GetUserByIdAsync(id));
         }
 
@@ -63,6 +65,13 @@ namespace DUT.Web.Controllers.V1
             if (model.UserId == null)
                 model.UserId = _identityService.GetUserId();
             return JsonResult(await _userService.UpdateUsernameAsync(model));
+        }
+
+        [HttpGet("me")]
+        public async Task<IActionResult> GetMe()
+        {
+            var user = await _userService.GetFullInfoUserByIdAsync(_identityService.GetUserId());
+            return JsonResult(user);
         }
     }
 }

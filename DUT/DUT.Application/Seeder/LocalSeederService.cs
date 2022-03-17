@@ -96,26 +96,36 @@ namespace DUT.Application.Seeder
                 var listRoles = new List<Role>();
 
                 var role1 = new Role(Roles.Admin);
+                role1.Label = Roles.AdminUa;
+                role1.Color = Roles.AdminColor;
                 role1.CanDelete = false;
                 role1.PrepareToCreate();
                 listRoles.Add(role1);
 
                 var role2 = new Role(Roles.Moderator);
+                role2.Label = Roles.ModeratorUa;
+                role2.Color = Roles.ModeratorColor;
                 role2.CanDelete = false;
                 role2.PrepareToCreate();
                 listRoles.Add(role2);
 
                 var role3 = new Role(Roles.Developer);
+                role3.Label = Roles.DeveloperUa;
+                role3.Color = Roles.DeveloperColor;
                 role3.CanDelete = false;
                 role3.PrepareToCreate();
                 listRoles.Add(role3);
 
                 var role4 = new Role(Roles.Teacher);
+                role4.Label = Roles.TeacherUa;
+                role4.Color = Roles.TeacherColor;
                 role4.CanDelete = false;
                 role4.PrepareToCreate();
                 listRoles.Add(role4);
 
                 var role5 = new Role(Roles.Student);
+                role5.Label = Roles.StudentUa;
+                role5.Color = Roles.StudentColor;
                 role5.CanDelete = false;
                 role5.PrepareToCreate();
                 listRoles.Add(role5);

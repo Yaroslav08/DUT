@@ -15,6 +15,7 @@ using DUT.Application.ViewModels.Specialty;
 using DUT.Application.ViewModels.Subject;
 using DUT.Application.ViewModels.University;
 using DUT.Application.ViewModels.User;
+using DUT.Application.ViewModels.User.UserInfo;
 using System.Text;
 
 namespace DUT.Application.ViewModels
@@ -68,6 +69,8 @@ namespace DUT.Application.ViewModels
             CreateMap<Domain.Models.Role, RoleViewModel>().ReverseMap();
 
             CreateMap<Domain.Models.Setting, SettingViewModel>().ReverseMap();
+            CreateMap<Domain.Models.User, UserFullViewModel>()
+                .ForMember(x => x.FullName, s => s.MapFrom(s => BuildFullName(s))).ReverseMap();
         }
 
         private string BuildFullName(Domain.Models.User user)

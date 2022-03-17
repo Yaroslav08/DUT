@@ -4,7 +4,11 @@ using DUT.Application.Helpers;
 using DUT.Application.Options;
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels;
+using DUT.Application.ViewModels.Group;
+using DUT.Application.ViewModels.RoleClaim;
+using DUT.Application.ViewModels.Session;
 using DUT.Application.ViewModels.User;
+using DUT.Application.ViewModels.User.UserInfo;
 using DUT.Constants;
 using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
@@ -60,6 +64,47 @@ namespace DUT.Application.Services.Implementations
             await _db.SaveChangesAsync();
 
             return Result<UserViewModel>.SuccessWithData(_mapper.Map<UserViewModel>(newUser)); ;
+        }
+
+        public async Task<Result<UserFullViewModel>> GetFullInfoUserByIdAsync(int id)
+        {
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == id);
+            if (user == null)
+                return Result<UserFullViewModel>.NotFound("User not found");
+            var userToView = _mapper.Map<UserFullViewModel>(user);
+
+            userToView.Block = new BlockInfo
+            {
+                AccessFailedCount = user.AccessFailedCount,
+                LockoutEnabled = user.LockoutEnabled,
+                LockoutEnd = user.LockoutEnd
+            };
+
+            var sessions = await _db.Sessions.AsNoTracking().Where(x => x.UserId == id).ToListAsync();
+
+            if (sessions != null && sessions.Count > 0)
+                userToView.Session = new SessionInfo
+                {
+                    Sessions = _mapper.Map<List<SessionViewModel>>(sessions),
+                    TotalSessions = sessions.Count,
+                    ActiveSessions = sessions.Count(s => s.IsActive)
+                };
+
+            var userRoles = await _db.UserRoles.AsNoTracking().Include(s => s.Role).Where(s => s.UserId == id).Select(s => s.Role).ToListAsync();
+            if (userRoles != null && userRoles.Count > 0)
+                userToView.Role = new RoleInfo
+                {
+                    Roles = _mapper.Map<List<RoleViewModel>>(userRoles)
+                };
+
+            var groups = await _db.UserGroups.AsNoTracking().Include(s => s.Group).Where(s => s.UserId == id).Select(s => s.Group).ToListAsync();
+            if (groups != null && groups.Count > 0)
+                userToView.Group = new GroupInfo
+                {
+                    Groups = _mapper.Map<List<GroupViewModel>>(groups)
+                };
+
+            return Result<UserFullViewModel>.SuccessWithData(userToView);
         }
 
         public async Task<Result<List<UserShortViewModel>>> GetLastUsersAsync(int count)
