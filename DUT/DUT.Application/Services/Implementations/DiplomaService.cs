@@ -103,11 +103,11 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<DiplomaViewModel>> CreateDiplomaBasicOnTemplateAsync(DiplomaCreateModel model, string templateId)
         {
-            if (!await IsExistAsync(s => s.Id == templateId))
-                return Result<DiplomaViewModel>.NotFound("Diploma template not found");
-
             if (await IsExistAsync(x => x.Number == model.Number && x.Series == model.Series))
                 return Result<DiplomaViewModel>.Error("Diploma is already created");
+
+            if (!await IsExistAsync(s => s.Id == templateId))
+                return Result<DiplomaViewModel>.NotFound("Diploma template not found");
 
             var studentDiploma = Exists.First();
 

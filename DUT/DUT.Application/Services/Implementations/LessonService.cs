@@ -203,7 +203,7 @@ namespace DUT.Application.Services.Implementations
             if (fromDate == null)
                 fromDate = DateTime.Today;
             if (toDate == null)
-                toDate = DateTime.Today.AddDays(14);
+                toDate = DateTime.Today.AddMonths(1);
 
             if (toDate < fromDate)
                 toDate = fromDate;
