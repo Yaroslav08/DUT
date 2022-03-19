@@ -23,5 +23,6 @@ namespace DUT.Domain.Models
         public int TeacherId { get; set; }
         public User Teacher { get; set; }
         public List<Lesson> Lessons { get; set; }
+        public List<Timetable> Timetables { get; set; }
     }
 }

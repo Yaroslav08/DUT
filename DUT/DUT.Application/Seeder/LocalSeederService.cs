@@ -146,7 +146,73 @@ namespace DUT.Application.Seeder
                     FirtsSemesterStart = new DateTime(now.Year, 9, 1),
                     FirtsSemesterEnd = new DateTime(now.Year, 12, 31),
                     SecondSemesterStart = new DateTime(now.Year + 1, 1, 1),
-                    SecondSemesterEnd = new DateTime(now.Year + 1, 6, 30)
+                    SecondSemesterEnd = new DateTime(now.Year + 1, 6, 30),
+                    Holidays = new List<Holiday>()
+                    {
+                        new Holiday { Id = 1, Name = "Новий Рік", Date = new DateTime(2022, 1, 1) },
+                        new Holiday { Id = 2, Name = "Різдво Христове", Date = new DateTime(2022, 1, 7) },
+                        new Holiday { Id = 3, Name = "Міжнародний жіночий день", Date = new DateTime(2022, 3, 8) },
+                        new Holiday { Id = 4, Name = "Великдень", Date = new DateTime(2022, 4, 24) },
+                        new Holiday { Id = 5, Name = "День праці", Date = new DateTime(2022, 5, 1) },
+                        new Holiday { Id = 6, Name = "День пам'яті", Date = new DateTime(2022, 5, 9) },
+                        new Holiday { Id = 7, Name = "Трійця", Date = new DateTime(2022, 6,12) },
+                        new Holiday { Id = 8, Name = "День Конституції України", Date = new DateTime(2022, 6, 28) },
+                        new Holiday { Id = 9, Name = "День Незалежності України", Date = new DateTime(2022, 8, 24) },
+                        new Holiday { Id = 10, Name = "День Захисники України", Date = new DateTime(2022, 10, 14) },
+                        new Holiday { Id = 11, Name = "Різдво Христове за Григоріанським календарем", Date = new DateTime(2022, 12, 25) },
+
+                    }.AsEnumerable(),
+                    LessonTimes = new List<LessonTime>
+                    {
+                        new LessonTime 
+                        {
+                            Id = 1,
+                            Start = new DateTime(2022, 01, 01, 8,0, 0),
+                            End = new DateTime(2022, 01, 01, 9, 35, 0),
+                            Description = "Перша зміна",
+                            Number = 1.ToString()
+                        },
+                        new LessonTime
+                        {
+                            Id = 2,
+                            Start = new DateTime(2022, 01, 01, 9,45,0),
+                            End = new DateTime(2022, 01, 01, 11, 20, 0),
+                            Description = "Перша зміна",
+                            Number = 2.ToString()
+                        },
+                        new LessonTime
+                        {
+                            Id = 3,
+                            Start = new DateTime(2022, 01, 01, 11,45, 0),
+                            End = new DateTime(2022, 01, 01, 13, 20, 0),
+                            Description = "Перша зміна",
+                            Number = 3.ToString()
+                        },
+                        new LessonTime
+                        {
+                            Id = 4,
+                            Start = new DateTime(2022, 01, 01, 13,30,0),
+                            End = new DateTime(2022, 01, 01, 15, 05, 0),
+                            Description = "Друга зміна",
+                            Number = 4.ToString()
+                        },
+                        new LessonTime
+                        {
+                            Id = 5,
+                            Start = new DateTime(2022, 01, 01, 15,15, 0),
+                            End = new DateTime(2022, 01, 01, 16, 50, 0),
+                            Description = "Друга зміна",
+                            Number = 5.ToString()
+                        },
+                        new LessonTime
+                        {
+                            Id = 6,
+                            Start = new DateTime(2022, 01, 01, 17,0, 0),
+                            End = new DateTime(2022, 01, 01, 18, 35, 0),
+                            Description = "Друга зміна",
+                            Number = 6.ToString()
+                        }
+                    }.AsEnumerable()
                 };
                 newSetting.PrepareToCreate();
 

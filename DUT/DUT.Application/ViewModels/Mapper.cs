@@ -13,6 +13,7 @@ using DUT.Application.ViewModels.Session;
 using DUT.Application.ViewModels.Setting;
 using DUT.Application.ViewModels.Specialty;
 using DUT.Application.ViewModels.Subject;
+using DUT.Application.ViewModels.Timetable;
 using DUT.Application.ViewModels.University;
 using DUT.Application.ViewModels.User;
 using DUT.Application.ViewModels.User.UserInfo;
@@ -71,6 +72,8 @@ namespace DUT.Application.ViewModels
             CreateMap<Domain.Models.Setting, SettingViewModel>().ReverseMap();
             CreateMap<Domain.Models.User, UserFullViewModel>()
                 .ForMember(x => x.FullName, s => s.MapFrom(s => BuildFullName(s))).ReverseMap();
+
+            CreateMap<Domain.Models.Timetable, TimetableViewModel>().ReverseMap();
         }
 
         private string BuildFullName(Domain.Models.User user)

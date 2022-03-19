@@ -14,5 +14,25 @@ namespace DUT.Domain.Models
         public DateTime SecondSemesterEnd { get; set; }
         [Required]
         public int MaxCourseInUniversity { get; set; }
+        [Required]
+        public IEnumerable<Holiday> Holidays { get; set; }
+        [Required]
+        public IEnumerable<LessonTime> LessonTimes { get; set; }
+    }
+
+    public class Holiday
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public DateTime Date { get; set; }
+    }
+
+    public class LessonTime
+    {
+        public int Id { get; set; }
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+        public string Number { get; set; }
+        public string Description { get; set; }
     }
 }

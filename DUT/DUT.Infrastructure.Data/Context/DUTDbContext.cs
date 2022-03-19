@@ -40,6 +40,7 @@ namespace DUT.Infrastructure.Data.Context
         public DbSet<LoginAttempt> LoginAttempts { get; set; }
         public DbSet<Diploma> Diplomas { get; set; }
         public DbSet<Setting> Settings { get; set; }
+        public DbSet<Timetable> Timetables { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -52,6 +53,8 @@ namespace DUT.Infrastructure.Data.Context
             builder.ApplyConfiguration(new PostCommentConfiguration());
             builder.ApplyConfiguration(new LoginAttemptConfiguration());
             builder.ApplyConfiguration(new UserConfiguration());
+            builder.ApplyConfiguration(new SettingConfiguration());
+            builder.ApplyConfiguration(new TimetableConfiguration());
         }
     }
 }
