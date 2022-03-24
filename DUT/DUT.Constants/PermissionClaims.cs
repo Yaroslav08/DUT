@@ -12,5 +12,6 @@
         public static readonly string Apps = "Apps";
         public static readonly string Permissions = "Permissions";
         public static readonly string Settings = "Settings";
+        public static readonly string Timetable = "Timetable";
     }
 }

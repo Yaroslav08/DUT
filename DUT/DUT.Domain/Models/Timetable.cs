@@ -4,7 +4,7 @@ namespace DUT.Domain.Models
 {
     public class Timetable : BaseModel<long>
     {
-        public int TeacherId { get; set; }
+        public int? TeacherId { get; set; }
         public User Teacher { get; set; }
         public int SubjectId { get; set; }
         public Subject Subject { get; set; }
@@ -12,7 +12,6 @@ namespace DUT.Domain.Models
         public int GroupId { get; set; }
         [Required]
         public bool IsHoliday { get; set; }
-        [Required]
         public Holiday Holiday { get; set; }
         [Required]
         public LessonType Type { get; set; }

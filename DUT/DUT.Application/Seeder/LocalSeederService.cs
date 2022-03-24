@@ -611,6 +611,42 @@ namespace DUT.Application.Seeder
                 #endregion
 
 
+                #region Timetable
+
+                claims.Add(new Claim
+                {
+                    DisplayName = "Створення розкладу",
+                    Type = PermissionClaims.Timetable,
+                    Value = Permissions.CanCreate
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Редагування розкладу",
+                    Type = PermissionClaims.Timetable,
+                    Value = Permissions.CanEdit
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Видалення розкладу",
+                    Type = PermissionClaims.Timetable,
+                    Value = Permissions.CanRemove
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Перегляд розкладу",
+                    Type = PermissionClaims.Timetable,
+                    Value = Permissions.CanView
+                });
+                claims.Add(new Claim
+                {
+                    DisplayName = "Усі дії пов'язані з розкладом",
+                    Type = PermissionClaims.Timetable,
+                    Value = Permissions.All
+                });
+
+                #endregion
+
+
                 #region Save Claims
 
                 claims.ForEach(x =>

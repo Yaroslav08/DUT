@@ -18,6 +18,9 @@ namespace DUT.Infrastructure.Data.Configurations
             builder.Property(x => x.Time).HasConversion(
                 v => v.ToJson(),
                 v => v.FromJson<LessonTime>());
+
+            builder.HasOne(x => x.Teacher).WithMany(x => x.Timetables).OnDelete(DeleteBehavior.NoAction);
+            builder.HasOne(x => x.Subject).WithMany(x => x.Timetables).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
