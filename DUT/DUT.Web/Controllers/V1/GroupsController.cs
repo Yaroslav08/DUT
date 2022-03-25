@@ -75,6 +75,13 @@ namespace DUT.Web.Controllers.V1
             return JsonResult(await _groupService.GetUserGroupsAsync(_identityService.GetUserId()));
         }
 
+        [HttpPut("{groupId}/class-teacher")]
+        public async Task<IActionResult> ModifyClassTeacherOfGroup(int groupId, [FromBody] GroupClassTeacherEditModel model)
+        {
+            model.GroupId = groupId;
+            return JsonResult(await _groupService.UpdateClassTeacherGroupAsync(model));
+        }
+
         #endregion
 
         #region Members

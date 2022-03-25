@@ -9,6 +9,7 @@ using DUT.Application.ViewModels.Group.GroupMember;
 using DUT.Application.ViewModels.Post;
 using DUT.Application.ViewModels.Post.Comment;
 using DUT.Constants;
+using DUT.Constants.Extensions;
 using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
@@ -18,16 +19,18 @@ namespace DUT.Application.Services.Implementations
     {
         private readonly DUTDbContext _db;
         private readonly IMapper _mapper;
+        private readonly IUserService _userService;
         private readonly IIdentityService _identityService;
         private readonly IPostService _postService;
         private readonly ICommentService _commentService;
-        public GroupService(DUTDbContext db, IMapper mapper, IIdentityService identityService, IPostService postService, ICommentService commentService) : base(db)
+        public GroupService(DUTDbContext db, IMapper mapper, IIdentityService identityService, IPostService postService, ICommentService commentService, IUserService userService) : base(db)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
             _postService = postService;
             _commentService = commentService;
+            _userService = userService;
         }
 
         public async Task<Result<CommentViewModel>> CreateCommentAsync(CommentCreateModel model)
@@ -95,24 +98,25 @@ namespace DUT.Application.Services.Implementations
             await _db.GroupInvites.AddAsync(newInvite);
             await _db.SaveChangesAsync();
 
-
-            var userGroupRole = await _db.UserGroupRoles
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.UniqId == UserGroupRoles.UniqIds.ClassTeacher);
-
-
-            var groupMember = new UserGroup
+            if (model.ClassTeacherId.HasValue)
             {
-                GroupId = newGroup.Id,
-                UserId = _identityService.GetUserId(),
-                IsAdmin = true,
-                Status = UserGroupStatus.Member,
-                Title = UserGroupRoles.Names.ClassTeacher,
-                UserGroupRoleId = userGroupRole.Id,
-            };
-            groupMember.PrepareToCreate(_identityService);
-            await _db.UserGroups.AddAsync(groupMember);
-            await _db.SaveChangesAsync();
+                var userGroupRole = await _db.UserGroupRoles
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.UniqId == UserGroupRoles.UniqIds.ClassTeacher);
+
+                var groupMember = new UserGroup
+                {
+                    GroupId = newGroup.Id,
+                    UserId = model.ClassTeacherId.Value,
+                    IsAdmin = true,
+                    Status = UserGroupStatus.Member,
+                    Title = UserGroupRoles.Names.ClassTeacher,
+                    UserGroupRoleId = userGroupRole.Id,
+                };
+                groupMember.PrepareToCreate(_identityService);
+                await _db.UserGroups.AddAsync(groupMember);
+                await _db.SaveChangesAsync();
+            }
 
             var groupFromDb = await _db.Groups.AsNoTracking().FirstOrDefaultAsync(x => x.Id == newGroup.Id);
 
@@ -388,6 +392,41 @@ namespace DUT.Application.Services.Implementations
 
             var groupsToView = _mapper.Map<List<GroupViewModel>>(groups);
             return Result<List<GroupViewModel>>.SuccessWithData(groupsToView);
+        }
+
+        public async Task<Result<GroupMemberViewModel>> UpdateClassTeacherGroupAsync(GroupClassTeacherEditModel model)
+        {
+            if (!await IsExistAsync(s => s.Id == model.GroupId.Value))
+                return Result<GroupMemberViewModel>.NotFound(typeof(Group).NotFoundMessage(model.GroupId.Value));
+
+            var currentUserGroup = await _db.UserGroups
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.GroupId == model.GroupId.Value && s.IsAdmin);
+
+            if (currentUserGroup == null)
+                return Result<GroupMemberViewModel>.NotFound(typeof(UserGroup).NotFoundMessage(model.GroupId.Value));
+
+            if (currentUserGroup.UserId == model.UserId)
+                return Result<GroupMemberViewModel>.Success();
+
+            if (!await _userService.IsExistAsync(s => s.Id == model.UserId))
+                return Result<GroupMemberViewModel>.NotFound(typeof(User).NotFoundMessage(model.UserId));
+
+            currentUserGroup.UserId = model.UserId;
+            currentUserGroup.Title = model.Title;
+            currentUserGroup.PrepareToUpdate(_identityService);
+            _db.UserGroups.Update(currentUserGroup);
+            await _db.SaveChangesAsync();
+
+            var groupMember = await _db.UserGroups
+                .AsNoTracking()
+                .Include(s => s.User)
+                .Include(s => s.UserGroupRole)
+                .FirstOrDefaultAsync(s => s.Id == currentUserGroup.Id);
+
+            var updatedGroupMember = _mapper.Map<GroupMemberViewModel>(groupMember);
+
+            return Result<GroupMemberViewModel>.SuccessWithData(updatedGroupMember);
         }
 
         public async Task<Result<CommentViewModel>> UpdateCommentAsync(CommentEditModel model)

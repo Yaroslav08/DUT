@@ -16,5 +16,6 @@ namespace DUT.Application.ViewModels.Group
         public int Course { get; set; }
         [Required]
         public int SpecialtyId { get; set; }
+        public int? ClassTeacherId { get; set; }
     }
 }
