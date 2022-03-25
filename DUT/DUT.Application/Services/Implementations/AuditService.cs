@@ -26,8 +26,8 @@ namespace DUT.Application.Services.Implementations
             {
                 Entity = model.Entity,
                 EntityId = model.EntityId,
-                Before = JsonSerializer.Serialize(model.Before),
-                After = JsonSerializer.Serialize(model.After)
+                Before = model.Before != null ? JsonSerializer.Serialize(model.Before) : null,
+                After = model.Before != null ? JsonSerializer.Serialize(model.After) : null
             };
 
             audit.PrepareToCreate(_identityService);
