@@ -11,10 +11,7 @@ namespace DUT.Application.ViewModels.Identity
         [Required]
         [RegularExpression(RegexTemplate.Password.Regex, ErrorMessage = RegexTemplate.Password.ErrorMessage)]
         public string Password { get; set; }
-        [Required, StringLength(30)]
-        public string AppId { get; set; }
-        [Required, StringLength(70)]
-        public string AppSecret { get; set; }
         public ClientInfo Client { get; set; }
+        public AppLoginCreateModel App { get; set; }
     }
 }

@@ -95,7 +95,7 @@ namespace DUT.Application.Services.Implementations
         {
             var app = await _db.Apps
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.AppId == model.AppId && x.AppSecret == model.AppSecret);
+                .FirstOrDefaultAsync(x => x.AppId == model.App.Id && x.AppSecret == model.App.Secret);
 
             if (app == null)
                 return Result<JwtToken>.Error("App not found");
@@ -153,7 +153,8 @@ namespace DUT.Application.Services.Implementations
                 Name = app.Name,
                 ShortName = app.ShortName,
                 Image = app.Image,
-                Description = app.Description
+                Description = app.Description,
+                Version = model.App.Version
             };
 
             var sessionId = Guid.NewGuid();
