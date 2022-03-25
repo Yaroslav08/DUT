@@ -40,6 +40,8 @@ namespace DUT.Application.ViewModels
 
             CreateMap<Domain.Models.Group, GroupViewModel>()
                 .ForMember(x => x.Name, s => s.MapFrom(x => $"{x.Name} ({x.StartStudy.Year})"));
+            CreateMap<Domain.Models.Group, GroupShortViewModel>()
+                .ForMember(x => x.Name, s => s.MapFrom(x => $"{x.Name} ({x.StartStudy.Year})"));
 
             CreateMap<Domain.Models.GroupInvite, GroupInviteViewModel>();
 

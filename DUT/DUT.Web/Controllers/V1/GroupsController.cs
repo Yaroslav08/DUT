@@ -69,6 +69,12 @@ namespace DUT.Web.Controllers.V1
             return JsonResult(await _groupService.GetAllGroupRolesAsync());
         }
 
+        [HttpGet("my")]
+        public async Task<IActionResult> GetMyGroups()
+        {
+            return JsonResult(await _groupService.GetUserGroupsAsync(_identityService.GetUserId()));
+        }
+
         #endregion
 
         #region Members

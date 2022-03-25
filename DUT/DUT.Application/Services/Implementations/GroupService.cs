@@ -287,6 +287,20 @@ namespace DUT.Application.Services.Implementations
             return await _commentService.GetCommentsByPostIdAsync(postId, skip, count);
         }
 
+        public async Task<Result<List<GroupShortViewModel>>> GetUserGroupsAsync(int userId)
+        {
+            var userGroups = await _db.UserGroups
+                .AsNoTracking()
+                .Where(s => s.UserId == userId)
+                .Include(s => s.Group)
+                .Select(s => s.Group)
+                .OrderByDescending(s => s.Id)
+                .ToListAsync();
+            var groups = _mapper.Map<List<GroupShortViewModel>>(userGroups);
+
+            return Result<List<GroupShortViewModel>>.SuccessWithData(groups);
+        }
+
         public async Task<Result<GroupViewModel>> IncreaseCourseOfGroupAsync(int groupId)
         {
             if (!await IsExistAsync(x => x.Id == groupId))
