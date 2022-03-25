@@ -41,6 +41,7 @@ namespace DUT.Infrastructure.Data.Context
         public DbSet<Diploma> Diplomas { get; set; }
         public DbSet<Setting> Settings { get; set; }
         public DbSet<Timetable> Timetables { get; set; }
+        public DbSet<Audit> Audits { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
