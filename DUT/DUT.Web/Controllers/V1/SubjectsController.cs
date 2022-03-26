@@ -2,6 +2,7 @@
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels.Lesson;
 using DUT.Application.ViewModels.Subject;
+using DUT.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DUT.Web.Controllers.V1
@@ -73,6 +74,24 @@ namespace DUT.Web.Controllers.V1
         public async Task<IActionResult> GetLessonById(int subjectId, long lessonId)
         {
             return JsonResult(await _lessonService.GetLessonByIdAsync(lessonId));
+        }
+
+        [HttpPost("{subjectId}/lessons/{lessonId}/journal")]
+        public async Task<IActionResult> CreateLesson(int subjectId, long lessonId)
+        {
+            return JsonResult(await _lessonService.CreateJournalAsync(subjectId, lessonId));
+        }
+
+        [HttpPut("{subjectId}/lessons/{lessonId}/journal")]
+        public async Task<IActionResult> UpdateJournal(int subjectId, long lessonId, [FromBody] Journal journal)
+        {
+            return JsonResult(await _lessonService.UpdateJournalAsync(subjectId, lessonId, journal));
+        }
+
+        [HttpDelete("{subjectId}/lessons/{lessonId}/journal")]
+        public async Task<IActionResult> RemoveJournal(int subjectId, long lessonId)
+        {
+            return JsonResult(await _lessonService.RemoveJournalAsync(subjectId, lessonId));
         }
 
         [HttpPost("{subjectId}/lessons")]

@@ -8,6 +8,8 @@ using DUT.Constants.Extensions;
 using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+
 namespace DUT.Application.Services.Implementations
 {
     public class LessonService : BaseService<Lesson>, ILessonService
@@ -222,6 +224,144 @@ namespace DUT.Application.Services.Implementations
             if (lesson == null)
                 return null;
             return _mapper.Map<LessonViewModel>(lesson);
+        }
+
+        public async Task<Result<LessonViewModel>> CreateJournalAsync(int subjectId, long lessonId)
+        {
+            var lesson = await _db.Lessons.AsNoTracking().FirstOrDefaultAsync(s => s.Id == lessonId);
+            if (lesson == null)
+                return Result<LessonViewModel>.NotFound("Lesson not found");
+
+            if (lesson.SubjectId != subjectId)
+                return Result<LessonViewModel>.Error("Lesson not in this subject");
+
+            var subject = await _db.Subjects.AsNoTracking().FirstOrDefaultAsync(s => s.Id == subjectId);
+            if (subject == null)
+                return Result<LessonViewModel>.NotFound("Subject not found");
+
+            await FillJournalAsync(lesson, subject.GroupId.Value);
+
+            lesson.PrepareToUpdate(_identityService);
+
+            _db.Lessons.Update(lesson);
+            await _db.SaveChangesAsync();
+
+            var lessonToView = _mapper.Map<LessonViewModel>(lesson);
+
+            return Result<LessonViewModel>.SuccessWithData(lessonToView);
+        }
+
+        public async Task<Result<LessonViewModel>> UpdateJournalAsync(int subjectId, long lessonId, Journal journal)
+        {
+            var lesson = await _db.Lessons.AsNoTracking().FirstOrDefaultAsync(s => s.Id == lessonId);
+            if (lesson == null)
+                return Result<LessonViewModel>.NotFound(typeof(Lesson).NotFoundMessage(lessonId));
+
+            if (lesson.SubjectId != subjectId)
+                return Result<LessonViewModel>.Error("Lesson not in this subject");
+
+            var subject = await _db.Subjects.AsNoTracking().FirstOrDefaultAsync(s => s.Id == subjectId);
+            if (subject == null)
+                return Result<LessonViewModel>.NotFound("Subject not found");
+
+            if (lesson.Journal == null)
+                await FillJournalAsync(lesson, subject.GroupId.Value);
+
+            if (!TryMapMarksInJournal(lesson.Journal, journal, out var error))
+            {
+                return Result<LessonViewModel>.Error(error);
+            }
+
+            lesson.PrepareToUpdate(_identityService);
+
+            _db.Lessons.Update(lesson);
+            await _db.SaveChangesAsync();
+
+            var updatedLesson = _mapper.Map<LessonViewModel>(lesson);
+            return Result<LessonViewModel>.SuccessWithData(updatedLesson);
+        }
+
+        public async Task<Result<LessonViewModel>> RemoveJournalAsync(int subjectId, long lessonId)
+        {
+            var lesson = await _db.Lessons.AsNoTracking().FirstOrDefaultAsync(s => s.Id == lessonId);
+            if (lesson == null)
+                return Result<LessonViewModel>.NotFound(typeof(Lesson).NotFoundMessage(lessonId));
+
+            if (lesson.SubjectId != subjectId)
+                return Result<LessonViewModel>.Error("Lesson not in this subject");
+
+            lesson.Journal = null;
+            lesson.PrepareToUpdate(_identityService);
+
+            _db.Lessons.Update(lesson);
+            await _db.SaveChangesAsync();
+
+            var updatedLesson = _mapper.Map<LessonViewModel>(lesson);
+
+            return Result<LessonViewModel>.SuccessWithData(updatedLesson);
+        }
+
+        private bool TryMapMarksInJournal(Journal currentJournal, Journal newJournal, out string error)
+        {
+            var res = currentJournal.Students.Select(s => s.Id).Except(newJournal.Students.Select(s => s.Id));
+
+            if (res != null && res.Count() > 0)
+            {
+                error = $"Студентів ({string.Join(",", newJournal.Students.Where(s => res.Contains(s.Id)).Select(s => s.Name))}) не існує";
+                return false;
+            }
+
+            foreach (var student in newJournal.Students)
+            {
+                if (!ValidateMark(student.Mark))
+                {
+                    error = $"Оцінка {student.Mark} не є доступною";
+                    return false;
+                }
+                currentJournal.Students.FirstOrDefault(s => s.Id == student.Id).Mark = student.Mark;
+            }
+            error = null;
+            return true;
+        }
+
+        private bool ValidateMark(string mark)
+        {
+            if (string.IsNullOrEmpty(mark))
+                return true;
+            if (char.IsLetter(mark[0]))
+            {
+                var avalible = new char[] { 'н', 'Н', 'н', 'Н', 'N', 'n' };
+
+                return avalible.Contains(mark[0]);
+            }
+            if (char.IsDigit(mark[0]))
+            {
+                var digitMark = Convert.ToInt32(mark);
+                return digitMark > 0;
+            }
+            return false;
+        }
+
+        private async Task FillJournalAsync(Lesson lesson, int groupId)
+        {
+            var students = await _db.UserGroups
+                .AsNoTracking()
+                .Where(s => s.GroupId == groupId && s.Status == UserGroupStatus.Member && !s.IsAdmin)
+                .Include(s => s.User)
+                .Select(s => s.User)
+                .ToListAsync();
+            students = students.OrderBy(s => s.LastName).ToList();
+
+            lesson.Journal = new Journal
+            {
+                Students = students.Select(s => new Student
+                {
+                    Id = s.Id,
+                    Name = $"{s.LastName} {s.FirstName}",
+                    Mark = null
+                }).ToList(),
+                Statistics = null
+            };
         }
     }
 }

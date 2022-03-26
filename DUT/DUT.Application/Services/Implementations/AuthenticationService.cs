@@ -281,8 +281,9 @@ namespace DUT.Application.Services.Implementations
                 return Result<AuthenticationInfo>.Error("Code is expired");
 
             var newUser = new User(model.FirstName, null, model.LastName, model.Login, Generator.GetUsername());
+            newUser.PasswordHash = model.Password.GeneratePasswordHash();
 
-            newUser.PrepareToCreate(_identityService);
+            newUser.PrepareToCreate();
 
             await _db.Users.AddAsync(newUser);
             await _db.SaveChangesAsync();
@@ -294,10 +295,14 @@ namespace DUT.Application.Services.Implementations
                 UserId = newUser.Id,
                 RoleId = role.Id
             };
-            userRole.PrepareToCreate(_identityService);
+            userRole.PrepareToCreate();
 
             await _db.UserRoles.AddAsync(userRole);
             await _db.SaveChangesAsync();
+
+            var groupRoleStudent = await _db.UserGroupRoles
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.UniqId == UserGroupRoles.UniqIds.Student);
 
             var groupStudent = new UserGroup
             {
@@ -305,10 +310,11 @@ namespace DUT.Application.Services.Implementations
                 GroupId = groupInvite.GroupId,
                 IsAdmin = false,
                 Status = UserGroupStatus.New,
-                Title = "Студент"
+                Title = "Студент",
+                UserGroupRoleId = groupRoleStudent.Id
             };
 
-            groupStudent.PrepareToCreate(_identityService);
+            groupStudent.PrepareToCreate();
 
             await _db.UserGroups.AddAsync(groupStudent);
             await _db.SaveChangesAsync();

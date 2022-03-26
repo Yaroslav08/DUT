@@ -242,7 +242,7 @@ namespace DUT.Application.Services.Implementations
                 .AsNoTracking()
                 .Include(x => x.User)
                 .Include(x => x.UserGroupRole)
-                .Where(x => x.GroupId == groupId && x.Id < afterId)
+                .Where(x => x.GroupId == groupId && x.UserId < afterId)
                 .OrderByDescending(x => x.Id)
                 .Take(count);
             if (status > 0 && status < 4)

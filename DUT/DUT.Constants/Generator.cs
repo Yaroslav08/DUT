@@ -43,7 +43,7 @@ namespace DUT.Constants
         public static string GetUsername()
         {
             string username;
-            username = GetString(30);
+            username = GetString(10);
             return username;
         }
 
