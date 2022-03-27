@@ -25,7 +25,7 @@ namespace DUT.Application.Extensions
                     LastName = userGroup.User.LastName,
                     ContactEmail = userGroup.User.ContactEmail,
                     ContactPhone = userGroup.User.ContactPhone,
-                    FullName = $"{userGroup.User.FirstName} {userGroup.User.LastName}",
+                    FullName = $"{userGroup.User.LastName} {userGroup.User.FirstName}",
                     Image = userGroup.User.Image,
                     MiddleName = userGroup.User.MiddleName,
                     UserName = userGroup.User.UserName,
@@ -60,7 +60,10 @@ namespace DUT.Application.Extensions
         {
             if (userGroups == null || !userGroups.Any())
                 return null;
-            return userGroups.Select(x => x.MapToView(withPermissions)).ToList();
+            return userGroups
+                .Select(x => x.MapToView(withPermissions))
+                .OrderBy(s => s.User.LastName)
+                .ToList();
         }
     }
 }

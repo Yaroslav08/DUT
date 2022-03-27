@@ -14,6 +14,8 @@ namespace DUT.Application.Services.Implementations
 {
     public class LessonService : BaseService<Lesson>, ILessonService
     {
+        private readonly char[] avalible = new char[] { 'н', 'н', 'n' };
+
         private readonly IIdentityService _identityService;
         private readonly ISubjectService _subjectService;
         private readonly IUserService _userService;
@@ -274,7 +276,7 @@ namespace DUT.Application.Services.Implementations
 
             lesson.PrepareToUpdate(_identityService);
 
-            //_db.Lessons.Update(lesson);
+            _db.Lessons.Update(lesson);
             await _db.SaveChangesAsync();
 
             var updatedLesson = _mapper.Map<LessonViewModel>(lesson);
@@ -323,6 +325,9 @@ namespace DUT.Application.Services.Implementations
                 }
                 currentJournal.Students.FirstOrDefault(s => s.Id == student.Id).Mark = student.Mark;
             }
+
+            currentJournal.Statistics = GetJournalStatistics(currentJournal);
+
             error = null;
             return true;
         }
@@ -333,8 +338,7 @@ namespace DUT.Application.Services.Implementations
                 return true;
             if (char.IsLetter(mark[0]))
             {
-                var avalible = new char[] { 'н', 'Н', 'н', 'Н', 'N', 'n' };
-
+                mark = mark.ToLower();
                 return avalible.Contains(mark[0]);
             }
             if (char.IsDigit(mark[0]))
@@ -343,6 +347,23 @@ namespace DUT.Application.Services.Implementations
                 return digitMark > 0;
             }
             return false;
+        }
+
+        private JournalStatistics GetJournalStatistics(Journal journal)
+        {
+            var countOfStudents = journal.Students.Count;
+            var countOfExist = countOfStudents - journal.Students.Count(s => s.Mark != null && avalible.Contains(s.Mark[0]));
+
+            var countWithMarks = journal.Students.Count(s => int.TryParse(s.Mark, out var markNumber) && markNumber > 0);
+            var countWithoutMarks = countOfStudents - countWithMarks;
+
+            return new JournalStatistics
+            {
+                CountOfStudents = countOfStudents,
+                CountOfExist = countOfExist,
+                CountWithMarks = countWithMarks,
+                CountWithoutMarks = countWithoutMarks
+            };
         }
 
         private async Task FillJournalAsync(Lesson lesson, int groupId)
