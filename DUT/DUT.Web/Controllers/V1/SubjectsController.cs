@@ -1,6 +1,7 @@
 ﻿using DUT.Application.Options;
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels.Lesson;
+using DUT.Application.ViewModels.Report;
 using DUT.Application.ViewModels.Subject;
 using DUT.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -12,10 +13,12 @@ namespace DUT.Web.Controllers.V1
     {
         private readonly ISubjectService _subjectService;
         private readonly ILessonService _lessonService;
-        public SubjectsController(ISubjectService subjectService, ILessonService lessonService)
+        private readonly IReportService _reportService;
+        public SubjectsController(ISubjectService subjectService, ILessonService lessonService, IReportService reportService)
         {
             _subjectService = subjectService;
             _lessonService = lessonService;
+            _reportService = reportService;
         }
 
         #region Subjects
@@ -58,6 +61,42 @@ namespace DUT.Web.Controllers.V1
         {
             model.Id = id;
             return JsonResult(await _subjectService.UpdateSubjectAsync(model));
+        }
+
+        #endregion
+
+        #region Reports
+
+        [HttpPost("{subjectId}/reports")]
+        public async Task<IActionResult> CreateReport(int subjectId)
+        {
+            return JsonResult(await _reportService.CreateReportAsync(subjectId));
+        }
+
+        [HttpPut("{subjectId}/reports/{id}")]
+        public async Task<IActionResult> UpdateReport(int subjectId, int id, [FromBody] ReportEditModel model)
+        {
+            model.Id = id;
+            model.SubjectId = subjectId;
+            return JsonResult(await _reportService.UpdateReportAsync(model));
+        }
+
+        [HttpGet("{subjectId}/reports")]
+        public async Task<IActionResult> GetAllReports(int subjectId)
+        {
+            return JsonResult(await _reportService.GetReportsBySubjectIdAsync(subjectId));
+        }
+
+        [HttpGet("{subjectId}/reports/{id}")]
+        public async Task<IActionResult> GetReportById(int subjectId, int id)
+        {
+            return JsonResult(await _reportService.GetReportIdAsync(subjectId, id));
+        }
+
+        [HttpDelete("{subjectId}/reports/{id}")]
+        public async Task<IActionResult> RemoveReport(int subjectId, int id)
+        {
+            return JsonResult(await _reportService.RemoveReportAsync(subjectId, id));
         }
 
         #endregion

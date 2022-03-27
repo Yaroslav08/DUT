@@ -35,6 +35,11 @@ namespace DUT.Application.Services.Implementations
             if (!await _subjectService.IsExistAsync(s => s.Id == lesson.SubjectId))
                 return Result<LessonViewModel>.NotFound(typeof(Subject).NotFoundMessage(lesson.SubjectId));
 
+            var subject = _subjectService.Exists.First();
+
+            if (subject.IsTemplate || subject.GroupId == null)
+                return Result<LessonViewModel>.Error("Can't create lesson due to this subject is template");
+
             if (lesson.SubstituteTeacherId.HasValue)
                 if (!await _userService.IsExistAsync(s => s.Id == lesson.SubstituteTeacherId))
                     return Result<LessonViewModel>.NotFound(typeof(User).NotFoundMessage(lesson.SubstituteTeacherId));

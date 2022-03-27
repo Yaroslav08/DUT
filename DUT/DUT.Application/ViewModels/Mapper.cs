@@ -8,6 +8,7 @@ using DUT.Application.ViewModels.Lesson;
 using DUT.Application.ViewModels.Notification;
 using DUT.Application.ViewModels.Post;
 using DUT.Application.ViewModels.Post.Comment;
+using DUT.Application.ViewModels.Report;
 using DUT.Application.ViewModels.RoleClaim;
 using DUT.Application.ViewModels.Session;
 using DUT.Application.ViewModels.Setting;
@@ -76,6 +77,8 @@ namespace DUT.Application.ViewModels
                 .ForMember(x => x.FullName, s => s.MapFrom(s => BuildFullName(s))).ReverseMap();
 
             CreateMap<Domain.Models.Timetable, TimetableViewModel>().ReverseMap();
+
+            CreateMap<Domain.Models.Report, ReportViewModel>().ReverseMap();
         }
 
         private string BuildFullName(Domain.Models.User user)

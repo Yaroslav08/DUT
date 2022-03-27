@@ -42,6 +42,7 @@ namespace DUT.Infrastructure.Data.Context
         public DbSet<Setting> Settings { get; set; }
         public DbSet<Timetable> Timetables { get; set; }
         public DbSet<Audit> Audits { get; set; }
+        public DbSet<Report> Reports { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -56,6 +57,7 @@ namespace DUT.Infrastructure.Data.Context
             builder.ApplyConfiguration(new UserConfiguration());
             builder.ApplyConfiguration(new SettingConfiguration());
             builder.ApplyConfiguration(new TimetableConfiguration());
+            builder.ApplyConfiguration(new ReportConfiguration());
         }
     }
 }
