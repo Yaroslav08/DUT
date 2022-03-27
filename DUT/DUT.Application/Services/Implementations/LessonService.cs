@@ -274,7 +274,7 @@ namespace DUT.Application.Services.Implementations
 
             lesson.PrepareToUpdate(_identityService);
 
-            _db.Lessons.Update(lesson);
+            //_db.Lessons.Update(lesson);
             await _db.SaveChangesAsync();
 
             var updatedLesson = _mapper.Map<LessonViewModel>(lesson);
@@ -303,11 +303,14 @@ namespace DUT.Application.Services.Implementations
 
         private bool TryMapMarksInJournal(Journal currentJournal, Journal newJournal, out string error)
         {
-            var res = currentJournal.Students.Select(s => s.Id).Except(newJournal.Students.Select(s => s.Id));
+            var res = newJournal.Students.Select(s => s.Id).Except(currentJournal.Students.Select(s => s.Id));
 
             if (res != null && res.Count() > 0)
             {
-                error = $"Студентів ({string.Join(",", newJournal.Students.Where(s => res.Contains(s.Id)).Select(s => s.Name))}) не існує";
+                if (res.Count() == 1)
+                    error = $"Студент {newJournal.Students.FirstOrDefault(s => s.Id == res.First()).Name} не існує";
+                else
+                    error = $"Студентів ({string.Join(",", newJournal.Students.Where(s => res.Contains(s.Id)).Select(s => s.Name))}) не існує";
                 return false;
             }
 
