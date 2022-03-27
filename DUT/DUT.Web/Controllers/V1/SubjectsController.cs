@@ -116,9 +116,15 @@ namespace DUT.Web.Controllers.V1
         }
 
         [HttpPost("{subjectId}/lessons/{lessonId}/journal")]
-        public async Task<IActionResult> CreateLesson(int subjectId, long lessonId)
+        public async Task<IActionResult> CreateJournal(int subjectId, long lessonId)
         {
             return JsonResult(await _lessonService.CreateJournalAsync(subjectId, lessonId));
+        }
+
+        [HttpPost("{subjectId}/lessons/{lessonId}/journal/synchronize")]
+        public async Task<IActionResult> SynchronizeJournal(int subjectId, long lessonId)
+        {
+            return JsonResult(await _lessonService.SynchronizeJournalAsync(subjectId, lessonId));
         }
 
         [HttpPut("{subjectId}/lessons/{lessonId}/journal")]

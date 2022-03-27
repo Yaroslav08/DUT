@@ -8,7 +8,7 @@ using DUT.Constants.Extensions;
 using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
+using Force.DeepCloner;
 
 namespace DUT.Application.Services.Implementations
 {
@@ -258,6 +258,30 @@ namespace DUT.Application.Services.Implementations
             return Result<LessonViewModel>.SuccessWithData(lessonToView);
         }
 
+        public async Task<Result<LessonViewModel>> SynchronizeJournalAsync(int subjectId, long lessonId)
+        {
+            var lesson = await _db.Lessons.AsNoTracking().FirstOrDefaultAsync(s => s.Id == lessonId);
+            if (lesson == null)
+                return Result<LessonViewModel>.NotFound("Lesson not found");
+
+            if (lesson.SubjectId != subjectId)
+                return Result<LessonViewModel>.Error("Lesson not in this subject");
+
+            var subject = await _db.Subjects.AsNoTracking().FirstOrDefaultAsync(s => s.Id == subjectId);
+            if (subject == null)
+                return Result<LessonViewModel>.NotFound("Subject not found");
+
+            await FillJournalAsync(lesson, subject.GroupId.Value);
+
+            lesson.PrepareToUpdate(_identityService);
+            _db.Lessons.Update(lesson);
+            await _db.SaveChangesAsync();
+
+            var synchronizedJournal = _mapper.Map<LessonViewModel>(lesson);
+
+            return Result<LessonViewModel>.SuccessWithData(synchronizedJournal);
+        }
+
         public async Task<Result<LessonViewModel>> UpdateJournalAsync(int subjectId, long lessonId, Journal journal)
         {
             var lesson = await _db.Lessons.AsNoTracking().FirstOrDefaultAsync(s => s.Id == lessonId);
@@ -381,16 +405,41 @@ namespace DUT.Application.Services.Implementations
                 .ToListAsync();
             students = students.OrderBy(s => s.LastName).ToList();
 
-            lesson.Journal = new Journal
+            var isNew = lesson.Journal == null;
+
+            if (isNew)
             {
-                Students = students.Select(s => new Student
+                lesson.Journal = new Journal
                 {
-                    Id = s.Id,
-                    Name = $"{s.LastName} {s.FirstName}",
-                    Mark = null
-                }).ToList(),
-                Statistics = null
-            };
+                    Students = students.Select(s => new Student
+                    {
+                        Id = s.Id,
+                        Name = $"{s.LastName} {s.FirstName}",
+                        Mark = null
+                    }).ToList(),
+                    Statistics = null
+                };
+            }
+            else
+            {
+                var oldJournal = lesson.Journal.DeepClone();
+
+                if (students.Count == oldJournal.Students.Count)
+                    return;
+
+                var newJournal = new Journal
+                {
+                    Students = students.Select(student => new Student
+                    {
+                        Id = student.Id,
+                        Name = $"{student.LastName} {student.FirstName}",
+                        Mark = oldJournal.Students.FirstOrDefault(s => s.Id == student.Id)?.Mark
+                    }).ToList()
+                };
+
+                lesson.Journal = newJournal;
+                lesson.Journal.Statistics = GetJournalStatistics(newJournal);
+            }
         }
     }
 }
