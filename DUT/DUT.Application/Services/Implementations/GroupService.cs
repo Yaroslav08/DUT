@@ -33,6 +33,51 @@ namespace DUT.Application.Services.Implementations
             _userService = userService;
         }
 
+        public async Task<Result<bool>> AcceptAllNewGroupMembersAsync(int groupId)
+        {
+            var allNewGroupMembers = await _db.UserGroups
+                .AsNoTracking()
+                .Where(s => s.Status == UserGroupStatus.New && s.GroupId == groupId)
+                .ToListAsync();
+
+            if (allNewGroupMembers == null || allNewGroupMembers.Count == 0)
+                return Result<bool>.Success();
+
+            allNewGroupMembers.ForEach(gm =>
+            {
+                gm.Status = UserGroupStatus.Member;
+                gm.PrepareToUpdate(_identityService);
+            });
+
+            _db.UserGroups.UpdateRange(allNewGroupMembers);
+            await _db.SaveChangesAsync();
+            return Result<bool>.Success();
+        }
+
+        public async Task<Result<bool>> AcceptNewGroupMemberAsync(int groupId, int groupMemberId)
+        {
+            var newGroupMember = await _db.UserGroups
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Id == groupMemberId);
+
+            if (newGroupMember == null)
+                return Result<bool>.NotFound(typeof(UserGroup).NotFoundMessage(groupMemberId));
+
+            if (newGroupMember.GroupId != groupId)
+                return Result<bool>.Error("Member not from current group");
+
+            if (newGroupMember.Status == UserGroupStatus.Member)
+                return Result<bool>.Error("User is already member of group");
+
+            newGroupMember.Status = UserGroupStatus.Member;
+            newGroupMember.PrepareToUpdate(_identityService);
+
+            _db.UserGroups.Update(newGroupMember);
+            await _db.SaveChangesAsync();
+
+            return Result<bool>.Success();
+        }
+
         public async Task<Result<CommentViewModel>> CreateCommentAsync(CommentCreateModel model)
         {
             if (!await IsExistAsync(x => x.Id == model.GroupId))
@@ -238,10 +283,11 @@ namespace DUT.Application.Services.Implementations
             if (!await IsExistAsync(x => x.Id == groupId))
                 return Result<List<GroupMemberViewModel>>.NotFound($"Group with ID ({groupId}) not found");
 
+            var userGroupRoles = new List<UserGroupRole>();
+
             var query = _db.UserGroups
                 .AsNoTracking()
                 .Include(x => x.User)
-                .Include(x => x.UserGroupRole)
                 .Where(x => x.GroupId == groupId && x.UserId < afterId)
                 .OrderByDescending(x => x.Id)
                 .Take(count);
@@ -251,6 +297,21 @@ namespace DUT.Application.Services.Implementations
             }
 
             var groupMembers = await query.ToListAsync();
+
+            foreach (var groupMember in groupMembers)
+            {
+                var userGroupRole = userGroupRoles.FirstOrDefault(s => s.Id == groupMember.UserGroupRoleId);
+                if (userGroupRole == null)
+                {
+                    var currentUserGroupRole = await _db.UserGroupRoles.AsNoTracking().FirstOrDefaultAsync(s => s.Id == groupMember.UserGroupRoleId);
+                    userGroupRoles.Add(currentUserGroupRole);
+                    groupMember.UserGroupRole = currentUserGroupRole;
+                }
+                else
+                {
+                    groupMember.UserGroupRole = userGroupRole;
+                }
+            }
 
             if (groupMembers == null)
                 return Result<List<GroupMemberViewModel>>.Success();

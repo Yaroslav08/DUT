@@ -92,10 +92,22 @@ namespace DUT.Web.Controllers.V1
             return JsonResult(await _groupService.GetGroupMembersAsync(groupId, afterId, count, status));
         }
 
+        [HttpPost("{groupId}/members/accept-all")]
+        public async Task<IActionResult> AcceptAllNewMembers(int groupId)
+        {
+            return JsonResult(await _groupService.AcceptAllNewGroupMembersAsync(groupId));
+        }
+
         [HttpGet("{groupId}/members/{memberId}")]
         public async Task<IActionResult> GetGroupMember(int groupId, int memberId)
         {
             return JsonResult(await _groupService.GetGroupMemberByIdAsync(groupId, memberId));
+        }
+
+        [HttpPost("{groupId}/members/{memberId}/accept")]
+        public async Task<IActionResult> AcceptNewMember(int groupId, int memberId)
+        {
+            return JsonResult(await _groupService.AcceptNewGroupMemberAsync(groupId, memberId));
         }
 
         [HttpPut("{groupId}/members/{memberId}")]
