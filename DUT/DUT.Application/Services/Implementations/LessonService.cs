@@ -424,9 +424,6 @@ namespace DUT.Application.Services.Implementations
             {
                 var oldJournal = lesson.Journal.DeepClone();
 
-                if (students.Count == oldJournal.Students.Count)
-                    return;
-
                 var newJournal = new Journal
                 {
                     Students = students.Select(student => new Student
