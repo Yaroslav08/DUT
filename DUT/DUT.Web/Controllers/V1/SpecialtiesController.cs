@@ -2,6 +2,7 @@
 using DUT.Application.ViewModels.Specialty;
 using DUT.Constants;
 using Microsoft.AspNetCore.Mvc;
+
 namespace DUT.Web.Controllers.V1
 {
     [ApiVersion("1.0")]

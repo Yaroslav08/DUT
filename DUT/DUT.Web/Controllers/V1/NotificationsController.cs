@@ -1,7 +1,5 @@
 ﻿using DUT.Application.Services.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
 namespace DUT.Web.Controllers.V1
 {
     [ApiVersion("1.0")]

@@ -3,6 +3,7 @@ using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels.User;
 using DUT.Constants;
 using Microsoft.AspNetCore.Mvc;
+
 namespace DUT.Web.Controllers.V1
 {
     [ApiVersion("1.0")]

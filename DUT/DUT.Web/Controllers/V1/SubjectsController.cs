@@ -5,7 +5,6 @@ using DUT.Application.ViewModels.Report;
 using DUT.Application.ViewModels.Subject;
 using DUT.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
-
 namespace DUT.Web.Controllers.V1
 {
     [ApiVersion("1.0")]
@@ -115,6 +114,31 @@ namespace DUT.Web.Controllers.V1
             return JsonResult(await _lessonService.GetLessonByIdAsync(lessonId));
         }
 
+        [HttpPost("{subjectId}/lessons")]
+        public async Task<IActionResult> CreateLesson(int subjectId, [FromBody] LessonCreateModel model)
+        {
+            model.SubjectId = subjectId;
+            return JsonResult(await _lessonService.CreateLessonAsync(model));
+        }
+
+        [HttpPut("{subjectId}/lessons/{lessonId}")]
+        public async Task<IActionResult> UpdateLesson(int subjectId, long lessonId, [FromBody]LessonEditModel model)
+        {
+            model.Id = lessonId;
+            model.SubjectId = subjectId;
+            return JsonResult(await _lessonService.UpdateLessonAsync(model));
+        }
+
+        [HttpDelete("{subjectId}/lessons/{lessonId}")]
+        public async Task<IActionResult> RemoveLesson(int subjectId, long lessonId)
+        {
+            return JsonResult(await _lessonService.RemoveLessonAsync(lessonId));
+        }
+
+        #endregion
+
+        #region Journals
+
         [HttpPost("{subjectId}/lessons/{lessonId}/journal")]
         public async Task<IActionResult> CreateJournal(int subjectId, long lessonId)
         {
@@ -137,27 +161,6 @@ namespace DUT.Web.Controllers.V1
         public async Task<IActionResult> RemoveJournal(int subjectId, long lessonId)
         {
             return JsonResult(await _lessonService.RemoveJournalAsync(subjectId, lessonId));
-        }
-
-        [HttpPost("{subjectId}/lessons")]
-        public async Task<IActionResult> CreateLesson(int subjectId, [FromBody] LessonCreateModel model)
-        {
-            model.SubjectId = subjectId;
-            return JsonResult(await _lessonService.CreateLessonAsync(model));
-        }
-
-        [HttpPut("{subjectId}/lessons/{lessonId}")]
-        public async Task<IActionResult> UpdateLesson(int subjectId, long lessonId, [FromBody]LessonEditModel model)
-        {
-            model.Id = lessonId;
-            model.SubjectId = subjectId;
-            return JsonResult(await _lessonService.UpdateLessonAsync(model));
-        }
-
-        [HttpDelete("{subjectId}/lessons/{lessonId}")]
-        public async Task<IActionResult> RemoveLesson(int subjectId, long lessonId)
-        {
-            return JsonResult(await _lessonService.RemoveLessonAsync(lessonId));
         }
 
         #endregion

@@ -1,7 +1,6 @@
 ﻿using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels.University;
 using DUT.Constants;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 namespace DUT.Web.Controllers.V1
 {
@@ -15,8 +14,6 @@ namespace DUT.Web.Controllers.V1
             _universityService = universityService;
             _permissionService = permissionService;
         }
-
-
 
         [HttpGet]
         public async Task<IActionResult> GetUniversity()

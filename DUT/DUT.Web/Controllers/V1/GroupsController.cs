@@ -6,7 +6,6 @@ using DUT.Application.ViewModels.Post;
 using DUT.Application.ViewModels.Post.Comment;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-
 namespace DUT.Web.Controllers.V1
 {
     [ApiVersion("1.0")]

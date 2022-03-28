@@ -1,7 +1,6 @@
 ﻿using DUT.Application.Services.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using DUT.Application.ViewModels.Diploma;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DUT.Web.Controllers.V1
 {
