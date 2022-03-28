@@ -353,6 +353,39 @@ namespace DUT.Application.Seeder
             {
                 var claims = new List<Claim>();
 
+                #region Apps
+
+                claims.Add(new Claim
+                {
+                    Type = PermissionClaims.Apps,
+                    Value = Permissions.CanCreate,
+                    DisplayName = "Створення застосунків"
+                });
+
+                claims.Add(new Claim
+                {
+                    Type = PermissionClaims.Apps,
+                    Value = Permissions.CanEdit,
+                    DisplayName = "Редагування застосунків"
+                });
+
+                claims.Add(new Claim
+                {
+                    Type = PermissionClaims.Apps,
+                    Value = Permissions.CanRemove,
+                    DisplayName = "Видалення застосунків"
+                });
+
+                claims.Add(new Claim
+                {
+                    Type = PermissionClaims.Apps,
+                    Value = Permissions.CanView,
+                    DisplayName = "Перегляд застосунків"
+                });
+
+                #endregion
+
+
                 #region Permission
 
                 claims.Add(new Claim

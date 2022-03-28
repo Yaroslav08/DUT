@@ -16,5 +16,6 @@ namespace DUT.Application.Services.Interfaces
         IEnumerable<int> GetGroupMemberIds();
         string GetAuthenticationMethod();
         UserIdentity GetUserDetails();
+        bool IsAdministrator();
     }
 }

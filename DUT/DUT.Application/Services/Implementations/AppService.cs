@@ -29,6 +29,10 @@ namespace DUT.Application.Services.Implementations
             if (appForUpdate == null)
                 return Result<AppViewModel>.NotFound("App not found");
 
+            if (!_identityService.IsAdministrator())
+                if (appForUpdate.UserId != _identityService.GetUserId())
+                    return Result<AppViewModel>.Error("Access denited");
+
             appForUpdate.AppSecret = Generator.CreateAppSecret();
             appForUpdate.PrepareToUpdate(_identityService);
 
@@ -44,6 +48,7 @@ namespace DUT.Application.Services.Implementations
 
             newApp.AppId = Generator.CreateAppId();
             newApp.AppSecret = Generator.CreateAppSecret();
+            newApp.UserId = _identityService.GetUserId();
             newApp.PrepareToCreate(_identityService);
 
             await _db.Apps.AddAsync(newApp);
@@ -59,6 +64,10 @@ namespace DUT.Application.Services.Implementations
             if (appForDelete == null)
                 return Result<AppViewModel>.NotFound("App not found");
 
+            if (!_identityService.IsAdministrator())
+                if (appForDelete.UserId != _identityService.GetUserId())
+                    return Result<AppViewModel>.Error("Access denited");
+
             _db.Apps.Remove(appForDelete);
             await _db.SaveChangesAsync();
 
@@ -67,7 +76,13 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<List<AppViewModel>>> GetAllAppsAsync()
         {
-            var allApps = await _db.Apps.AsNoTracking().ToListAsync();
+            var query = _db.Apps.AsNoTracking();
+
+            if (!_identityService.IsAdministrator())
+                query = query.Where(s => s.UserId == _identityService.GetUserId());
+
+            query = query.OrderBy(s => s.Id);
+            var allApps = await query.ToListAsync();
 
             if (!allApps.Any())
                 return Result<List<AppViewModel>>.NotFound("Apps not found");
@@ -84,6 +99,10 @@ namespace DUT.Application.Services.Implementations
             if (app == null)
                 return Result<AppViewModel>.NotFound("App by id not found");
 
+            if (!_identityService.IsAdministrator())
+                if (app.UserId != _identityService.GetUserId())
+                    return Result<AppViewModel>.Error("Access denited");
+
             var appToView = _mapper.Map<AppViewModel>(app);
 
             return Result<AppViewModel>.SuccessWithData(appToView);
@@ -95,6 +114,10 @@ namespace DUT.Application.Services.Implementations
 
             if (appToUpdate == null)
                 return Result<AppViewModel>.NotFound("App by id not found");
+
+            if (!_identityService.IsAdministrator())
+                if (appToUpdate.UserId != _identityService.GetUserId())
+                    return Result<AppViewModel>.Error("Access denited");
 
             appToUpdate.ActiveFrom = app.ActiveFrom;
             appToUpdate.ActiveTo = app.ActiveTo;

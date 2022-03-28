@@ -1,6 +1,7 @@
 ﻿using DUT.Application.Extensions;
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels.Identity;
+using DUT.Constants;
 using Microsoft.AspNetCore.Http;
 
 namespace DUT.Application.Services.Implementations
@@ -72,6 +73,11 @@ namespace DUT.Application.Services.Implementations
         public IEnumerable<int> GetGroupMemberIds()
         {
             return _httpContext.GetGroupMemberIds();
+        }
+
+        public bool IsAdministrator()
+        {
+            return GetRoles().Any(s => s.Contains(Roles.Admin));
         }
     }
 }

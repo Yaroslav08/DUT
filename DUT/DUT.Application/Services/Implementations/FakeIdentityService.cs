@@ -78,5 +78,10 @@ namespace DUT.Application.Services.Implementations
         {
             return new int[] { 1 }.AsEnumerable();
         }
+
+        public bool IsAdministrator()
+        {
+            return false;
+        }
     }
 }

@@ -39,6 +39,7 @@ namespace DUT.Domain.Models
         public List<Diploma> Diplomas { get; set; }
         public List<Lesson> Lessons { get; set; }
         public List<Timetable> Timetables { get; set; }
+        public List<App> Apps { get; set; }
 
         public User(string firstName, string middleName, string lastName, string login, string userName)
         {
