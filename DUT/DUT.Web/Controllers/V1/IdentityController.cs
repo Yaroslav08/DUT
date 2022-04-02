@@ -1,6 +1,7 @@
 ﻿using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels.Identity;
 using DUT.Application.ViewModels.User;
+using DUT.Web.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 namespace DUT.Web.Controllers.V1
