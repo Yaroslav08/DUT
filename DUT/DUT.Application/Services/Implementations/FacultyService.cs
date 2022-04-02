@@ -72,14 +72,13 @@ namespace DUT.Application.Services.Implementations
             return Result<FacultyViewModel>.SuccessWithData(faculty);
         }
 
-        public async Task<Result<List<SpecialtyViewModel>>> GetSpecialtiesByFacultyIdAsync(int facultyId)
+        public async Task<Result<List<FacultyViewModel>>> GetFacultiesByUniversityIdAsync(int id)
         {
-            return Result<List<SpecialtyViewModel>>.SuccessWithData(await _db.Specialties.AsNoTracking().Where(x => x.FacultyId == facultyId).Select(x => new SpecialtyViewModel
+            return Result<List<FacultyViewModel>>.SuccessWithData(await _db.Faculties.AsNoTracking().Where(s => s.UniversityId == id).Select(x => new FacultyViewModel
             {
                 Id = x.Id,
                 CreatedAt = x.CreatedAt,
-                Name = x.Name,
-                Code = x.Code
+                Name = x.Name
             }).ToListAsync());
         }
     }

@@ -22,7 +22,7 @@ namespace DUT.Domain.Models
         public DateTime ActiveFrom { get; set; }
         [Required]
         public DateTime ActiveTo { get; set; }
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
         public User User { get; set; }
 
         public bool IsActiveByTime()

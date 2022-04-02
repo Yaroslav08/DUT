@@ -8,11 +8,13 @@ namespace DUT.Web.Controllers.V1
     public class FacultiesController : ApiBaseController
     {
         private readonly IFacultyService _facultyService;
+        private readonly ISpecialtyService _specialtyService;
         private readonly IPermissionService _permissionService;
-        public FacultiesController(IFacultyService facultyService, IPermissionService permissionService)
+        public FacultiesController(IFacultyService facultyService, IPermissionService permissionService, ISpecialtyService specialtyService)
         {
             _facultyService = facultyService;
             _permissionService = permissionService;
+            _specialtyService = specialtyService;
         }
 
         [HttpGet]
@@ -36,7 +38,7 @@ namespace DUT.Web.Controllers.V1
         {
             if (!_permissionService.HasPermission(PermissionClaims.Specialties, Permissions.CanViewAll))
                 return JsonForbiddenResult();
-            return JsonResult(await _facultyService.GetSpecialtiesByFacultyIdAsync(facultyId));
+            return JsonResult(await _specialtyService.GetSpecialtiesByFacultyIdAsync(facultyId));
         }
 
         [HttpPost]

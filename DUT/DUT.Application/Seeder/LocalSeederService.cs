@@ -35,7 +35,7 @@ namespace DUT.Application.Seeder
                     ActiveTo = DateTime.Now.AddYears(10),
                     Description = "Веб застосунок для роботи з системою СДН ДУТ",
                     IsActive = true,
-                    Image = "",
+                    Image = ""
                 };
                 app1.PrepareToCreate();
                 listApps.Add(app1);
@@ -50,7 +50,7 @@ namespace DUT.Application.Seeder
                     ActiveTo = DateTime.Now.AddYears(10),
                     Description = "Android застосунок для роботи з системою СДН ДУТ",
                     IsActive = true,
-                    Image = "",
+                    Image = ""
                 };
                 app2.PrepareToCreate();
                 listApps.Add(app2);
@@ -65,7 +65,7 @@ namespace DUT.Application.Seeder
                     ActiveTo = DateTime.Now.AddYears(10),
                     Description = "IOS застосунок для роботи з системою СДН ДУТ",
                     IsActive = true,
-                    Image = "",
+                    Image = ""
                 };
                 app3.PrepareToCreate();
                 listApps.Add(app3);
@@ -80,7 +80,7 @@ namespace DUT.Application.Seeder
                     ActiveTo = DateTime.Now.AddYears(10),
                     Description = "Десктопний застосунок для роботи з системою СДН ДУТ",
                     IsActive = true,
-                    Image = "",
+                    Image = ""
                 };
                 app4.PrepareToCreate();
                 listApps.Add(app4);

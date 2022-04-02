@@ -8,11 +8,13 @@ namespace DUT.Web.Controllers.V1
     public class UniversitiesController : ApiBaseController
     {
         private readonly IUniversityService _universityService;
+        private readonly IFacultyService _faultyService;
         private readonly IPermissionService _permissionService;
-        public UniversitiesController(IUniversityService universityService, IPermissionService permissionService)
+        public UniversitiesController(IUniversityService universityService, IPermissionService permissionService, IFacultyService faultyService)
         {
             _universityService = universityService;
             _permissionService = permissionService;
+            _faultyService = faultyService;
         }
 
         [HttpGet]
@@ -23,6 +25,12 @@ namespace DUT.Web.Controllers.V1
                 return JsonForbiddenResult();
             }
             return JsonResult(await _universityService.GetUniversityAsync());
+        }
+
+        [HttpGet("faculties")]
+        public async Task<IActionResult> GetUniversityFaculties()
+        {
+            return JsonResult(await _faultyService.GetFacultiesByUniversityIdAsync(1));
         }
 
         [HttpPost]

@@ -1,7 +1,6 @@
 ﻿using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.Specialty;
 using DUT.Domain.Models;
-
 namespace DUT.Application.Services.Interfaces
 {
     public interface ISpecialtyService : IBaseService<Specialty>

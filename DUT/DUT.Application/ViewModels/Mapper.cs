@@ -40,9 +40,11 @@ namespace DUT.Application.ViewModels
 
 
             CreateMap<Domain.Models.Group, GroupViewModel>()
-                .ForMember(x => x.Name, s => s.MapFrom(x => $"{x.Name} ({x.StartStudy.Year})"));
+                .ForMember(x => x.Name, s => s.MapFrom(x => $"{x.Name} ({x.StartStudy.Year})"))
+                .ForMember(x => x.StudyingIsOver, s => s.MapFrom(x => x.EndStudy < DateTime.Now ? true : false));
             CreateMap<Domain.Models.Group, GroupShortViewModel>()
-                .ForMember(x => x.Name, s => s.MapFrom(x => $"{x.Name} ({x.StartStudy.Year})"));
+                .ForMember(x => x.Name, s => s.MapFrom(x => $"{x.Name} ({x.StartStudy.Year})"))
+                .ForMember(x => x.StudyingIsOver, s => s.MapFrom(x => x.EndStudy < DateTime.Now ? true : false));
 
             CreateMap<Domain.Models.GroupInvite, GroupInviteViewModel>();
 

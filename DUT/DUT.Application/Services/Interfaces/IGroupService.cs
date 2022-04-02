@@ -10,6 +10,7 @@ namespace DUT.Application.Services.Interfaces
 {
     public interface IGroupService : IBaseService<Group>
     {
+        Task<Result<List<GroupViewModel>>> GetGroupsBySpecialtyIdAsync(int specialtyId);
         Task<Result<List<GroupViewModel>>> GetAllGroupsAsync(int count, int afterId);
         Task<Result<GroupViewModel>> GetGroupByIdAsync(int id);
         Task<Result<List<GroupViewModel>>> SearchGroupsAsync(SearchGroupOptions options);

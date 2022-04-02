@@ -334,6 +334,16 @@ namespace DUT.Application.Services.Implementations
             return await _postService.GetPostsByGroupIdAsync(groupId, skip, count);
         }
 
+        public async Task<Result<List<GroupViewModel>>> GetGroupsBySpecialtyIdAsync(int specialtyId)
+        {
+            var groups = await _db.Groups
+                .AsNoTracking()
+                .Where(s => s.SpecialtyId == specialtyId)
+                .OrderBy(s => s.Name).ThenBy(s => s.Course)
+                .ToListAsync();
+            return Result<List<GroupViewModel>>.SuccessWithData(_mapper.Map<List<GroupViewModel>>(groups));
+        }
+
         public async Task<Result<List<CommentViewModel>>> GetPostCommentsAsync(int groupId, int postId, int skip = 0, int count = 20)
         {
             if (!await IsExistAsync(x => x.Id == groupId))
