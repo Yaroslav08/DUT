@@ -21,7 +21,14 @@ namespace DUT.Application.Services.Implementations
         public async Task<bool> IsExistAsync(Expression<Func<T, bool>> predicate = null)
         {
             Exists = null;
-            var items = await _db.Set<T>().AsNoTracking().Where(predicate).ToListAsync();
+
+            var query = _db.Set<T>().AsNoTracking();
+
+            if (predicate != null)
+                query = query.Where(predicate);
+
+            var items = await query.ToListAsync();
+
             if (items != null && items.Count > 0)
             {
                 Exists = items;
@@ -29,7 +36,6 @@ namespace DUT.Application.Services.Implementations
             }
             return false;
         }
-
         public ValueTask DisposeAsync()
         {
             return _db.DisposeAsync();

@@ -1,7 +1,6 @@
 ﻿using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.Diploma;
 using DUT.Domain.Models;
-
 namespace DUT.Application.Services.Interfaces
 {
     public interface IDiplomaService : IBaseService<Diploma>
