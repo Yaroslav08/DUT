@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DUT.Infrastructure.Data.Configurations
 {
-    public class PostCommentConfiguration : IEntityTypeConfiguration<PostComment>
+    public class CommentConfiguration : IEntityTypeConfiguration<Comment>
     {
-        public void Configure(EntityTypeBuilder<PostComment> builder)
+        public void Configure(EntityTypeBuilder<Comment> builder)
         {
             builder.HasKey(x => x.Id);
 

@@ -61,7 +61,7 @@ namespace DUT.Application.Services.Implementations
                 return Result<PostViewModel>.NotFound("This post not from this group");
 
             var postToView = _mapper.Map<PostViewModel>(post);
-            postToView.CountComments = await _db.PostComments.CountAsync(s => s.PostId == postId);
+            postToView.CountComments = await _db.Comments.CountAsync(s => s.PostId == postId);
 
             return Result<PostViewModel>.SuccessWithData(postToView);
         }

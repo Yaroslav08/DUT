@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 namespace DUT.Domain.Models
 {
-    public class PostComment : BaseModel<long>
+    public class Comment : BaseModel<long>
     {
         [Required, StringLength(250, MinimumLength = 1)]
         public string Text { get; set; }

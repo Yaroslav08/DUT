@@ -8,7 +8,7 @@ using DUT.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 namespace DUT.Application.Services.Implementations
 {
-    public class CommentService : BaseService<PostComment>, ICommentService
+    public class CommentService : BaseService<Comment>, ICommentService
     {
         private readonly DUTDbContext _db;
         private readonly IMapper _mapper;
@@ -22,7 +22,7 @@ namespace DUT.Application.Services.Implementations
 
         public async Task<Result<CommentViewModel>> CreateCommentAsync(CommentCreateModel model)
         {
-            var newComment = new PostComment
+            var newComment = new Comment
             {
                 IsPublic = model.IsPublic,
                 PostId = model.PostId,
@@ -30,7 +30,7 @@ namespace DUT.Application.Services.Implementations
                 Text = model.Text
             };
             newComment.PrepareToCreate(_identityService);
-            await _db.PostComments.AddAsync(newComment);
+            await _db.Comments.AddAsync(newComment);
             await _db.SaveChangesAsync();
             return Result<CommentViewModel>.SuccessWithData(_mapper.Map<CommentViewModel>(newComment));
         }
@@ -40,7 +40,7 @@ namespace DUT.Application.Services.Implementations
             if (!await _db.Posts.AnyAsync(s => s.Id == postId && s.GroupId == groupId))
                 return Result<List<CommentViewModel>>.NotFound("Post from this group not found");
 
-            var comments = await _db.PostComments
+            var comments = await _db.Comments
                 .AsNoTracking()
                 .Where(x => x.PostId == postId)
                 .OrderByDescending(s => s.CreatedAt)
@@ -56,7 +56,7 @@ namespace DUT.Application.Services.Implementations
             if (!await _db.Posts.AsNoTracking().AnyAsync(s => s.Id == postId && s.GroupId == groupId))
                 return Result<bool>.NotFound("Post from this group not found");
 
-            var commentToRemove = await _db.PostComments.FirstOrDefaultAsync(s => s.Id == commentId);
+            var commentToRemove = await _db.Comments.FirstOrDefaultAsync(s => s.Id == commentId);
             if (commentToRemove == null)
                 return Result<bool>.NotFound("Comment not found");
 
@@ -67,14 +67,14 @@ namespace DUT.Application.Services.Implementations
                 if (commentToRemove.UserId != _identityService.GetUserId())
                     return Result<bool>.Error("Access denited");
 
-            _db.PostComments.Remove(commentToRemove);
+            _db.Comments.Remove(commentToRemove);
             await _db.SaveChangesAsync();
             return Result<bool>.Success();
         }
 
         public async Task<Result<CommentViewModel>> UpdateCommentAsync(CommentEditModel model)
         {
-            var commentToUpdate = await _db.PostComments.FindAsync(model.Id);
+            var commentToUpdate = await _db.Comments.FindAsync(model.Id);
             if (commentToUpdate == null)
                 return Result<CommentViewModel>.NotFound("Comment not found");
 
@@ -85,7 +85,7 @@ namespace DUT.Application.Services.Implementations
             commentToUpdate.Text = model.Text;
             commentToUpdate.IsPublic = model.IsPublic;
             commentToUpdate.PrepareToUpdate(_identityService);
-            _db.PostComments.Update(commentToUpdate);
+            _db.Comments.Update(commentToUpdate);
             await _db.SaveChangesAsync();
             return Result<CommentViewModel>.SuccessWithData(_mapper.Map<CommentViewModel>(commentToUpdate));
         }

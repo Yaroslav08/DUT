@@ -32,7 +32,7 @@ namespace DUT.Infrastructure.Data.Context
         public DbSet<GroupInvite> GroupInvites { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Post> Posts { get; set; }
-        public DbSet<PostComment> PostComments { get; set; }
+        public DbSet<Comment> Comments { get; set; }
         public DbSet<UserSpecialty> UserSpecialties { get; set; }
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<Lesson> Lessons { get; set; }
@@ -52,7 +52,7 @@ namespace DUT.Infrastructure.Data.Context
             builder.ApplyConfiguration(new LessonConfiguration());
             builder.ApplyConfiguration(new SubjectConfiguration());
             builder.ApplyConfiguration(new UserGroupRoleConfiguration());
-            builder.ApplyConfiguration(new PostCommentConfiguration());
+            builder.ApplyConfiguration(new CommentConfiguration());
             builder.ApplyConfiguration(new LoginAttemptConfiguration());
             builder.ApplyConfiguration(new UserConfiguration());
             builder.ApplyConfiguration(new SettingConfiguration());

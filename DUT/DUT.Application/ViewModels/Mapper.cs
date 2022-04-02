@@ -65,7 +65,7 @@ namespace DUT.Application.ViewModels
 
             CreateMap<Domain.Models.Diploma, DiplomaViewModel>().ReverseMap();
 
-            CreateMap<Domain.Models.PostComment, CommentViewModel>().ReverseMap();
+            CreateMap<Domain.Models.Comment, CommentViewModel>().ReverseMap();
             CreateMap<Domain.Models.Post, PostViewModel>().ReverseMap();
 
             CreateMap<Domain.Models.Subject, SubjectViewModel>().ReverseMap();

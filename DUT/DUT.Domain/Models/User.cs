@@ -33,7 +33,7 @@ namespace DUT.Domain.Models
         public List<Session> Sessions { get; set; }
         public List<Notification> Notifications { get; set; }
         public List<UserGroup> UserGroups { get; set; }
-        public List<PostComment> Comments { get; set; }
+        public List<Comment> Comments { get; set; }
         public List<Subject> Subjects { get; set; }
         public List<UserLogin> UserLogins { get; set; }
         public List<Diploma> Diplomas { get; set; }

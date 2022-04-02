@@ -4,7 +4,7 @@ using DUT.Domain.Models;
 
 namespace DUT.Application.Services.Interfaces
 {
-    public interface ICommentService : IBaseService<PostComment>
+    public interface ICommentService : IBaseService<Comment>
     {
         Task<Result<List<CommentViewModel>>> GetCommentsByPostIdAsync(int groupId, int postId, int skip = 0, int count = 20);
         Task<Result<CommentViewModel>> CreateCommentAsync(CommentCreateModel model);
