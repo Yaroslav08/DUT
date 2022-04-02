@@ -1,0 +1,96 @@
+﻿using AutoMapper;
+using DUT.Application.Extensions;
+using DUT.Application.Services.Interfaces;
+using DUT.Application.ViewModels;
+using DUT.Application.ViewModels.Group;
+using DUT.Constants;
+using DUT.Domain.Models;
+using DUT.Infrastructure.Data.Context;
+using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
+
+namespace DUT.Application.Services.Implementations
+{
+    public class GroupInviteService : BaseService<GroupInvite>, IGroupInviteService
+    {
+        private readonly DUTDbContext _db;
+        private readonly IMapper _mapper;
+        private readonly IIdentityService _identityService;
+        public GroupInviteService(DUTDbContext db, IMapper mapper, IIdentityService identityService) : base(db)
+        {
+            _db = db;
+            _mapper = mapper;
+            _identityService = identityService;
+        }
+
+        public async Task<Result<GroupInviteViewModel>> CreateGroupInviteAsync(GroupInviteCreateModel model)
+{
+            if (!await _db.Groups.AnyAsync(s => s.Id == model.GroupId))
+                return Result<GroupInviteViewModel>.NotFound("Group not found");
+
+            if (await _db.GroupInvites.AsNoTracking().CountAsync(s => s.GroupId == model.GroupId) >= 5)
+                return Result<GroupInviteViewModel>.Error("One group must be have max 5 invites");
+
+            var newGroupInvite = new GroupInvite
+            {
+                ActiveFrom = model.ActiveFrom,
+                ActiveTo = model.ActiveTo,
+                Name = model.Name,
+                IsActive = model.IsActive,
+                CodeJoin = Generator.CreateGroupInviteCode(),
+                GroupId = model.GroupId.Value,
+            };
+            newGroupInvite.PrepareToCreate(_identityService);
+            await _db.GroupInvites.AddAsync(newGroupInvite);
+            await _db.SaveChangesAsync();
+            return Result<GroupInviteViewModel>.SuccessWithData(_mapper.Map<GroupInviteViewModel>(newGroupInvite));
+        }
+
+        public async Task<Result<List<GroupInviteViewModel>>> GetGroupInvitesByGroupIdAsync(int groupId)
+        {
+            if (!await _db.Groups.AnyAsync(s => s.Id == groupId))
+                return Result<List<GroupInviteViewModel>>.NotFound("Group not found");
+            var groupInvitesFromDb = await _db.GroupInvites
+                .AsNoTracking()
+                .Where(x => x.GroupId == groupId)
+                .OrderByDescending(s => s.CreatedAt)
+                .ToListAsync();
+
+            var groupInvitesToViews = _mapper.Map<List<GroupInviteViewModel>>(groupInvitesFromDb);
+
+            return Result<List<GroupInviteViewModel>>.SuccessWithData(groupInvitesToViews);
+        }
+
+        public async Task<Result<bool>> RemoveGroupInviteAsync(int groupId, Guid groupInviteId)
+        {
+            var groupInvite = await _db.GroupInvites.AsNoTracking().FirstOrDefaultAsync(x => x.Id == groupInviteId);
+            if (groupInvite == null)
+                return Result<bool>.NotFound("Group invite not found");
+
+            if (groupInvite.GroupId != groupId)
+                return Result<bool>.Error("Incorrect groupId");
+
+            _db.GroupInvites.Remove(groupInvite);
+            await _db.SaveChangesAsync();
+            return Result<bool>.Success();
+        }
+
+        public async Task<Result<GroupInviteViewModel>> UpdateGroupInviteAsync(GroupInviteEditModel model)
+        {
+            var groupInviteFromDb = await _db.GroupInvites.FindAsync(model.Id);
+            if (groupInviteFromDb == null)
+                return Result<GroupInviteViewModel>.NotFound("Group invite not found");
+
+            groupInviteFromDb.Name = model.Name;
+            groupInviteFromDb.ActiveFrom = model.ActiveFrom;
+            groupInviteFromDb.ActiveTo = model.ActiveTo;
+            groupInviteFromDb.IsActive = model.IsActive;
+            groupInviteFromDb.PrepareToUpdate(_identityService);
+
+            _db.GroupInvites.Update(groupInviteFromDb);
+            await _db.SaveChangesAsync();
+
+            return Result<GroupInviteViewModel>.SuccessWithData(_mapper.Map<GroupInviteViewModel>(groupInviteFromDb));
+        }
+    }
+}

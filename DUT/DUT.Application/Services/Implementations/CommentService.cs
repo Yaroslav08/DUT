@@ -35,11 +35,15 @@ namespace DUT.Application.Services.Implementations
             return Result<CommentViewModel>.SuccessWithData(_mapper.Map<CommentViewModel>(newComment));
         }
 
-        public async Task<Result<List<CommentViewModel>>> GetCommentsByPostIdAsync(int postId, int skip = 0, int count = 20)
+        public async Task<Result<List<CommentViewModel>>> GetCommentsByPostIdAsync(int groupId, int postId, int skip = 0, int count = 20)
         {
+            if (!await _db.Posts.AnyAsync(s => s.Id == postId && s.GroupId == groupId))
+                return Result<List<CommentViewModel>>.NotFound("Post from this group not found");
+
             var comments = await _db.PostComments
                 .AsNoTracking()
                 .Where(x => x.PostId == postId)
+                .OrderByDescending(s => s.CreatedAt)
                 .Include(x => x.User)
                 .Skip(skip).Take(count)
                 .ToListAsync();
@@ -47,12 +51,23 @@ namespace DUT.Application.Services.Implementations
             return Result<List<CommentViewModel>>.SuccessWithData(_mapper.Map<List<CommentViewModel>>(comments));
         }
 
-        public async Task<Result<bool>> RemoveCommentAsync(long commentId)
+        public async Task<Result<bool>> RemoveCommentAsync(int groupId, int postId, long commentId)
         {
-            var postToRemove = await _db.PostComments.FindAsync(commentId);
-            if (postToRemove == null)
+            if (!await _db.Posts.AsNoTracking().AnyAsync(s => s.Id == postId && s.GroupId == groupId))
+                return Result<bool>.NotFound("Post from this group not found");
+
+            var commentToRemove = await _db.PostComments.FirstOrDefaultAsync(s => s.Id == commentId);
+            if (commentToRemove == null)
                 return Result<bool>.NotFound("Comment not found");
-            _db.PostComments.Remove(postToRemove);
+
+            if (commentToRemove.PostId != postId)
+                return Result<bool>.Error("Access denited");
+
+            if (!_identityService.IsAdministrator())
+                if (commentToRemove.UserId != _identityService.GetUserId())
+                    return Result<bool>.Error("Access denited");
+
+            _db.PostComments.Remove(commentToRemove);
             await _db.SaveChangesAsync();
             return Result<bool>.Success();
         }
@@ -62,6 +77,10 @@ namespace DUT.Application.Services.Implementations
             var commentToUpdate = await _db.PostComments.FindAsync(model.Id);
             if (commentToUpdate == null)
                 return Result<CommentViewModel>.NotFound("Comment not found");
+
+            if (!_identityService.IsAdministrator())
+                if (commentToUpdate.UserId != _identityService.GetUserId())
+                    return Result<CommentViewModel>.Error("Access denited");
 
             commentToUpdate.Text = model.Text;
             commentToUpdate.IsPublic = model.IsPublic;

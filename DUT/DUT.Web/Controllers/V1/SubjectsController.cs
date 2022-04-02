@@ -13,11 +13,13 @@ namespace DUT.Web.Controllers.V1
         private readonly ISubjectService _subjectService;
         private readonly ILessonService _lessonService;
         private readonly IReportService _reportService;
-        public SubjectsController(ISubjectService subjectService, ILessonService lessonService, IReportService reportService)
+        private readonly IJournalService _journalService;
+        public SubjectsController(ISubjectService subjectService, ILessonService lessonService, IReportService reportService, IJournalService journalService)
         {
             _subjectService = subjectService;
             _lessonService = lessonService;
             _reportService = reportService;
+            _journalService = journalService;
         }
 
         #region Subjects
@@ -142,25 +144,25 @@ namespace DUT.Web.Controllers.V1
         [HttpPost("{subjectId}/lessons/{lessonId}/journal")]
         public async Task<IActionResult> CreateJournal(int subjectId, long lessonId)
         {
-            return JsonResult(await _lessonService.CreateJournalAsync(subjectId, lessonId));
+            return JsonResult(await _journalService.CreateJournalAsync(subjectId, lessonId));
         }
 
         [HttpPost("{subjectId}/lessons/{lessonId}/journal/synchronize")]
         public async Task<IActionResult> SynchronizeJournal(int subjectId, long lessonId)
         {
-            return JsonResult(await _lessonService.SynchronizeJournalAsync(subjectId, lessonId));
+            return JsonResult(await _journalService.SynchronizeJournalAsync(subjectId, lessonId));
         }
 
         [HttpPut("{subjectId}/lessons/{lessonId}/journal")]
         public async Task<IActionResult> UpdateJournal(int subjectId, long lessonId, [FromBody] Journal journal)
         {
-            return JsonResult(await _lessonService.UpdateJournalAsync(subjectId, lessonId, journal));
+            return JsonResult(await _journalService.UpdateJournalAsync(subjectId, lessonId, journal));
         }
 
         [HttpDelete("{subjectId}/lessons/{lessonId}/journal")]
         public async Task<IActionResult> RemoveJournal(int subjectId, long lessonId)
         {
-            return JsonResult(await _lessonService.RemoveJournalAsync(subjectId, lessonId));
+            return JsonResult(await _journalService.RemoveJournalAsync(subjectId, lessonId));
         }
 
         #endregion

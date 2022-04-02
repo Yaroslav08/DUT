@@ -6,8 +6,6 @@ using DUT.Application.Validations;
 using DUT.Application.ViewModels;
 using DUT.Application.ViewModels.Group;
 using DUT.Application.ViewModels.Group.GroupMember;
-using DUT.Application.ViewModels.Post;
-using DUT.Application.ViewModels.Post.Comment;
 using DUT.Constants;
 using DUT.Constants.Extensions;
 using DUT.Domain.Models;
@@ -31,69 +29,6 @@ namespace DUT.Application.Services.Implementations
             _postService = postService;
             _commentService = commentService;
             _userService = userService;
-        }
-
-        public async Task<Result<bool>> AcceptAllNewGroupMembersAsync(int groupId)
-        {
-            var allNewGroupMembers = await _db.UserGroups
-                .AsNoTracking()
-                .Where(s => s.Status == UserGroupStatus.New && s.GroupId == groupId)
-                .ToListAsync();
-
-            if (allNewGroupMembers == null || allNewGroupMembers.Count == 0)
-                return Result<bool>.Success();
-
-            allNewGroupMembers.ForEach(gm =>
-            {
-                gm.Status = UserGroupStatus.Member;
-                gm.PrepareToUpdate(_identityService);
-            });
-
-            _db.UserGroups.UpdateRange(allNewGroupMembers);
-            await _db.SaveChangesAsync();
-            return Result<bool>.Success();
-        }
-
-        public async Task<Result<bool>> AcceptNewGroupMemberAsync(int groupId, int groupMemberId)
-        {
-            var newGroupMember = await _db.UserGroups
-                .AsNoTracking()
-                .FirstOrDefaultAsync(s => s.Id == groupMemberId);
-
-            if (newGroupMember == null)
-                return Result<bool>.NotFound(typeof(UserGroup).NotFoundMessage(groupMemberId));
-
-            if (newGroupMember.GroupId != groupId)
-                return Result<bool>.Error("Member not from current group");
-
-            if (newGroupMember.Status == UserGroupStatus.Member)
-                return Result<bool>.Error("User is already member of group");
-
-            newGroupMember.Status = UserGroupStatus.Member;
-            newGroupMember.PrepareToUpdate(_identityService);
-
-            _db.UserGroups.Update(newGroupMember);
-            await _db.SaveChangesAsync();
-
-            return Result<bool>.Success();
-        }
-
-        public async Task<Result<CommentViewModel>> CreateCommentAsync(CommentCreateModel model)
-        {
-            if (!await IsExistAsync(x => x.Id == model.GroupId))
-                return Result<CommentViewModel>.NotFound($"Group with ID ({model.GroupId}) not found");
-
-            var group = Exists.First();
-
-            if (!await _postService.IsExistAsync(s => s.Id == model.PostId))
-                return Result<CommentViewModel>.NotFound($"Post with ID ({model.PostId}) not found");
-
-            var post = _postService.Exists.First();
-
-            if (post.GroupId != group.Id)
-                return Result<CommentViewModel>.NotFound($"This post isn't in this group");
-
-            return await _commentService.CreateCommentAsync(model);
         }
 
         public async Task<Result<GroupViewModel>> CreateGroupAsync(GroupCreateModel model)
@@ -183,42 +118,6 @@ namespace DUT.Application.Services.Implementations
             return Result<GroupViewModel>.SuccessWithData(groupToView);
         }
 
-        public async Task<Result<GroupInviteViewModel>> CreateGroupInviteAsync(GroupInviteCreateModel model)
-        {
-            if (!await IsExistAsync(s => s.Id == model.GroupId))
-                return Result<GroupInviteViewModel>.NotFound("Group not found");
-
-            if (await _db.GroupInvites.AsNoTracking().CountAsync(s => s.GroupId == model.GroupId) >= 5)
-                return Result<GroupInviteViewModel>.Error("One group must be have max 5 invites");
-
-            var newGroupInvite = new GroupInvite
-            {
-                ActiveFrom = model.ActiveFrom,
-                ActiveTo = model.ActiveTo,
-                Name = model.Name,
-                IsActive = model.IsActive,
-                CodeJoin = Generator.CreateGroupInviteCode(),
-                GroupId = model.GroupId.Value,
-            };
-            newGroupInvite.PrepareToCreate(_identityService);
-            await _db.GroupInvites.AddAsync(newGroupInvite);
-            await _db.SaveChangesAsync();
-            return Result<GroupInviteViewModel>.SuccessWithData(_mapper.Map<GroupInviteViewModel>(newGroupInvite));
-        }
-
-        public async Task<Result<PostViewModel>> CreateGroupPostAsync(PostCreateModel model)
-        {
-            if (!await IsExistAsync(x => x.Id == model.GroupId))
-                return Result<PostViewModel>.NotFound($"Group with ID ({model.GroupId}) not found");
-            return await _postService.CreatePostAsync(model);
-        }
-
-        public async Task<Result<List<UserGroupRoleViewModel>>> GetAllGroupRolesAsync()
-        {
-            return Result<List<UserGroupRoleViewModel>>.SuccessWithData(
-                _mapper.Map<List<UserGroupRoleViewModel>>(await _db.UserGroupRoles.AsNoTracking().ToListAsync()));
-        }
-
         public async Task<Result<List<GroupViewModel>>> GetAllGroupsAsync(int count, int afterId)
         {
             var groups = await _db.Groups
@@ -242,98 +141,6 @@ namespace DUT.Application.Services.Implementations
             return Result<GroupViewModel>.SuccessWithData(groupToView);
         }
 
-        public async Task<Result<List<GroupInviteViewModel>>> GetGroupInvitesByGroupIdAsync(int groupId)
-        {
-            if (!await IsExistAsync(s => s.Id == groupId))
-                return Result<List<GroupInviteViewModel>>.NotFound("Group not found");
-            var groupInvitesFromDb = await _db.GroupInvites
-                .AsNoTracking()
-                .Where(x => x.GroupId == groupId)
-                .OrderByDescending(s => s.CreatedAt)
-                .ToListAsync();
-
-            var groupInvitesToViews = _mapper.Map<List<GroupInviteViewModel>>(groupInvitesFromDb);
-
-            return Result<List<GroupInviteViewModel>>.SuccessWithData(groupInvitesToViews);
-        }
-
-        public async Task<Result<GroupMemberViewModel>> GetGroupMemberByIdAsync(int groupId, int memberId)
-        {
-            if (!await IsExistAsync(x => x.Id == groupId))
-                return Result<GroupMemberViewModel>.NotFound($"Group with ID ({groupId}) not found");
-
-            var groupMember = await _db.UserGroups
-                .AsNoTracking()
-                .Include(x => x.User)
-                .Include(x => x.UserGroupRole)
-                .FirstOrDefaultAsync(x => x.Id == memberId);
-
-            if (groupMember == null)
-                return Result<GroupMemberViewModel>.NotFound($"Member with ID {memberId} not found");
-
-            if (groupMember.GroupId != groupId)
-                return Result<GroupMemberViewModel>.Error("Group don't have this member");
-
-            var groupMemberToView = groupMember.MapToView();
-            return Result<GroupMemberViewModel>.SuccessWithData(groupMemberToView);
-        }
-
-        public async Task<Result<List<GroupMemberViewModel>>> GetGroupMembersAsync(int groupId, int afterId = int.MaxValue, int count = 20, int status = 0)
-        {
-            if (!await IsExistAsync(x => x.Id == groupId))
-                return Result<List<GroupMemberViewModel>>.NotFound($"Group with ID ({groupId}) not found");
-
-            var userGroupRoles = new List<UserGroupRole>();
-
-            var query = _db.UserGroups
-                .AsNoTracking()
-                .Include(x => x.User)
-                .Where(x => x.GroupId == groupId && x.UserId < afterId)
-                .OrderByDescending(x => x.Id)
-                .Take(count);
-            if (status > 0 && status < 4)
-            {
-                query = query.Where(x => x.Status == (UserGroupStatus)status);
-            }
-
-            var groupMembers = await query.ToListAsync();
-
-            foreach (var groupMember in groupMembers)
-            {
-                var userGroupRole = userGroupRoles.FirstOrDefault(s => s.Id == groupMember.UserGroupRoleId);
-                if (userGroupRole == null)
-                {
-                    var currentUserGroupRole = await _db.UserGroupRoles.AsNoTracking().FirstOrDefaultAsync(s => s.Id == groupMember.UserGroupRoleId);
-                    userGroupRoles.Add(currentUserGroupRole);
-                    groupMember.UserGroupRole = currentUserGroupRole;
-                }
-                else
-                {
-                    groupMember.UserGroupRole = userGroupRole;
-                }
-            }
-
-            if (groupMembers == null)
-                return Result<List<GroupMemberViewModel>>.Success();
-
-            var groupMembersToView = groupMembers.MapToViews(false);
-            return Result<List<GroupMemberViewModel>>.SuccessWithData(groupMembersToView);
-        }
-
-        public async Task<Result<PostViewModel>> GetGroupPostByIdAsync(int postId, int groupId)
-        {
-            if (!await IsExistAsync(x => x.Id == groupId))
-                return Result<PostViewModel>.NotFound($"Group with ID ({groupId}) not found");
-            return await _postService.GetPostByIdAsync(postId, groupId);
-        }
-
-        public async Task<Result<List<PostViewModel>>> GetGroupPostsAsync(int groupId, int skip = 0, int count = 20)
-        {
-            if (!await IsExistAsync(x => x.Id == groupId))
-                return Result<List<PostViewModel>>.NotFound($"Group with ID ({groupId}) not found");
-            return await _postService.GetPostsByGroupIdAsync(groupId, skip, count);
-        }
-
         public async Task<Result<List<GroupViewModel>>> GetGroupsBySpecialtyIdAsync(int specialtyId)
         {
             var groups = await _db.Groups
@@ -342,24 +149,6 @@ namespace DUT.Application.Services.Implementations
                 .OrderBy(s => s.Name).ThenBy(s => s.Course)
                 .ToListAsync();
             return Result<List<GroupViewModel>>.SuccessWithData(_mapper.Map<List<GroupViewModel>>(groups));
-        }
-
-        public async Task<Result<List<CommentViewModel>>> GetPostCommentsAsync(int groupId, int postId, int skip = 0, int count = 20)
-        {
-            if (!await IsExistAsync(x => x.Id == groupId))
-                return Result<List<CommentViewModel>>.NotFound($"Group with ID ({groupId}) not found");
-
-            var group = Exists.First();
-
-            if (!await _postService.IsExistAsync(s => s.Id == postId))
-                return Result<List<CommentViewModel>>.NotFound($"Post with ID ({postId}) not found");
-
-            var post = _postService.Exists.First();
-
-            if (post.GroupId != group.Id)
-                return Result<List<CommentViewModel>>.NotFound($"This post isn't in this group");
-
-            return await _commentService.GetCommentsByPostIdAsync(postId, skip, count);
         }
 
         public async Task<Result<List<GroupShortViewModel>>> GetUserGroupsAsync(int userId)
@@ -393,45 +182,6 @@ namespace DUT.Application.Services.Implementations
             await _db.SaveChangesAsync();
 
             return Result<GroupViewModel>.SuccessWithData(_mapper.Map<GroupViewModel>(group));
-        }
-
-        public async Task<Result<bool>> RemoveCommentAsync(int groupId, int postId, long commentId)
-        {
-            if (!await IsExistAsync(x => x.Id == groupId))
-                return Result<bool>.NotFound($"Group with ID ({groupId}) not found");
-
-            var group = Exists.First();
-
-            if (!await _postService.IsExistAsync(s => s.Id == postId))
-                return Result<bool>.NotFound($"Post with ID ({postId}) not found");
-
-            var post = _postService.Exists.First();
-
-            if (post.GroupId != group.Id)
-                return Result<bool>.NotFound($"This post isn't in this group");
-
-            return await _commentService.RemoveCommentAsync(commentId);
-        }
-
-        public async Task<Result<bool>> RemoveGroupInviteAsync(int groupId, Guid groupInviteId)
-        {
-            var groupInvite = await _db.GroupInvites.AsNoTracking().FirstOrDefaultAsync(x => x.Id == groupInviteId);
-            if (groupInvite == null)
-                return Result<bool>.NotFound("Group invite not found");
-
-            if (groupInvite.GroupId != groupId)
-                return Result<bool>.Error("Incorrect groupId");
-
-            _db.GroupInvites.Remove(groupInvite);
-            await _db.SaveChangesAsync();
-            return Result<bool>.Success();
-        }
-
-        public async Task<Result<bool>> RemoveGroupPostAsync(int postId, int groupId)
-        {
-            if (!await IsExistAsync(x => x.Id == groupId))
-                return Result<bool>.NotFound($"Group with ID ({groupId}) not found");
-            return await _postService.RemovePostAsync(postId, groupId);
         }
 
         public async Task<Result<List<GroupViewModel>>> SearchGroupsAsync(SearchGroupOptions options)
@@ -498,75 +248,6 @@ namespace DUT.Application.Services.Implementations
             var updatedGroupMember = _mapper.Map<GroupMemberViewModel>(groupMember);
 
             return Result<GroupMemberViewModel>.SuccessWithData(updatedGroupMember);
-        }
-
-        public async Task<Result<CommentViewModel>> UpdateCommentAsync(CommentEditModel model)
-        {
-            if (!await IsExistAsync(x => x.Id == model.GroupId))
-                return Result<CommentViewModel>.NotFound($"Group with ID ({model.GroupId}) not found");
-
-            var group = Exists.First();
-
-            if (!await _postService.IsExistAsync(s => s.Id == model.PostId))
-                return Result<CommentViewModel>.NotFound($"Post with ID ({model.PostId}) not found");
-
-            var post = _postService.Exists.First();
-
-            if (post.GroupId != group.Id)
-                return Result<CommentViewModel>.NotFound($"This post isn't in this group");
-
-            return await _commentService.UpdateCommentAsync(model);
-        }
-
-        public async Task<Result<GroupInviteViewModel>> UpdateGroupInviteAsync(GroupInviteEditModel model)
-        {
-            var groupInviteFromDb = await _db.GroupInvites.FindAsync(model.Id);
-            if (groupInviteFromDb == null)
-                return Result<GroupInviteViewModel>.NotFound("Group invite not found");
-
-            groupInviteFromDb.Name = model.Name;
-            groupInviteFromDb.ActiveFrom = model.ActiveFrom;
-            groupInviteFromDb.ActiveTo = model.ActiveTo;
-            groupInviteFromDb.IsActive = model.IsActive;
-            groupInviteFromDb.PrepareToUpdate(_identityService);
-
-            _db.GroupInvites.Update(groupInviteFromDb);
-            await _db.SaveChangesAsync();
-
-            return Result<GroupInviteViewModel>.SuccessWithData(_mapper.Map<GroupInviteViewModel>(groupInviteFromDb));
-        }
-
-        public async Task<Result<GroupMemberViewModel>> UpdateGroupMemberAsync(GroupMemberEditModel model)
-        {
-            if (!await IsExistAsync(s => s.Id == model.GroupId))
-                return Result<GroupMemberViewModel>.NotFound($"Group with ID ({model.GroupId}) not found");
-
-            if (!await _db.UserGroupRoles.AsNoTracking().AnyAsync(s => s.Id == model.UserGroupRoleId))
-                return Result<GroupMemberViewModel>.NotFound($"Role with ID ({model.UserGroupRoleId}) not found");
-
-            var currentGroupMember = await _db.UserGroups.FindAsync(model.Id);
-            if (currentGroupMember == null)
-                return Result<GroupMemberViewModel>.NotFound($"Member not found");
-
-            if (currentGroupMember.GroupId != model.GroupId)
-                return Result<GroupMemberViewModel>.Error("Incorrect groupId");
-
-            currentGroupMember.Title = model.Title;
-            currentGroupMember.Status = model.Status;
-            currentGroupMember.UserGroupRoleId = model.UserGroupRoleId;
-            currentGroupMember.PrepareToUpdate(_identityService);
-
-            _db.UserGroups.Update(currentGroupMember);
-            await _db.SaveChangesAsync();
-
-            return Result<GroupMemberViewModel>.Success();
-        }
-
-        public async Task<Result<PostViewModel>> UpdateGroupPostAsync(PostEditModel model)
-        {
-            if (!await IsExistAsync(x => x.Id == model.GroupId))
-                return Result<PostViewModel>.NotFound($"Group with ID ({model.GroupId}) not found");
-            return await _postService.UpdatePostAsync(model);
         }
     }
 }

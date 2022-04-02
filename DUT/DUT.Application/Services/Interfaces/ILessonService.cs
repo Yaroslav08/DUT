@@ -10,9 +10,5 @@ namespace DUT.Application.Services.Interfaces
         Task<Result<LessonViewModel>> CreateLessonAsync(LessonCreateModel lesson);
         Task<Result<LessonViewModel>> UpdateLessonAsync(LessonEditModel lesson);
         Task<Result<bool>> RemoveLessonAsync(long id);
-        Task<Result<LessonViewModel>> CreateJournalAsync(int subjectId, long lessonId);
-        Task<Result<LessonViewModel>> UpdateJournalAsync(int subjectId, long lessonId, Journal journal);
-        Task<Result<LessonViewModel>> RemoveJournalAsync(int subjectId, long lessonId);
-        Task<Result<LessonViewModel>> SynchronizeJournalAsync(int subjectId, long lessonId);
     }
 }

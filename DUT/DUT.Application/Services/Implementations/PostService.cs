@@ -6,7 +6,6 @@ using DUT.Application.ViewModels.Post;
 using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
-
 namespace DUT.Application.Services.Implementations
 {
     public class PostService : BaseService<Post>, IPostService
@@ -60,6 +59,7 @@ namespace DUT.Application.Services.Implementations
 
             if (post.GroupId != groupId)
                 return Result<PostViewModel>.NotFound("This post not from this group");
+
             var postToView = _mapper.Map<PostViewModel>(post);
             postToView.CountComments = await _db.PostComments.CountAsync(s => s.PostId == postId);
 
@@ -72,7 +72,11 @@ namespace DUT.Application.Services.Implementations
             if (postToDelete == null)
                 return Result<bool>.NotFound("Post not found");
 
-            if(postToDelete.GroupId != groupId)
+            if (!_identityService.IsAdministrator())
+                if (postToDelete.UserId != _identityService.GetUserId())
+                    return Result<bool>.Error("Access denited");
+
+            if (postToDelete.GroupId != groupId)
                 return Result<bool>.NotFound("This group don`t have current post");
 
             _db.Posts.Remove(postToDelete);
@@ -85,6 +89,10 @@ namespace DUT.Application.Services.Implementations
             var postToUpdate = await _db.Posts.AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.Id);
             if (postToUpdate == null)
                 return Result<PostViewModel>.NotFound("Post not found");
+
+            if (!_identityService.IsAdministrator())
+                if (postToUpdate.UserId != _identityService.GetUserId())
+                    return Result<PostViewModel>.Error("Access denited");
 
             postToUpdate.Title = model.Title;
             postToUpdate.Content = model.Content;

@@ -128,9 +128,9 @@ namespace DUT.Application.Tests.Services
                     }
             };
 
-            var lessonService = new LessonService(null, null, mapperMock.Object, dbContext, null);
+            var journalService = new JournalService(mapperMock.Object, dbContext, null);
 
-            var res = await lessonService.UpdateJournalAsync(1, 1, newJournal);
+            var res = await journalService.UpdateJournalAsync(1, 1, newJournal);
 
             Assert.True(res.IsSuccess);
             Assert.NotNull(res.Data);
@@ -250,9 +250,9 @@ namespace DUT.Application.Tests.Services
                     }
             };
 
-            var lessonService = new LessonService(null, null, mapperMock.Object, dbContext, null);
+            var journalService = new JournalService(mapperMock.Object, dbContext, null);
 
-            var res = await lessonService.UpdateJournalAsync(1, 1, newJournal);
+            var res = await journalService.UpdateJournalAsync(1, 1, newJournal);
 
             Assert.True(res.IsError);
             Assert.Equal("Студент П'ять Пятч не існує", res.ErrorMessage);
