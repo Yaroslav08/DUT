@@ -2,6 +2,7 @@
 using DUT.Application.Services.Interfaces;
 using DUT.Application.ViewModels.User;
 using DUT.Constants;
+using DUT.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DUT.Web.Controllers.V1
@@ -73,6 +74,12 @@ namespace DUT.Web.Controllers.V1
         {
             var user = await _userService.GetFullInfoUserByIdAsync(_identityService.GetUserId());
             return JsonResult(user);
+        }
+
+        [HttpPut("notifications")]
+        public async Task<IActionResult> UpdateNotificationSettings([FromBody] NotificationSettings model)
+        {
+            return JsonResult(await _userService.UpdateNotificationSettingsAsync(_identityService.GetUserId(), model));
         }
     }
 }

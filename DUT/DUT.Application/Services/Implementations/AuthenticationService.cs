@@ -282,6 +282,15 @@ namespace DUT.Application.Services.Implementations
 
             var newUser = new User(model.FirstName, null, model.LastName, model.Login, Generator.GetUsername());
             newUser.PasswordHash = model.Password.GeneratePasswordHash();
+            newUser.NotificationSettings = new NotificationSettings
+            {
+                AcceptedInGroup = true,
+                ChangePassword = true,
+                Logout = true,
+                NewLogin = true,
+                NewPost = true,
+                Welcome = true
+            };
 
             newUser.PrepareToCreate();
 

@@ -42,9 +42,17 @@ namespace DUT.Application.Services.Implementations
 
             var newUser = new User(model.FirstName, model.MiddleName, model.LastName, model.Login, null);
             newUser.UserName = model.UserName ?? Generator.GetUsername();
-            newUser.PrepareToCreate(_identityService);
-            newUser.Login = model.Login;
             newUser.PasswordHash = model.Password.GeneratePasswordHash();
+            newUser.NotificationSettings = new NotificationSettings
+            {
+                AcceptedInGroup = true,
+                ChangePassword = true,
+                Logout = true,
+                NewLogin = true,
+                NewPost = true,
+                Welcome = true
+            };
+            newUser.PrepareToCreate(_identityService);
             await _db.Users.AddAsync(newUser);
             await _db.SaveChangesAsync();
 
@@ -167,6 +175,24 @@ namespace DUT.Application.Services.Implementations
             var result = await query.OrderBy(x => x.Id).ToListAsync();
 
             return Result<List<UserShortViewModel>>.SuccessWithData(_mapper.Map<List<UserShortViewModel>>(result));
+        }
+
+        public async Task<Result<NotificationSettings>> UpdateNotificationSettingsAsync(int userId, NotificationSettings notificationSettings)
+        {
+            if (!_identityService.IsAdministrator())
+                if (userId != _identityService.GetUserId())
+                    return Result<NotificationSettings>.Error("Access denited");
+
+            var userToUpdate = await _db.Users.FindAsync(userId);
+
+            userToUpdate.NotificationSettings = notificationSettings;
+
+            userToUpdate.PrepareToUpdate(_identityService);
+
+            _db.Users.Update(userToUpdate);
+            await _db.SaveChangesAsync();
+
+            return Result<NotificationSettings>.SuccessWithData(notificationSettings);
         }
 
         public async Task<Result<UserViewModel>> UpdateUsernameAsync(UsernameUpdateModel model)

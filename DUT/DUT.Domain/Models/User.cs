@@ -29,7 +29,7 @@ namespace DUT.Domain.Models
         [Required]
         public bool LockoutEnabled { get; set; }
         public DateTime? LockoutEnd { get; set; }
-        public UserNotifications UserNotifications { get; set; }
+        public NotificationSettings NotificationSettings { get; set; }
         public List<Session> Sessions { get; set; }
         public List<Notification> Notifications { get; set; }
         public List<UserGroup> UserGroups { get; set; }
@@ -72,7 +72,7 @@ namespace DUT.Domain.Models
         }
     }
 
-    public class UserNotifications
+    public class NotificationSettings
     {
         public bool Welcome { get; set; }
         public bool AcceptedInGroup { get; set; }

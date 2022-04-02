@@ -15,5 +15,6 @@ namespace DUT.Application.Services.Interfaces
         Task<Result<UserFullViewModel>> GetFullInfoUserByIdAsync(int id);
         Task<Result<UserViewModel>> UpdateUsernameAsync(UsernameUpdateModel model);
         Task<Result<List<UserShortViewModel>>> SearchUsersAsync(SearchUserOptions searchUserOptions);
+        Task<Result<NotificationSettings>> UpdateNotificationSettingsAsync(int userId, NotificationSettings notificationSettings);
     }
 }

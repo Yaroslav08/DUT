@@ -10,9 +10,9 @@ namespace DUT.Infrastructure.Data.Configurations
         public void Configure(EntityTypeBuilder<User> builder)
         {
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.UserNotifications).HasConversion(
+            builder.Property(x => x.NotificationSettings).HasConversion(
                 x => x.ToJson(),
-                s => s.FromJson<UserNotifications>());
+                s => s.FromJson<NotificationSettings>());
         }
     }
 }
