@@ -34,6 +34,9 @@ namespace DUT.Application.Services.Implementations
 
             var subject = _subjectService.Exists.First();
 
+            if (lesson.LessonType == LessonType.Exam && !subject.Config.WithExam)
+                return Result<LessonViewModel>.Error("Exam lesson can't be create due to config");
+
             if (subject.IsTemplate || subject.GroupId == null)
                 return Result<LessonViewModel>.Error("Can't create lesson due to this subject is template");
 

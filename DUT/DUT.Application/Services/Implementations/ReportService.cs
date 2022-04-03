@@ -6,6 +6,7 @@ using DUT.Application.ViewModels.Report;
 using DUT.Constants.Extensions;
 using DUT.Domain.Models;
 using DUT.Infrastructure.Data.Context;
+using Force.DeepCloner;
 using Microsoft.EntityFrameworkCore;
 namespace DUT.Application.Services.Implementations
 {
@@ -117,7 +118,7 @@ namespace DUT.Application.Services.Implementations
             currentReport.IsDraft = model.IsDraft;
             currentReport.Type = model.Type;
 
-            if (TrySynchronizeMarkMatrix(currentReport, model, out var error))
+            if (!TrySynchronizeMarkMatrix(currentReport, model, out var error))
             {
                 return Result<ReportViewModel>.Error(error);
             }
@@ -126,7 +127,7 @@ namespace DUT.Application.Services.Implementations
             _db.Reports.Update(currentReport);
             await _db.SaveChangesAsync();
 
-            var updatedReport = _mapper.Map<ReportViewModel>(model);
+            var updatedReport = _mapper.Map<ReportViewModel>(currentReport);
 
             return Result<ReportViewModel>.SuccessWithData(updatedReport);
         }
@@ -176,20 +177,24 @@ namespace DUT.Application.Services.Implementations
                 return false;
             }
 
-            var diff = reportEditModel.Marks.Select(s => s.Id).Except(currentReport.Marks.Select(s => s.Id));
-            if (diff != null || diff.Count() > 0)
-            {
-                error = $"Items with ID ({string.Join(",", diff)}) not valid";
-                return false;
-            }
+            //var diff = reportEditModel.Marks.Select(s => s.Id).Except(currentReport.Marks?.Select(s => s.Id));
+            //if (diff != null || diff.Count() > 0)
+            //{
+            //    error = $"Items with ID ({string.Join(",", diff)}) not valid";
+            //    return false;
+            //}
 
             if (currentReport.Type == ReportType.Finall)
+            {
+                currentReport.Marks = new List<Student>();
                 foreach (var studentMark in currentReport.CalculatedMarks)
                 {
+                    var finallMark = studentMark.DeepClone();
                     var mark = reportEditModel.Marks?.FirstOrDefault(s => s.Id == studentMark.Id);
-                    studentMark.Mark = mark?.Mark;
-                    currentReport.Marks.Add(studentMark);
+                    finallMark.Mark = mark?.Mark;
+                    currentReport.Marks.Add(finallMark);
                 }
+            }
 
             error = null;
             return true;

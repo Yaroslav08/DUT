@@ -89,10 +89,9 @@ namespace DUT.Application.Services.Implementations
             if (lesson.Journal == null)
                 await FillJournalAsync(lesson, subject.GroupId.Value);
 
-            if (!TryMapMarksInJournal(lesson.Journal, journal, out var error))
-            {
-                return Result<LessonViewModel>.Error(error);
-            }
+            var res = await MapMarksInJournalAsync(subject, lesson, journal);
+            if (!res.Success)
+                return Result<LessonViewModel>.Error(res.Error);
 
             lesson.PrepareToUpdate(_identityService);
 
@@ -125,8 +124,12 @@ namespace DUT.Application.Services.Implementations
 
 
 
-        private bool TryMapMarksInJournal(Journal currentJournal, Journal newJournal, out string error)
+        private async Task<(bool Success, string Error)> MapMarksInJournalAsync(Subject subject, Lesson currentLesson, Journal newJournal)
         {
+            string error = null;
+
+            var currentJournal = currentLesson.Journal;
+
             var res = newJournal.Students.Select(s => s.Id).Except(currentJournal.Students.Select(s => s.Id));
 
             if (res != null && res.Count() > 0)
@@ -135,15 +138,67 @@ namespace DUT.Application.Services.Implementations
                     error = $"Студент {newJournal.Students.FirstOrDefault(s => s.Id == res.First()).Name} не існує";
                 else
                     error = $"Студентів ({string.Join(",", newJournal.Students.Where(s => res.Contains(s.Id)).Select(s => s.Name))}) не існує";
-                return false;
+                return (false, error);
             }
+
+            var previewLessons = await _db.Lessons
+                .AsNoTracking()
+                .Where(s => s.SubjectId == subject.Id && s.Date < currentLesson.Date)
+                .OrderBy(s => s.CreatedAt)
+                .ToListAsync();
 
             foreach (var student in newJournal.Students)
             {
-                if (!ValidateMark(student.Mark))
+                if (!TryValidateMark(student.Mark, subject.Config, out var validError))
                 {
-                    error = $"Оцінка {student.Mark} не є доступною";
-                    return false;
+                    error = validError;
+                    return (false, error);
+                }
+
+
+                var currentSumOfMarks = GetStudentMarksUpToNow(previewLessons, student.Id);
+
+                if (subject.Config.WithExam)
+                {
+                    if (currentLesson.LessonType != LessonType.Exam)
+                    {
+                        if (currentSumOfMarks == subject.Config.MaxMarkUpToExam)
+                        {
+                            error = $"{currentJournal.Students.First(s => s.Id == student.Id).Name} is already have max mark";
+                            return (false, error);
+                        }
+                        if (int.TryParse(student.Mark, out var numberMark))
+                        {
+                            var diff = subject.Config.MaxMarkUpToExam - currentSumOfMarks;
+
+                            if (diff < numberMark)
+                            {
+                                student.Mark = diff.ToString();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (int.TryParse(student.Mark, out var numberMark))
+                        {
+                            if (numberMark > subject.Config.MaxMarkInExam)
+                            {
+                                error = $"Max mark in exam = {subject.Config.MaxMarkInExam}";
+                                return (false, error);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (int.TryParse(student.Mark, out var numberMark))
+                    {
+                        var diff = subject.Config.MaxMark - currentSumOfMarks;
+                        if (diff < numberMark)
+                        {
+                            student.Mark = (numberMark - diff).ToString();
+                        }
+                    }
                 }
                 currentJournal.Students.FirstOrDefault(s => s.Id == student.Id).Mark = student.Mark;
             }
@@ -151,23 +206,52 @@ namespace DUT.Application.Services.Implementations
             currentJournal.Statistics = GetJournalStatistics(currentJournal);
 
             error = null;
-            return true;
+            return (true, error);
         }
 
-        private bool ValidateMark(string mark)
+        private int GetStudentMarksUpToNow(List<Lesson> lessons, int studentId)
+        {
+            var studentMarks = lessons
+                .Select(s => s.Journal)
+                .Select(s => s.Students.FirstOrDefault(s => s.Id == studentId))
+                .Where(s => int.TryParse(s.Mark, out var numberMark))
+                .Sum(s => Convert.ToInt32(s.Mark));
+
+            return studentMarks;
+        }
+
+        private bool TryValidateMark(string mark, SubjectConfig config, out string error)
         {
             if (string.IsNullOrEmpty(mark))
+            {
+                error = null;
                 return true;
+            }
             if (char.IsLetter(mark[0]))
             {
                 mark = mark.ToLower();
-                return avalible.Contains(mark[0]);
+                var res = avalible.Contains(mark[0]);
+                error = res ? null : "Isn't valid mark";
+                return res;
             }
             if (char.IsDigit(mark[0]))
             {
                 var digitMark = Convert.ToInt32(mark);
-                return digitMark > 0;
+
+                if (digitMark < config.MinMarkPerLesson)
+                {
+                    error = $"Mark can't less then {config.MinMarkPerLesson}";
+                    return false;
+                }
+                if (digitMark > config.MaxMarkPerLesson)
+                {
+                    error = $"Mark can't more then {config.MaxMarkPerLesson}";
+                    return false;
+                }
+                error = null;
+                return true;
             }
+            error = "Some error";
             return false;
         }
 
@@ -231,6 +315,5 @@ namespace DUT.Application.Services.Implementations
                 lesson.Journal.Statistics = GetJournalStatistics(newJournal);
             }
         }
-
     }
 }
