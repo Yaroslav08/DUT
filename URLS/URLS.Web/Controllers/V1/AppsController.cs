@@ -28,12 +28,6 @@ namespace URLS.Web.Controllers.V1
             return JsonResult(await _appService.GetAppByIdAsync(id));
         }
 
-        [HttpPost("{id}/new-secret")]
-        public async Task<IActionResult> UpdateApp(int id)
-        {
-            return JsonResult(await _appService.ChangeAppSecretAsync(id));
-        }
-
         [HttpPost]
         public async Task<IActionResult> CreateApp([FromBody] AppCreateModel appModel)
         {
@@ -44,6 +38,12 @@ namespace URLS.Web.Controllers.V1
         public async Task<IActionResult> UpdateApp([FromBody] AppEditModel appModel)
         {
             return JsonResult(await _appService.UpdateAppAsync(appModel));
+        }
+
+        [HttpPost("{id}/new-secret")]
+        public async Task<IActionResult> UpdateApp(int id)
+        {
+            return JsonResult(await _appService.ChangeAppSecretAsync(id));
         }
 
         [HttpDelete("{id}")]

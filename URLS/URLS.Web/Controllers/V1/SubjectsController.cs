@@ -24,12 +24,6 @@ namespace URLS.Web.Controllers.V1
 
         #region Subjects
 
-        [HttpPost]
-        public async Task<IActionResult> CreateSubject([FromBody] SubjectCreateModel model)
-        {
-            return JsonResult(await _subjectService.CreateSubjectAsync(model));
-        }
-
         [HttpGet]
         public async Task<IActionResult> GetAllSubjects(int offset = 0, int count = 20)
         {
@@ -38,6 +32,12 @@ namespace URLS.Web.Controllers.V1
                 Offset = offset,
                 Count = count
             }));
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            return JsonResult(await _subjectService.GetSubjectByIdAsync(id));
         }
 
         [HttpGet("templates")]
@@ -51,10 +51,10 @@ namespace URLS.Web.Controllers.V1
             }));
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpPost]
+        public async Task<IActionResult> CreateSubject([FromBody] SubjectCreateModel model)
         {
-            return JsonResult(await _subjectService.GetSubjectByIdAsync(id));
+            return JsonResult(await _subjectService.CreateSubjectAsync(model));
         }
 
         [HttpPut("{id}")]
@@ -68,6 +68,18 @@ namespace URLS.Web.Controllers.V1
 
         #region Reports
 
+        [HttpGet("{subjectId}/reports")]
+        public async Task<IActionResult> GetAllReports(int subjectId)
+        {
+            return JsonResult(await _reportService.GetReportsBySubjectIdAsync(subjectId));
+        }
+
+        [HttpGet("{subjectId}/reports/{id}")]
+        public async Task<IActionResult> GetReportById(int subjectId, int id)
+        {
+            return JsonResult(await _reportService.GetReportIdAsync(subjectId, id));
+        }
+
         [HttpPost("{subjectId}/reports")]
         public async Task<IActionResult> CreateReport(int subjectId)
         {
@@ -80,18 +92,6 @@ namespace URLS.Web.Controllers.V1
             model.Id = id;
             model.SubjectId = subjectId;
             return JsonResult(await _reportService.UpdateReportAsync(model));
-        }
-
-        [HttpGet("{subjectId}/reports")]
-        public async Task<IActionResult> GetAllReports(int subjectId)
-        {
-            return JsonResult(await _reportService.GetReportsBySubjectIdAsync(subjectId));
-        }
-
-        [HttpGet("{subjectId}/reports/{id}")]
-        public async Task<IActionResult> GetReportById(int subjectId, int id)
-        {
-            return JsonResult(await _reportService.GetReportIdAsync(subjectId, id));
         }
 
         [HttpDelete("{subjectId}/reports/{id}")]
@@ -140,6 +140,12 @@ namespace URLS.Web.Controllers.V1
         #endregion
 
         #region Journals
+
+        [HttpGet("{subjectId}/lessons/{lessonId}/journal")]
+        public async Task<IActionResult> GetJournalByLesson(int subjectId, long lessonId)
+        {
+            return JsonResult(await _journalService.GetJournalAsync(subjectId, lessonId));
+        }
 
         [HttpPost("{subjectId}/lessons/{lessonId}/journal")]
         public async Task<IActionResult> CreateJournal(int subjectId, long lessonId)

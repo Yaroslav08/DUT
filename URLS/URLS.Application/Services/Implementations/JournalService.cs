@@ -122,6 +122,18 @@ namespace URLS.Application.Services.Implementations
             return Result<LessonViewModel>.SuccessWithData(updatedLesson);
         }
 
+        public async Task<Result<Journal>> GetJournalAsync(int subjectId, long lessonId)
+        {
+            var lesson = await _db.Lessons.AsNoTracking().FirstOrDefaultAsync(s => s.Id == lessonId);
+            if (lesson == null)
+                return Result<Journal>.NotFound(typeof(Lesson).NotFoundMessage(lessonId));
+
+            if (lesson.SubjectId != subjectId)
+                return Result<Journal>.Error("Lesson not in this subject");
+
+            return Result<Journal>.SuccessWithData(lesson.Journal);
+        }
+
 
 
         private async Task<(bool Success, string Error)> MapMarksInJournalAsync(Subject subject, Lesson currentLesson, Journal newJournal)

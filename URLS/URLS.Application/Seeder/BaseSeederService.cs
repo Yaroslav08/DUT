@@ -369,7 +369,7 @@ namespace URLS.Application.Seeder
             welcomeNotification.PrepareToCreate();
 
 
-            var adminRole = await _db.Roles.AsNoTracking().Select(s => new Role { Id = s.Id }).FirstOrDefaultAsync(s => s.Name == Roles.Admin);
+            var adminRole = await _db.Roles.AsNoTracking().FirstOrDefaultAsync(s => s.Name == Roles.Admin);
 
             var userRole = new UserRole
             {

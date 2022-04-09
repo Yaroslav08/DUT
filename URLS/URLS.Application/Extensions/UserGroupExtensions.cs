@@ -1,5 +1,6 @@
 ﻿using URLS.Application.ViewModels.Group;
 using URLS.Application.ViewModels.Group.GroupMember;
+using URLS.Application.ViewModels.Group.GroupRole;
 using URLS.Domain.Models;
 
 namespace URLS.Application.Extensions

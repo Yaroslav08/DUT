@@ -33,16 +33,16 @@ namespace URLS.Web.Controllers.V1
             return JsonResult(await _diplomaService.GetDiplomaTemplatesAsync());
         }
 
-        [HttpPost("templates")]
-        public async Task<IActionResult> CreateTemplate([FromBody] DiplomaTemplateCreateModel model)
-        {
-            return JsonResult(await _diplomaService.CreateDiplomaTemplateAsync(model));
-        }
-
         [HttpGet("templates/{id}")]
         public async Task<IActionResult> GetTemplateById(string id)
         {
             return JsonResult(await _diplomaService.GetDiplomaTemplateByIdAsync(id));
+        }
+
+        [HttpPost("templates")]
+        public async Task<IActionResult> CreateTemplate([FromBody] DiplomaTemplateCreateModel model)
+        {
+            return JsonResult(await _diplomaService.CreateDiplomaTemplateAsync(model));
         }
 
         [HttpPost("templates/{id}")]

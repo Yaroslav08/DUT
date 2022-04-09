@@ -1,6 +1,6 @@
 ﻿using URLS.Domain.Models;
 
-namespace URLS.Application.ViewModels.Group.GroupMember
+namespace URLS.Application.ViewModels.Group.GroupRole
 {
     public class UserGroupRoleViewModel
     {

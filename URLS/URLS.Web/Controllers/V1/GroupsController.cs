@@ -6,6 +6,8 @@ using URLS.Application.ViewModels.Post;
 using URLS.Application.ViewModels.Post.Comment;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using URLS.Application.ViewModels.Group.GroupRole;
+
 namespace URLS.Web.Controllers.V1
 {
     [ApiVersion("1.0")]
@@ -33,18 +35,6 @@ namespace URLS.Web.Controllers.V1
 
         #region Groups
 
-        [HttpPost]
-        public async Task<IActionResult> CreateGroup([FromBody] GroupCreateModel model)
-        {
-            return JsonResult(await _groupService.CreateGroupAsync(model));
-        }
-
-        [HttpPatch("{groupId}/increase-course")]
-        public async Task<IActionResult> IncreaseCourseInGroup(int groupId)
-        {
-            return JsonResult(await _groupService.IncreaseCourseOfGroupAsync(groupId));
-        }
-
         [HttpGet]
         public async Task<IActionResult> GetAllGroups(int afterId = int.MaxValue, int count = 20)
         {
@@ -55,6 +45,12 @@ namespace URLS.Web.Controllers.V1
         public async Task<IActionResult> GetGroupById(int id)
         {
             return JsonResult(await _groupService.GetGroupByIdAsync(id));
+        }
+
+        [HttpGet("my")]
+        public async Task<IActionResult> GetMyGroups()
+        {
+            return JsonResult(await _groupService.GetUserGroupsAsync(_identityService.GetUserId()));
         }
 
         [HttpGet("search")]
@@ -72,23 +68,23 @@ namespace URLS.Web.Controllers.V1
             }));
         }
 
-        [HttpGet("roles")]
-        public async Task<IActionResult> GetGroupRoles()
-        {
-            return JsonResult(await _groupRoleService.GetAllGroupRolesAsync());
-        }
-
-        [HttpGet("my")]
-        public async Task<IActionResult> GetMyGroups()
-        {
-            return JsonResult(await _groupService.GetUserGroupsAsync(_identityService.GetUserId()));
-        }
-
         [HttpPut("{groupId}/class-teacher")]
         public async Task<IActionResult> ModifyClassTeacherOfGroup(int groupId, [FromBody] GroupClassTeacherEditModel model)
         {
             model.GroupId = groupId;
             return JsonResult(await _groupService.UpdateClassTeacherGroupAsync(model));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateGroup([FromBody] GroupCreateModel model)
+        {
+            return JsonResult(await _groupService.CreateGroupAsync(model));
+        }
+
+        [HttpPatch("{groupId}/increase-course")]
+        public async Task<IActionResult> IncreaseCourseInGroup(int groupId)
+        {
+            return JsonResult(await _groupService.IncreaseCourseOfGroupAsync(groupId));
         }
 
         #endregion
@@ -125,6 +121,41 @@ namespace URLS.Web.Controllers.V1
             model.GroupId = groupId;
             model.Id = memberId;
             return JsonResult(await _groupMemberService.UpdateGroupMemberAsync(model));
+        }
+
+        #endregion
+
+        #region GroupRoles
+
+        [HttpGet("roles")]
+        public async Task<IActionResult> GetGroupRoles()
+        {
+            return JsonResult(await _groupRoleService.GetAllGroupRolesAsync());
+        }
+
+        [HttpGet("roles/{id}")]
+        public async Task<IActionResult> GetUserGroupRoleById(int id)
+        {
+            return JsonResult(await _groupRoleService.GetGroupRoleByIdAsync(id));
+        }
+
+        [HttpPost("roles")]
+        public async Task<IActionResult> CreateUserGroupRole([FromBody] UserGroupRoleCreateModel model)
+        {
+            return JsonResult(await _groupRoleService.CreateGroupRoleAsync(model));
+        }
+
+        [HttpPut("roles/{id}")]
+        public async Task<IActionResult> UpdateUserGroupRole(int id, [FromBody] UserGroupRoleEditModel model)
+        {
+            model.Id = id;
+            return JsonResult(await _groupRoleService.UpdateGroupRoleAsync(model));
+        }
+
+        [HttpDelete("roles/{id}")]
+        public async Task<IActionResult> RemoveUserGroupRole(int id)
+        {
+            return JsonResult(await _groupRoleService.RemoveGroupRoleAsync(id));
         }
 
         #endregion

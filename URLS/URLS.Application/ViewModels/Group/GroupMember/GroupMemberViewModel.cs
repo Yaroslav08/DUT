@@ -1,5 +1,7 @@
-﻿using URLS.Application.ViewModels.User;
+﻿using URLS.Application.ViewModels.Group.GroupRole;
+using URLS.Application.ViewModels.User;
 using URLS.Domain.Models;
+
 namespace URLS.Application.ViewModels.Group.GroupMember
 {
     public class GroupMemberViewModel

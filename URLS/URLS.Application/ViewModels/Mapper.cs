@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
+using System.Text;
 using URLS.Application.ViewModels.Apps;
 using URLS.Application.ViewModels.Diploma;
 using URLS.Application.ViewModels.Faculty;
 using URLS.Application.ViewModels.Group;
-using URLS.Application.ViewModels.Group.GroupMember;
+using URLS.Application.ViewModels.Group.GroupRole;
 using URLS.Application.ViewModels.Lesson;
 using URLS.Application.ViewModels.Notification;
 using URLS.Application.ViewModels.Post;
@@ -18,7 +19,6 @@ using URLS.Application.ViewModels.Timetable;
 using URLS.Application.ViewModels.University;
 using URLS.Application.ViewModels.User;
 using URLS.Application.ViewModels.User.UserInfo;
-using System.Text;
 
 namespace URLS.Application.ViewModels
 {

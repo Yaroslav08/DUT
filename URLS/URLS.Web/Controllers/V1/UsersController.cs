@@ -26,18 +26,25 @@ namespace URLS.Web.Controllers.V1
             return JsonResult(await _userService.GetLastUsersAsync(5));
         }
 
-        [HttpGet("teachers")]
-        public async Task<IActionResult> GetTeachers(int offset = 0, int count = 20)
-        {
-            return JsonResult(await _userService.GetTeachersAsync(offset, count));
-        }
-
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
             if (id == _identityService.GetUserId())
                 return await GetMe();
             return JsonResult(await _userService.GetUserByIdAsync(id));
+        }
+
+        [HttpGet("me")]
+        public async Task<IActionResult> GetMe()
+        {
+            var user = await _userService.GetFullInfoUserByIdAsync(_identityService.GetUserId());
+            return JsonResult(user);
+        }
+
+        [HttpGet("teachers")]
+        public async Task<IActionResult> GetTeachers(int offset = 0, int count = 20)
+        {
+            return JsonResult(await _userService.GetTeachersAsync(offset, count));
         }
 
         [HttpPost("search")]
@@ -59,13 +66,6 @@ namespace URLS.Web.Controllers.V1
             if (model.UserId == null)
                 model.UserId = _identityService.GetUserId();
             return JsonResult(await _userService.UpdateUsernameAsync(model));
-        }
-
-        [HttpGet("me")]
-        public async Task<IActionResult> GetMe()
-        {
-            var user = await _userService.GetFullInfoUserByIdAsync(_identityService.GetUserId());
-            return JsonResult(user);
         }
 
         [HttpPut("notifications")]
