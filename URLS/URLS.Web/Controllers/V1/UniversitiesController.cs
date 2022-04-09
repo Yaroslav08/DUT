@@ -20,10 +20,6 @@ namespace URLS.Web.Controllers.V1
         [HttpGet]
         public async Task<IActionResult> GetUniversity()
         {
-            if (!_permissionService.HasPermission(PermissionClaims.University, Permissions.CanView))
-            {
-                return JsonForbiddenResult();
-            }
             return JsonResult(await _universityService.GetUniversityAsync());
         }
 
@@ -36,20 +32,12 @@ namespace URLS.Web.Controllers.V1
         [HttpPost]
         public async Task<IActionResult> CreateUniversity([FromBody] UniversityCreateModel model)
         {
-            if (!_permissionService.HasPermission(PermissionClaims.University, Permissions.CanCreate))
-            {
-                return JsonForbiddenResult();
-            }
             return JsonResult(await _universityService.CreateUniversityAsync(model));
         }
 
         [HttpPut]
         public async Task<IActionResult> EditUniversity([FromBody] UniversityEditModel model)
         {
-            if (!_permissionService.HasPermission(PermissionClaims.University, Permissions.CanEdit))
-            {
-                return JsonForbiddenResult();
-            }
             return JsonResult(await _universityService.UpdateUniversityAsync(model));
         }
     }

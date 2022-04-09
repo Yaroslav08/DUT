@@ -63,7 +63,7 @@ builder.Services.AddSwaggerGen(s =>
     s.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
-        Title = "URLS API",
+        Title = "(Ukrainian Remote Learning System) API",
     });
 
 

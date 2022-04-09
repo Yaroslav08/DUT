@@ -20,16 +20,12 @@ namespace URLS.Web.Controllers.V1
         [HttpGet]
         public async Task<IActionResult> GetAllSpecialties()
         {
-            if (!_permissionService.HasPermission(PermissionClaims.Specialties, Permissions.CanViewAll))
-                return JsonForbiddenResult();
             return JsonResult(await _specialtyService.GetAllSpecialtiesAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetSpecialtyById(int id)
         {
-            if (!_permissionService.HasPermission(PermissionClaims.Specialties, Permissions.CanView))
-                return JsonForbiddenResult();
             return JsonResult(await _specialtyService.GetSpecialtyByIdAsync(id));
         }
 
@@ -42,16 +38,12 @@ namespace URLS.Web.Controllers.V1
         [HttpPost]
         public async Task<IActionResult> CreateSpecialty([FromBody] SpecialtyCreateModel model)
         {
-            if (!_permissionService.HasPermission(PermissionClaims.Specialties, Permissions.CanCreate))
-                return JsonForbiddenResult();
             return JsonResult(await _specialtyService.CreateSpecialtyAsync(model));
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateSpecialty([FromBody] SpecialtyEditModel model)
         {
-            if (!_permissionService.HasPermission(PermissionClaims.Specialties, Permissions.CanEdit))
-                return JsonForbiddenResult();
             return JsonResult(await _specialtyService.UpdateSpecialtyAsync(model));
         }
     }

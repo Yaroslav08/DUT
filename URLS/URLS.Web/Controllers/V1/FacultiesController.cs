@@ -20,40 +20,30 @@ namespace URLS.Web.Controllers.V1
         [HttpGet]
         public async Task<IActionResult> GetFaculties()
         {
-            if (!_permissionService.HasPermission(PermissionClaims.Faculties, Permissions.CanViewAll))
-                return JsonForbiddenResult();
             return JsonResult(await _facultyService.GetAllFacultiesAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetFacultyById(int id)
         {
-            if (!_permissionService.HasPermission(PermissionClaims.Faculties, Permissions.CanView))
-                return JsonForbiddenResult();
             return JsonResult(await _facultyService.GetFacultyByIdAsync(id));
         }
 
         [HttpGet("{facultyId}/specialties")]
         public async Task<IActionResult> GetFacultySpecialties(int facultyId)
         {
-            if (!_permissionService.HasPermission(PermissionClaims.Specialties, Permissions.CanViewAll))
-                return JsonForbiddenResult();
             return JsonResult(await _specialtyService.GetSpecialtiesByFacultyIdAsync(facultyId));
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateFaculty([FromBody] FacultyCreateModel model)
         {
-            if (!_permissionService.HasPermission(PermissionClaims.Faculties, Permissions.CanCreate))
-                return JsonForbiddenResult();
             return JsonResult(await _facultyService.CreateFacultyAsync(model));
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateFaculty([FromBody] FacultyEditModel model)
         {
-            if (!_permissionService.HasPermission(PermissionClaims.Faculties, Permissions.CanEdit))
-                return JsonForbiddenResult();
             return JsonResult(await _facultyService.UpdateFacultyAsync(model));
         }
     }

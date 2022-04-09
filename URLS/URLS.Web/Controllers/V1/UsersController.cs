@@ -23,8 +23,6 @@ namespace URLS.Web.Controllers.V1
         [HttpGet]
         public async Task<IActionResult> GetLastUsers()
         {
-            if (!_permissionService.HasPermission(PermissionClaims.Users, Permissions.CanViewAll))
-                return JsonForbiddenResult();
             return JsonResult(await _userService.GetLastUsersAsync(5));
         }
 
@@ -37,8 +35,6 @@ namespace URLS.Web.Controllers.V1
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
-            if (!_permissionService.HasPermission(PermissionClaims.Users, Permissions.CanView))
-                return JsonForbiddenResult();
             if (id == _identityService.GetUserId())
                 return await GetMe();
             return JsonResult(await _userService.GetUserByIdAsync(id));
@@ -47,16 +43,12 @@ namespace URLS.Web.Controllers.V1
         [HttpPost("search")]
         public async Task<IActionResult> SearchUsers([FromBody] SearchUserOptions searchUserOptions)
         {
-            if (!_permissionService.HasPermission(PermissionClaims.Users, Permissions.Search))
-                return JsonForbiddenResult();
             return JsonResult(await _userService.SearchUsersAsync(searchUserOptions));
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] UserCreateModel model)
         {
-            if (!_permissionService.HasPermission(PermissionClaims.Users, Permissions.CanCreate))
-                return JsonForbiddenResult();
             return JsonResult(await _userService.CreateUserAsync(model));
         }
 

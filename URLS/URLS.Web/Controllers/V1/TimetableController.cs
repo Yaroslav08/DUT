@@ -19,9 +19,6 @@ namespace URLS.Web.Controllers.V1
         [HttpGet]
         public async Task<IActionResult> GetGroupTimetable(int groupId, DateTime? from, DateTime? to)
         {
-            if (!_permissionService.HasPermission(PermissionClaims.Timetable, Permissions.CanView))
-                return JsonForbiddenResult();
-
             if (from == null)
                 from = DateTime.Today;
             if (to == null)
@@ -37,27 +34,18 @@ namespace URLS.Web.Controllers.V1
         [HttpPost]
         public async Task<IActionResult> CreateTimetable([FromBody] TimetableCreateModel timetable)
         {
-            if (!_permissionService.HasPermission(PermissionClaims.Timetable, Permissions.CanCreate))
-                return JsonForbiddenResult();
-
             return JsonResult(await _timetableService.CreateTimetableAsync(timetable));
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateTimetable([FromBody] TimetableCreateModel timetable)
         {
-            if (!_permissionService.HasPermission(PermissionClaims.Timetable, Permissions.CanEdit))
-                return JsonForbiddenResult();
-
             return JsonResult(await _timetableService.UpdateTimetableAsync(timetable));
         }
 
         [HttpDelete]
         public async Task<IActionResult> DeleteTimetable(long[] ids)
         {
-            if (!_permissionService.HasPermission(PermissionClaims.Timetable, Permissions.CanRemove))
-                return JsonForbiddenResult();
-
             return JsonResult(await _timetableService.RemoveTimetableAsync(ids));
         }
     }
