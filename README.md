@@ -1,1 +1,1 @@
-# DUT
+# URLS (Ukrainian Remote Learning System)
