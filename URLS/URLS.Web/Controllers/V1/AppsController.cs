@@ -17,9 +17,9 @@ namespace URLS.Web.Controllers.V1
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllApps()
+        public async Task<IActionResult> GetAllApps(int offset = 0, int limit = 20)
         {
-            return JsonResult(await _appService.GetAllAppsAsync());
+            return JsonResult(await _appService.GetAllAppsAsync(offset, limit));
         }
 
         [HttpGet("{id}")]

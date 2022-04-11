@@ -74,14 +74,14 @@ namespace URLS.Application.Services.Implementations
             return Result<AppViewModel>.SuccessWithData(_mapper.Map<AppViewModel>(appForDelete));
         }
 
-        public async Task<Result<List<AppViewModel>>> GetAllAppsAsync()
+        public async Task<Result<List<AppViewModel>>> GetAllAppsAsync(int offset = 0, int limit = 20)
         {
             var query = _db.Apps.AsNoTracking();
 
             if (!_identityService.IsAdministrator())
                 query = query.Where(s => s.UserId == _identityService.GetUserId());
 
-            query = query.OrderBy(s => s.Id);
+            query = query.OrderBy(s => s.Id).Skip(offset).Take(limit);
             var allApps = await query.ToListAsync();
 
             if (!allApps.Any())

@@ -6,7 +6,7 @@ namespace URLS.Application.Services.Interfaces
 {
     public interface IAppService : IBaseService<App>
     {
-        Task<Result<List<AppViewModel>>> GetAllAppsAsync();
+        Task<Result<List<AppViewModel>>> GetAllAppsAsync(int offset = 0, int limit = 20);
         Task<Result<AppViewModel>> GetAppByIdAsync(int id);
         Task<Result<AppViewModel>> CreateAppAsync(AppCreateModel app);
         Task<Result<AppViewModel>> UpdateAppAsync(AppEditModel app);
