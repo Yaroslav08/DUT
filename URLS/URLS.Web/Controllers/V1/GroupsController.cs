@@ -36,9 +36,9 @@ namespace URLS.Web.Controllers.V1
         #region Groups
 
         [HttpGet]
-        public async Task<IActionResult> GetAllGroups(int afterId = int.MaxValue, int count = 20)
+        public async Task<IActionResult> GetAllGroups(int offset = 0, int limit = 20)
         {
-            return JsonResult(await _groupService.GetAllGroupsAsync(afterId, count));
+            return JsonResult(await _groupService.GetAllGroupsAsync(offset, limit));
         }
 
         [HttpGet("{id}")]

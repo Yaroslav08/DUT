@@ -118,13 +118,12 @@ namespace URLS.Application.Services.Implementations
             return Result<GroupViewModel>.SuccessWithData(groupToView);
         }
 
-        public async Task<Result<List<GroupViewModel>>> GetAllGroupsAsync(int count, int afterId)
+        public async Task<Result<List<GroupViewModel>>> GetAllGroupsAsync(int offset = 0, int limit = 20)
         {
             var groups = await _db.Groups
                 .AsNoTracking()
-                .Where(s => s.Id < afterId)
                 .OrderByDescending(x => x.Id)
-                .Take(count)
+                .Skip(offset).Take(limit)
                 .ToListAsync();
             if (groups == null || groups.Count == 0)
                 return Result<List<GroupViewModel>>.Success();

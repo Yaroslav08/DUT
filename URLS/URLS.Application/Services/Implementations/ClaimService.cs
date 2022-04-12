@@ -21,9 +21,9 @@ namespace URLS.Application.Services.Implementations
             _identityService = identityService;
         }
 
-        public async Task<Result<List<ClaimViewModel>>> GetAllClaimsAsync()
+        public async Task<Result<List<ClaimViewModel>>> GetAllClaimsAsync(int offset = 0, int limit = 100)
         {
-            var roles = await _db.Claims.AsNoTracking().ToListAsync();
+            var roles = await _db.Claims.AsNoTracking().Skip(offset).Take(limit).ToListAsync();
 
             var rolesToView = _mapper.Map<List<ClaimViewModel>>(roles);
 

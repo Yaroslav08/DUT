@@ -71,7 +71,16 @@ namespace URLS.Application.Services.Implementations
             return Result<NotificationViewModel>.SuccessWithData(_mapper.Map<NotificationViewModel>(notification));
         }
 
-        public async Task<Result<bool>> SendNotifyByUserIdsAsync(Notification notification, IEnumerable<int> userIds)
+        public async Task<Result<bool>> SendNotifyToUserAsync(Notification notification, int userId)
+        {
+            notification.UserId = userId;
+            notification.PrepareToCreate(_identityService);
+            await _db.Notifications.AddAsync(notification);
+            await _db.SaveChangesAsync();
+            return Result<bool>.SuccessWithData(true);
+        }
+
+        public async Task<Result<bool>> SendNotifyToUsersAsync(Notification notification, IEnumerable<int> userIds)
         {
             var notifications = new List<Notification>();
 

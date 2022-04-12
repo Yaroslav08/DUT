@@ -155,7 +155,7 @@ namespace URLS.Application.Services.Implementations
 
             var userIds = await _db.UserRoles.AsNoTracking().Where(s => s.RoleId == model.Id).Select(s => s.UserId).ToListAsync();
 
-            var res = await _notificationService.SendNotifyByUserIdsAsync(NotificationsHelper.GetChangePermissionNotification(), userIds);
+            var res = await _notificationService.SendNotifyToUsersAsync(NotificationsHelper.GetChangePermissionNotification(), userIds);
 
             return Result<RoleViewModel>.SuccessWithData(_mapper.Map<RoleViewModel>(roleToUpdate));
         }

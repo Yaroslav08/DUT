@@ -1,7 +1,6 @@
 ﻿using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Report;
 using URLS.Domain.Models;
-
 namespace URLS.Application.Services.Interfaces
 {
     public interface IReportService : IBaseService<Report>

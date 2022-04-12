@@ -9,7 +9,7 @@ namespace URLS.Application.Services.Interfaces
     public interface IGroupService : IBaseService<Group>
     {
         Task<Result<List<GroupViewModel>>> GetGroupsBySpecialtyIdAsync(int specialtyId);
-        Task<Result<List<GroupViewModel>>> GetAllGroupsAsync(int count, int afterId);
+        Task<Result<List<GroupViewModel>>> GetAllGroupsAsync(int offset = 0, int limit = 20);
         Task<Result<GroupViewModel>> GetGroupByIdAsync(int id);
         Task<Result<List<GroupViewModel>>> SearchGroupsAsync(SearchGroupOptions options);
         Task<Result<GroupViewModel>> CreateGroupAsync(GroupCreateModel model);
