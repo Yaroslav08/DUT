@@ -157,12 +157,12 @@ namespace URLS.Application.Services.Implementations
 
         private string GetMarksForStudent(int studentId, List<Lesson> lessons)
         {
-            int finallMark = 0;
+            double finallMark = 0;
 
             foreach (var lesson in lessons)
             {
                 var mark = lesson.Journal?.Students?.FirstOrDefault(s => s.Id == studentId).Mark;
-                if (int.TryParse(mark, out var Mark) && Mark > 0)
+                if (double.TryParse(mark, out var Mark) && Mark > 0)
                     finallMark += Mark;
             }
 

@@ -179,7 +179,7 @@ namespace URLS.Application.Services.Implementations
                             error = $"{currentJournal.Students.First(s => s.Id == student.Id).Name} is already have max mark";
                             return (false, error);
                         }
-                        if (int.TryParse(student.Mark, out var numberMark))
+                        if (double.TryParse(student.Mark, out var numberMark))
                         {
                             var diff = subject.Config.MaxMarkUpToExam - currentSumOfMarks;
 
@@ -191,7 +191,7 @@ namespace URLS.Application.Services.Implementations
                     }
                     else
                     {
-                        if (int.TryParse(student.Mark, out var numberMark))
+                        if (double.TryParse(student.Mark, out var numberMark))
                         {
                             if (numberMark > subject.Config.MaxMarkInExam)
                             {
@@ -203,7 +203,7 @@ namespace URLS.Application.Services.Implementations
                 }
                 else
                 {
-                    if (int.TryParse(student.Mark, out var numberMark))
+                    if (double.TryParse(student.Mark, out var numberMark))
                     {
                         var diff = subject.Config.MaxMark - currentSumOfMarks;
                         if (diff < numberMark)
@@ -221,13 +221,13 @@ namespace URLS.Application.Services.Implementations
             return (true, error);
         }
 
-        private int GetStudentMarksUpToNow(List<Lesson> lessons, int studentId)
+        private double GetStudentMarksUpToNow(List<Lesson> lessons, int studentId)
         {
             var studentMarks = lessons
                 .Select(s => s.Journal)
                 .Select(s => s.Students.FirstOrDefault(s => s.Id == studentId))
-                .Where(s => int.TryParse(s.Mark, out var numberMark))
-                .Sum(s => Convert.ToInt32(s.Mark));
+                .Where(s => double.TryParse(s.Mark, out var numberMark))
+                .Sum(s => Convert.ToDouble(s.Mark));
 
             return studentMarks;
         }
@@ -241,15 +241,13 @@ namespace URLS.Application.Services.Implementations
             }
             if (char.IsLetter(mark[0]))
             {
-                mark = mark.ToLower();
+                mark = mark.Substring(0, 1).ToLower();
                 var res = avalible.Contains(mark[0]);
                 error = res ? null : "Isn't valid mark";
                 return res;
             }
-            if (char.IsDigit(mark[0]))
+            if (double.TryParse(mark, out var digitMark))
             {
-                var digitMark = Convert.ToInt32(mark);
-
                 if (digitMark < config.MinMarkPerLesson)
                 {
                     error = $"Mark can't less then {config.MinMarkPerLesson}";
@@ -272,7 +270,7 @@ namespace URLS.Application.Services.Implementations
             var countOfStudents = journal.Students.Count;
             var countOfExist = countOfStudents - journal.Students.Count(s => s.Mark != null && avalible.Contains(s.Mark[0]));
 
-            var countWithMarks = journal.Students.Count(s => int.TryParse(s.Mark, out var markNumber) && markNumber > 0);
+            var countWithMarks = journal.Students.Count(s => double.TryParse(s.Mark, out var markNumber) && markNumber > 0);
             var countWithoutMarks = countOfStudents - countWithMarks;
 
             return new JournalStatistics

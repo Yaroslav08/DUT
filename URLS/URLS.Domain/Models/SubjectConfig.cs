@@ -3,12 +3,12 @@
     public class SubjectConfig
     {
         public int RecommendedForCourse { get; set; }
-        public int MaxMarkPerLesson { get; set; }
-        public int MinMarkPerLesson { get; set;}
+        public double MaxMarkPerLesson { get; set; }
+        public double MinMarkPerLesson { get; set;}
         public bool WithExam { get; set; }
-        public int MaxMark { get; set; }
-        public int MaxMarkUpToExam { get; set; }
-        public int MaxMarkInExam { get; set; }
+        public double MaxMark { get; set; }
+        public double MaxMarkUpToExam { get; set; }
+        public double MaxMarkInExam { get; set; }
         public int CommonHours { get; set; }
         public int LectureHours { get; set; }
         public int PracticHours { get; set; }
