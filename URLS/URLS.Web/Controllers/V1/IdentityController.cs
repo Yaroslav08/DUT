@@ -1,93 +1,71 @@
-﻿using URLS.Application.Services.Interfaces;
-using URLS.Application.ViewModels.Identity;
-using URLS.Application.ViewModels.User;
-using URLS.Web.Filters;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using URLS.Application.Services.Interfaces;
+using URLS.Application.ViewModels.RoleClaim;
 namespace URLS.Web.Controllers.V1
 {
     [ApiVersion("1.0")]
     public class IdentityController : ApiBaseController
     {
-        private readonly IAuthenticationService _authenticationService;
-        private readonly ISessionService _sessionService;
         private readonly IIdentityService _identityService;
-        public IdentityController(IAuthenticationService authenticationService, ISessionService sessionService, IIdentityService identityService)
+        private readonly IRoleService _roleService;
+        private readonly IClaimService _claimService;
+        private readonly IPermissionService _permissionService;
+        public IdentityController(IIdentityService identityService, IRoleService roleService, IClaimService claimService, IPermissionService permissionService)
         {
-            _authenticationService = authenticationService;
-            _sessionService = sessionService;
             _identityService = identityService;
+            _roleService = roleService;
+            _claimService = claimService;
+            _permissionService = permissionService;
         }
 
-        #region Identity
+        #region Roles
 
-        [HttpGet("claims")]
-        public IActionResult GetClaims()
+        [HttpGet("roles")]
+        public async Task<IActionResult> GetAllRoles()
         {
-            var data = User.Claims.Select(x => new
-            {
-                Type = x.Type,
-                Value = x.Value
-            }).ToList();
-            return Ok(data);
+            return JsonResult(await _roleService.GetAllRolesAsync());
         }
 
-        [HttpPost("login")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Login([FromBody] LoginCreateModel model)
+        [HttpGet("roles/{id}")]
+        public async Task<IActionResult> GetRoleById(int id, bool withClaims = false)
         {
-            return JsonResult(await _authenticationService.LoginByPasswordAsync(model));
+            return JsonResult(await _roleService.GetRoleByIdAsync(id, withClaims));
         }
 
-        [HttpPost("registration")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Registration([FromBody] RegisterViewModel model)
+        [HttpPost("roles")]
+        public async Task<IActionResult> CreateRole([FromBody] RoleCreateModel model)
         {
-            return JsonResult(await _authenticationService.RegisterAsync(model));
+            return JsonResult(await _roleService.CreateRoleAsync(model));
         }
 
-        [HttpPost("logout")]
-        public async Task<IActionResult> Logout()
+        [HttpPut("roles/{id}")]
+        public async Task<IActionResult> UpdateRole(int id, [FromBody] RoleEditModel model)
         {
-            return JsonResult(await _authenticationService.LogoutAsync());
+            model.Id = id;
+            return JsonResult(await _roleService.UpdateRoleAsync(model));
         }
 
-        [HttpPost("config")]
-        public async Task<IActionResult> ConfigUser([FromBody] BlockUserModel model)
+        [HttpDelete("roles/{id}")]
+        public async Task<IActionResult> RemoveRole(int id)
         {
-            return JsonResult(await _authenticationService.BlockUserConfigAsync(model));
+            return JsonResult(await _roleService.RemoveRoleAsync(id));
         }
 
         #endregion
 
-        #region Sessions
+        #region Claims
 
-        [HttpGet("sessions")]
-        public async Task<IActionResult> GetActiveSessions(int userId = default, int q = 0, int offset = 0, int limit = 20)
+        [HttpGet("claims")]
+        public async Task<IActionResult> GetAllClaims()
         {
-            if (userId == default || userId < 1)
-                userId = _identityService.GetUserId();
-            return JsonResult(await _sessionService.GetAllSessionsByUserIdAsync(userId, q, offset, limit));
+            return JsonResult(await _claimService.GetAllClaimsAsync());
         }
 
-        [HttpGet("sessions/{id}")]
-        public async Task<IActionResult> GetSessionById(Guid id)
+        [HttpPut("claims/{id}")]
+        public async Task<IActionResult> UpdateClaim(int id, [FromBody] ClaimEditModel model)
         {
-            return JsonResult(await _sessionService.GetSessionByIdAsync(id));
-        }
-
-        [HttpDelete("sessions")]
-        public async Task<IActionResult> CloseSessions(int userId = default, bool withCurrent = false)
-        {
-            if (userId == default || userId < 1)
-                userId = _identityService.GetUserId();
-            return JsonResult(await _sessionService.CloseAllSessionsAsync(userId, withCurrent));
-        }
-
-        [HttpDelete("sessions/{id}")]
-        public async Task<IActionResult> CloseSessionById(Guid sessionId)
-        {
-            return JsonResult(await _sessionService.CloseSessionByIdAsync(sessionId));
+            model.Id = id;
+            return JsonResult(await _claimService.UpdateClaimAsync(model));
         }
 
         #endregion
