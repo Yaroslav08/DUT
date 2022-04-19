@@ -6,6 +6,8 @@ using URLS.Application.ViewModels.Post;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
+
 namespace URLS.Application.Services.Implementations
 {
     public class PostService : BaseService<Post>, IPostService
@@ -22,6 +24,12 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<PostViewModel>> CreatePostAsync(PostCreateModel model)
         {
+            var member = await GetMemberAsync(_identityService.GetUserId(), model.GroupId);
+            if (member == null)
+                return Result<PostViewModel>.Forbiden();
+            if (!member.UserGroupRole.Permissions.CanCreatePost)
+                return Result<PostViewModel>.Forbiden();
+
             var newPost = new Post
             {
                 Title = model.Title,
@@ -40,13 +48,18 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<List<PostViewModel>>> GetPostsByGroupIdAsync(int groupId, int skip = 0, int count = 20)
         {
-            var posts = await _db.Posts
-                .AsNoTracking()
-                .Where(x => x.GroupId == groupId)
+            var query = _db.Posts.AsNoTracking();
+
+            var member = await GetMemberAsync(_identityService.GetUserId(), groupId);
+            if (member == null)
+                query = query.Where(x => x.IsPublic);
+
+            query = query.Where(x => x.GroupId == groupId)
                 .Include(x => x.User)
                 .OrderByDescending(x => x.CreatedAt)
-                .Skip(skip).Take(count)
-                .ToListAsync();
+                .Skip(skip).Take(count);
+
+            var posts = await query.ToListAsync();
 
             return Result<List<PostViewModel>>.SuccessWithData(_mapper.Map<List<PostViewModel>>(posts));
         }
@@ -60,6 +73,10 @@ namespace URLS.Application.Services.Implementations
             if (post.GroupId != groupId)
                 return Result<PostViewModel>.NotFound("This post not from this group");
 
+            var member = await GetMemberAsync(_identityService.GetUserId(), groupId);
+            if (member == null && !post.IsPublic)
+                return Result<PostViewModel>.Forbiden();
+
             var postToView = _mapper.Map<PostViewModel>(post);
             postToView.CountComments = await _db.Comments.CountAsync(s => s.PostId == postId);
 
@@ -68,6 +85,12 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<bool>> RemovePostAsync(int postId, int groupId)
         {
+            var member = await GetMemberAsync(_identityService.GetUserId(), groupId);
+            if (member == null)
+                return Result<bool>.Forbiden();
+            if (!member.UserGroupRole.Permissions.CanRemovePost)
+                return Result<bool>.Forbiden();
+
             var postToDelete = await _db.Posts.AsNoTracking().FirstOrDefaultAsync(x => x.Id == postId);
             if (postToDelete == null)
                 return Result<bool>.NotFound("Post not found");
@@ -86,13 +109,19 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<PostViewModel>> UpdatePostAsync(PostEditModel model)
         {
+            var member = await GetMemberAsync(_identityService.GetUserId(), model.GroupId);
+            if (member == null)
+                return Result<PostViewModel>.Forbiden();
+            if (!member.UserGroupRole.Permissions.CanEditPost)
+                return Result<PostViewModel>.Forbiden();
+
             var postToUpdate = await _db.Posts.AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.Id);
             if (postToUpdate == null)
                 return Result<PostViewModel>.NotFound("Post not found");
 
             if (!_identityService.IsAdministrator())
-                if (postToUpdate.UserId != _identityService.GetUserId())
-                    return Result<PostViewModel>.Error("Access denited");
+                if (postToUpdate.UserId != _identityService.GetUserId() && !member.UserGroupRole.Permissions.CanEditAllPosts)
+                    return Result<PostViewModel>.Forbiden();
 
             postToUpdate.Title = model.Title;
             postToUpdate.Content = model.Content;
@@ -105,6 +134,13 @@ namespace URLS.Application.Services.Implementations
             await _db.SaveChangesAsync();
 
             return Result<PostViewModel>.SuccessWithData(_mapper.Map<PostViewModel>(postToUpdate));
+        }
+
+        private async Task<UserGroup> GetMemberAsync(int userId, int groupId)
+        {
+            return await _db.UserGroups.AsNoTracking()
+                .Include(s => s.UserGroupRole)
+                .FirstOrDefaultAsync(x => x.UserId == userId && x.GroupId == groupId);
         }
     }
 }
