@@ -7,7 +7,6 @@ using URLS.Constants;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
-using System.Text.RegularExpressions;
 
 namespace URLS.Application.Services.Implementations
 {
@@ -24,7 +23,13 @@ namespace URLS.Application.Services.Implementations
         }
 
         public async Task<Result<GroupInviteViewModel>> CreateGroupInviteAsync(GroupInviteCreateModel model)
-{
+        {
+            var member = await _db.UserGroups.AsNoTracking().Include(s => s.UserGroupRole).FirstOrDefaultAsync(s => s.GroupId == model.GroupId && s.UserId == _identityService.GetUserId());
+            if (member == null)
+                return Result<GroupInviteViewModel>.Forbiden();
+            if (!member.UserGroupRole.Permissions.CanCreateInviteCode)
+                return Result<GroupInviteViewModel>.Forbiden();
+
             if (!await _db.Groups.AnyAsync(s => s.Id == model.GroupId))
                 return Result<GroupInviteViewModel>.NotFound("Group not found");
 
@@ -48,8 +53,13 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<List<GroupInviteViewModel>>> GetGroupInvitesByGroupIdAsync(int groupId)
         {
+            var member = await _db.UserGroups.AsNoTracking().FirstOrDefaultAsync(s => s.GroupId == groupId && s.UserId == _identityService.GetUserId());
+            if (member == null)
+                return Result<List<GroupInviteViewModel>>.Forbiden();
+
             if (!await _db.Groups.AnyAsync(s => s.Id == groupId))
                 return Result<List<GroupInviteViewModel>>.NotFound("Group not found");
+
             var groupInvitesFromDb = await _db.GroupInvites
                 .AsNoTracking()
                 .Where(x => x.GroupId == groupId)
@@ -63,6 +73,12 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<bool>> RemoveGroupInviteAsync(int groupId, Guid groupInviteId)
         {
+            var member = await _db.UserGroups.AsNoTracking().Include(s => s.UserGroupRole).FirstOrDefaultAsync(s => s.GroupId == groupId && s.UserId == _identityService.GetUserId());
+            if (member == null)
+                return Result<bool>.Forbiden();
+            if (!member.UserGroupRole.Permissions.CanRemoveInviteCode)
+                return Result<bool>.Forbiden();
+
             var groupInvite = await _db.GroupInvites.AsNoTracking().FirstOrDefaultAsync(x => x.Id == groupInviteId);
             if (groupInvite == null)
                 return Result<bool>.NotFound("Group invite not found");
@@ -77,6 +93,12 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<GroupInviteViewModel>> UpdateGroupInviteAsync(GroupInviteEditModel model)
         {
+            var member = await _db.UserGroups.AsNoTracking().Include(s => s.UserGroupRole).FirstOrDefaultAsync(s => s.GroupId == model.GroupId && s.UserId == _identityService.GetUserId());
+            if (member == null)
+                return Result<GroupInviteViewModel>.Forbiden();
+            if (!member.UserGroupRole.Permissions.CanUpdateInviteCode)
+                return Result<GroupInviteViewModel>.Forbiden();
+
             var groupInviteFromDb = await _db.GroupInvites.FindAsync(model.Id);
             if (groupInviteFromDb == null)
                 return Result<GroupInviteViewModel>.NotFound("Group invite not found");
