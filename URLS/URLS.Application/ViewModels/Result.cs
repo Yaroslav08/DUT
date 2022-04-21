@@ -43,7 +43,7 @@
             return new Result<T>(false, false, false, error, null, default);
         }
 
-        public static Result<T> Forbiden(string error = "Forbidden")
+        public static Result<T> Forbiden(string error = "Access denited")
         {
             return new Result<T>(false, false, true, error, null, default);
         }

@@ -28,6 +28,12 @@ namespace URLS.Web.Controllers.V1
             return JsonResult(await _appService.GetAppByIdAsync(id));
         }
 
+        [HttpGet("{id}/creds")]
+        public async Task<IActionResult> GetAppCredsById(int id)
+        {
+            return JsonResult(await _appService.GetAppDetailsAsync(id));
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateApp([FromBody] AppCreateModel appModel)
         {

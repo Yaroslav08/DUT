@@ -7,6 +7,7 @@ using URLS.Constants;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
+using URLS.Constants.Extensions;
 
 namespace URLS.Application.Services.Implementations
 {
@@ -31,7 +32,7 @@ namespace URLS.Application.Services.Implementations
 
             if (!_identityService.IsAdministrator())
                 if (appForUpdate.UserId != _identityService.GetUserId())
-                    return Result<AppViewModel>.Error("Access denited");
+                    return Result<AppViewModel>.Forbiden();
 
             appForUpdate.AppSecret = Generator.CreateAppSecret();
             appForUpdate.PrepareToUpdate(_identityService);
@@ -66,7 +67,7 @@ namespace URLS.Application.Services.Implementations
 
             if (!_identityService.IsAdministrator())
                 if (appForDelete.UserId != _identityService.GetUserId())
-                    return Result<AppViewModel>.Error("Access denited");
+                    return Result<AppViewModel>.Forbiden();
 
             _db.Apps.Remove(appForDelete);
             await _db.SaveChangesAsync();
@@ -84,9 +85,6 @@ namespace URLS.Application.Services.Implementations
             query = query.OrderBy(s => s.Id).Skip(offset).Take(limit);
             var allApps = await query.ToListAsync();
 
-            if (!allApps.Any())
-                return Result<List<AppViewModel>>.NotFound("Apps not found");
-
             var appsToView = _mapper.Map<List<AppViewModel>>(allApps);
 
             return Result<List<AppViewModel>>.SuccessWithData(appsToView);
@@ -101,11 +99,28 @@ namespace URLS.Application.Services.Implementations
 
             if (!_identityService.IsAdministrator())
                 if (app.UserId != _identityService.GetUserId())
-                    return Result<AppViewModel>.Error("Access denited");
+                    return Result<AppViewModel>.Forbiden();
 
             var appToView = _mapper.Map<AppViewModel>(app);
 
             return Result<AppViewModel>.SuccessWithData(appToView);
+        }
+
+        public async Task<Result<AppDetail>> GetAppDetailsAsync(int id)
+        {
+            var app = await _db.Apps.AsNoTracking().FirstOrDefaultAsync(app => app.Id == id);
+            if (app == null)
+                return Result<AppDetail>.NotFound(typeof(App).NotFoundMessage(id));
+
+            if (!_identityService.IsAdministrator())
+                if (app.UserId != _identityService.GetUserId())
+                    return Result<AppDetail>.Forbiden();
+
+            return Result<AppDetail>.SuccessWithData(new AppDetail
+            {
+                AppId = app.AppId,
+                AppSecret = app.AppSecret,
+            });
         }
 
         public async Task<Result<AppViewModel>> UpdateAppAsync(AppEditModel app)
@@ -117,7 +132,7 @@ namespace URLS.Application.Services.Implementations
 
             if (!_identityService.IsAdministrator())
                 if (appToUpdate.UserId != _identityService.GetUserId())
-                    return Result<AppViewModel>.Error("Access denited");
+                    return Result<AppViewModel>.Forbiden();
 
             appToUpdate.ActiveFrom = app.ActiveFrom;
             appToUpdate.ActiveTo = app.ActiveTo;

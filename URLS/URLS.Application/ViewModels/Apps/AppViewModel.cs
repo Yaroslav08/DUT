@@ -10,8 +10,6 @@
         public string ShortName { get; set; }
         public string Description { get; set; }
         public string Image { get; set; }
-        public string AppId { get; set; }
-        public string AppSecret { get; set; }
         public bool IsActive { get; set; }
         public DateTime ActiveFrom { get; set; }
         public DateTime ActiveTo { get; set; }
