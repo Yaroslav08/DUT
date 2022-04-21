@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Post;
+using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
-using System.Text.RegularExpressions;
 
 namespace URLS.Application.Services.Implementations
 {
@@ -24,10 +24,10 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<PostViewModel>> CreatePostAsync(PostCreateModel model)
         {
-            var member = await GetMemberAsync(_identityService.GetUserId(), model.GroupId);
-            if (member == null)
-                return Result<PostViewModel>.Forbiden();
-            if (!member.UserGroupRole.Permissions.CanCreatePost)
+            if (!await _db.Groups.AnyAsync(s => s.Id == model.GroupId))
+                return Result<PostViewModel>.NotFound(typeof(Group).NotFoundMessage(model.GroupId));
+
+            if (!await CanCreatePostAsync(model.GroupId))
                 return Result<PostViewModel>.Forbiden();
 
             var newPost = new Post
@@ -50,13 +50,12 @@ namespace URLS.Application.Services.Implementations
         {
             var query = _db.Posts.AsNoTracking();
 
-            var member = await GetMemberAsync(_identityService.GetUserId(), groupId);
-            if (member == null)
-                query = query.Where(x => x.IsPublic);
+            if (await CanViewOnlyPublicPostsAsync(groupId))
+                query = query.Where(s => s.IsPublic);
 
-            query = query.Where(x => x.GroupId == groupId)
-                .Include(x => x.User)
-                .OrderByDescending(x => x.CreatedAt)
+            query = query.Where(g => g.GroupId == groupId)
+                .Include(g => g.User)
+                .OrderByDescending(g => g.CreatedAt)
                 .Skip(skip).Take(count);
 
             var posts = await query.ToListAsync();
@@ -68,14 +67,13 @@ namespace URLS.Application.Services.Implementations
         {
             var post = await _db.Posts.AsNoTracking().Include(s => s.User).FirstOrDefaultAsync(x => x.Id == postId);
             if (post == null)
-                return Result<PostViewModel>.NotFound("Post not found");
+                return Result<PostViewModel>.NotFound(typeof(Post).NotFoundMessage(postId));
+
+            if (!CanViewPost(post))
+                return Result<PostViewModel>.Forbiden();
 
             if (post.GroupId != groupId)
                 return Result<PostViewModel>.NotFound("This post not from this group");
-
-            var member = await GetMemberAsync(_identityService.GetUserId(), groupId);
-            if (member == null && !post.IsPublic)
-                return Result<PostViewModel>.Forbiden();
 
             var postToView = _mapper.Map<PostViewModel>(post);
             postToView.CountComments = await _db.Comments.CountAsync(s => s.PostId == postId);
@@ -85,19 +83,12 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<bool>> RemovePostAsync(int postId, int groupId)
         {
-            var member = await GetMemberAsync(_identityService.GetUserId(), groupId);
-            if (member == null)
-                return Result<bool>.Forbiden();
-            if (!member.UserGroupRole.Permissions.CanRemovePost)
-                return Result<bool>.Forbiden();
-
             var postToDelete = await _db.Posts.AsNoTracking().FirstOrDefaultAsync(x => x.Id == postId);
             if (postToDelete == null)
-                return Result<bool>.NotFound("Post not found");
+                return Result<bool>.NotFound(typeof(Post).NotFoundMessage(postId));
 
-            if (!_identityService.IsAdministrator())
-                if (postToDelete.UserId != _identityService.GetUserId())
-                    return Result<bool>.Error("Access denited");
+            if (!await CanRemovePostAsync(groupId, postToDelete))
+                return Result<bool>.Forbiden();
 
             if (postToDelete.GroupId != groupId)
                 return Result<bool>.NotFound("This group don`t have current post");
@@ -109,19 +100,12 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<PostViewModel>> UpdatePostAsync(PostEditModel model)
         {
-            var member = await GetMemberAsync(_identityService.GetUserId(), model.GroupId);
-            if (member == null)
-                return Result<PostViewModel>.Forbiden();
-            if (!member.UserGroupRole.Permissions.CanUpdatePost)
-                return Result<PostViewModel>.Forbiden();
-
             var postToUpdate = await _db.Posts.AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.Id);
             if (postToUpdate == null)
                 return Result<PostViewModel>.NotFound("Post not found");
 
-            if (!_identityService.IsAdministrator())
-                if (postToUpdate.UserId != _identityService.GetUserId() && !member.UserGroupRole.Permissions.CanUpdateAllPosts)
-                    return Result<PostViewModel>.Forbiden();
+            if (!await CanUpdatePostAsync(model.GroupId, postToUpdate))
+                return Result<PostViewModel>.Forbiden();
 
             postToUpdate.Title = model.Title;
             postToUpdate.Content = model.Content;
@@ -136,11 +120,109 @@ namespace URLS.Application.Services.Implementations
             return Result<PostViewModel>.SuccessWithData(_mapper.Map<PostViewModel>(postToUpdate));
         }
 
-        private async Task<UserGroup> GetMemberAsync(int userId, int groupId)
+
+        #region Private
+
+        private async Task<bool> CanCreatePostAsync(int groupId)
         {
-            return await _db.UserGroups.AsNoTracking()
+            if (_identityService.IsAdministrator())
+                return true;
+            var member = await _db.UserGroups
+                .AsNoTracking()
                 .Include(s => s.UserGroupRole)
-                .FirstOrDefaultAsync(x => x.UserId == userId && x.GroupId == groupId);
+                .FirstOrDefaultAsync(s => s.GroupId == groupId && s.UserId == _identityService.GetUserId() && s.Status == UserGroupStatus.Member);
+
+            if (member == null) // check for teacher
+            {
+                var subjects = await _db.Subjects.Where(s => !s.IsTemplate && s.TeacherId == _identityService.GetUserId() && s.GroupId == groupId).Select(s => new Subject { Id = s.Id, Name = s.Name }).ToListAsync();
+                if (subjects == null || subjects.Count == 0)
+                    return false;
+            }
+            else // for member
+            {
+                if (!member.UserGroupRole.Permissions.CanCreatePost)
+                    return false;
+            }
+            return true;
         }
+
+        private async Task<bool> CanViewOnlyPublicPostsAsync(int groupId)
+        {
+            if (_identityService.IsAdministrator())
+                return false;
+            var isMember = await _db.UserGroups
+                .AsNoTracking()
+                .AnyAsync(s => s.GroupId == groupId && s.UserId == _identityService.GetUserId() && s.Status == UserGroupStatus.Member);
+            var subjects = await _db.Subjects.AsNoTracking().Where(s => s.GroupId == groupId && s.TeacherId == _identityService.GetUserId()).ToListAsync();
+
+            if (isMember || (subjects != null && subjects.Count > 0) || _identityService.IsAdministrator())
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        private bool CanViewPost(Post post)
+        {
+            if (_identityService.IsAdministrator())
+                return true;
+
+            if (post.UserId == _identityService.GetUserId())
+                return true;
+
+            return false;
+        }
+
+        private async Task<bool> CanRemovePostAsync(int groupId, Post post)
+        {
+            if (_identityService.IsAdministrator())
+                return true;
+
+            var member = await _db.UserGroups
+                .AsNoTracking()
+                .Include(s => s.UserGroupRole)
+                .FirstOrDefaultAsync(s => s.GroupId == groupId && s.UserId == _identityService.GetUserId() && s.Status == UserGroupStatus.Member);
+
+            if (member != null) // for member
+            {
+                if (post.UserId != _identityService.GetUserId() && !member.UserGroupRole.Permissions.CanRemoveAllPosts)
+                    return false;
+            }
+            else // for teacher
+            {
+                if (post.UserId != _identityService.GetUserId())
+                    return false;
+            }
+            return true;
+        }
+
+        private async Task<bool> CanUpdatePostAsync(int groupId, Post post)
+        {
+            if (_identityService.IsAdministrator())
+                return true;
+
+            var member = await _db.UserGroups
+                .AsNoTracking()
+                .Include(s => s.UserGroupRole)
+                .FirstOrDefaultAsync(s => s.GroupId == groupId && s.UserId == _identityService.GetUserId() && s.Status == UserGroupStatus.Member);
+
+            if (member != null) // for member
+            {
+                if (post.UserId != _identityService.GetUserId() && !member.UserGroupRole.Permissions.CanUpdateAllPosts)
+                    return false;
+            }
+            else // for teacher
+            {
+                if (post.UserId != _identityService.GetUserId())
+                    return false;
+            }
+            return true;
+        }
+
+
+        #endregion
     }
 }
