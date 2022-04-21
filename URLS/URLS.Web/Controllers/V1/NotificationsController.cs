@@ -14,11 +14,10 @@ namespace URLS.Web.Controllers.V1
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetUserNotifications(int userId = default)
+        public async Task<IActionResult> GetUserNotifications(int offset = 0, int count = 20)
         {
-            if (userId == default || userId < 0)
-                userId = _identityService.GetUserId();
-            return JsonResult(await _notificationsService.GetUserNotificationsAsync(userId));
+            var userId = _identityService.GetUserId();
+            return JsonResult(await _notificationsService.GetUserNotificationsAsync(userId, offset, count));
         }
 
         [HttpGet("{id}")]

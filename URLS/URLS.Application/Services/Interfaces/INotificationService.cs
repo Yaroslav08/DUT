@@ -6,7 +6,7 @@ namespace URLS.Application.Services.Interfaces
 {
     public interface INotificationService : IBaseService<Notification>
     {
-        Task<Result<List<NotificationViewModel>>> GetUserNotificationsAsync(int userId);
+        Task<Result<List<NotificationViewModel>>> GetUserNotificationsAsync(int userId, int offset, int count);
         Task<Result<NotificationViewModel>> GetNotificationByIdAsync(long notifyId);
         Task<Result<NotificationViewModel>> ReadNotificationAsync(long notifyId);
         Task<Result<bool>> SendNotifyToUsersAsync(Notification notification, IEnumerable<int> userIds);

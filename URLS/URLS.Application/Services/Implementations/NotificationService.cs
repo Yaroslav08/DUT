@@ -1,13 +1,12 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Notification;
-using URLS.Constants;
+using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
-
 namespace URLS.Application.Services.Implementations
 {
     public class NotificationService : BaseService<Notification>, INotificationService
@@ -26,25 +25,26 @@ namespace URLS.Application.Services.Implementations
         {
             var notification = await _db.Notifications.AsNoTracking().FirstOrDefaultAsync(x => x.Id == notifyId);
             if (notification == null)
-                return Result<NotificationViewModel>.NotFound("Notification not found");
+                return Result<NotificationViewModel>.NotFound(typeof(Notification).NotFoundMessage(notifyId));
 
-            if (notification.UserId != _identityService.GetUserId())
-                if (!_identityService.GetRoles().Contains(Roles.Admin))
-                    return Result<NotificationViewModel>.Error("Access denited");
+            if (!_identityService.IsAdministrator())
+                if (notification.UserId != _identityService.GetUserId())
+                    return Result<NotificationViewModel>.Forbiden();
 
             return Result<NotificationViewModel>.SuccessWithData(_mapper.Map<NotificationViewModel>(notification));
         }
 
-        public async Task<Result<List<NotificationViewModel>>> GetUserNotificationsAsync(int userId)
+        public async Task<Result<List<NotificationViewModel>>> GetUserNotificationsAsync(int userId, int offset, int count)
         {
-            if (userId != _identityService.GetUserId())
-                if (!_identityService.GetRoles().Contains(Roles.Admin))
-                    return Result<List<NotificationViewModel>>.Error("Access denited");
+            if (!_identityService.IsAdministrator())
+                if (userId != _identityService.GetUserId())
+                    return Result<List<NotificationViewModel>>.Forbiden();
 
             var notifications = await _db.Notifications
                 .AsNoTracking()
                 .Where(x => x.UserId == userId)
                 .OrderByDescending(x => x.CreatedAt)
+                .Skip(offset).Take(count)
                 .ToListAsync();
 
             return Result<List<NotificationViewModel>>.SuccessWithData(_mapper.Map<List<NotificationViewModel>>(notifications));
@@ -54,9 +54,9 @@ namespace URLS.Application.Services.Implementations
         {
             var notification = await _db.Notifications.FirstOrDefaultAsync(x => x.Id == notifyId);
 
-            if (notification.UserId != _identityService.GetUserId())
-                if (!_identityService.GetRoles().Contains(Roles.Admin))
-                    return Result<NotificationViewModel>.Error("Access denited");
+            if (!_identityService.IsAdministrator())
+                if (notification.UserId != _identityService.GetUserId())
+                    return Result<NotificationViewModel>.Forbiden();
 
             if (notification.IsRead)
                 return Result<NotificationViewModel>.Error("Notification is already reading");
