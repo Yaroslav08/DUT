@@ -63,6 +63,7 @@ namespace URLS.Infrastructure.IoC
             services.AddScoped<IGroupMemberService, GroupMemberService>();
             services.AddScoped<IGroupInviteService, GroupInviteService>();
             services.AddScoped<IGroupRoleService, GroupRoleService>();
+            services.AddScoped<IPermissionPostService, PermissionPostService>();
 
             #endregion
 
