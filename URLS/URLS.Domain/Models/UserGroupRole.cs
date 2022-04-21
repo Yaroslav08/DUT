@@ -25,12 +25,12 @@ namespace URLS.Domain.Models
     public class UserGroupPermission
     {
         public bool CanCreatePost { get; set; }
-        public bool CanEditPost { get; set; }
-        public bool CanEditAllPosts { get; set; }
+        public bool CanUpdatePost { get; set; }
+        public bool CanUpdateAllPosts { get; set; }
         public bool CanRemovePost { get; set; }
         public bool CanRemoveAllPosts { get; set; }
 
-        public bool CanWriteComment { get; set; }
+        public bool CanCreateComment { get; set; }
         public bool CanOpenCloseComment { get; set; }
         public bool CanRemoveComment { get; set; }
         public bool CanRemoveAllComments { get; set; }
@@ -38,6 +38,7 @@ namespace URLS.Domain.Models
         public bool CanCreateInviteCode { get; set; }
         public bool CanUpdateInviteCode { get; set; }
         public bool CanRemoveInviteCode { get; set; }
+        public bool CanViewInviteCodes { get; set; }
 
 
         public bool CanUpdateImage { get; set; }

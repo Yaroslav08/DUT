@@ -112,7 +112,7 @@ namespace URLS.Application.Services.Implementations
             var member = await GetMemberAsync(_identityService.GetUserId(), model.GroupId);
             if (member == null)
                 return Result<PostViewModel>.Forbiden();
-            if (!member.UserGroupRole.Permissions.CanEditPost)
+            if (!member.UserGroupRole.Permissions.CanUpdatePost)
                 return Result<PostViewModel>.Forbiden();
 
             var postToUpdate = await _db.Posts.AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.Id);
@@ -120,7 +120,7 @@ namespace URLS.Application.Services.Implementations
                 return Result<PostViewModel>.NotFound("Post not found");
 
             if (!_identityService.IsAdministrator())
-                if (postToUpdate.UserId != _identityService.GetUserId() && !member.UserGroupRole.Permissions.CanEditAllPosts)
+                if (postToUpdate.UserId != _identityService.GetUserId() && !member.UserGroupRole.Permissions.CanUpdateAllPosts)
                     return Result<PostViewModel>.Forbiden();
 
             postToUpdate.Title = model.Title;

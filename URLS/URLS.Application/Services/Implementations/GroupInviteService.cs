@@ -24,10 +24,7 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<GroupInviteViewModel>> CreateGroupInviteAsync(GroupInviteCreateModel model)
         {
-            var member = await _db.UserGroups.AsNoTracking().Include(s => s.UserGroupRole).FirstOrDefaultAsync(s => s.GroupId == model.GroupId && s.UserId == _identityService.GetUserId());
-            if (member == null)
-                return Result<GroupInviteViewModel>.Forbiden();
-            if (!member.UserGroupRole.Permissions.CanCreateInviteCode)
+            if(!await CanCreateInviteAsync(model.GroupId.Value))
                 return Result<GroupInviteViewModel>.Forbiden();
 
             if (!await _db.Groups.AnyAsync(s => s.Id == model.GroupId))
@@ -53,12 +50,8 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<List<GroupInviteViewModel>>> GetGroupInvitesByGroupIdAsync(int groupId)
         {
-            var member = await _db.UserGroups.AsNoTracking().FirstOrDefaultAsync(s => s.GroupId == groupId && s.UserId == _identityService.GetUserId());
-            if (member == null)
+            if (!await CanViewInviteAsync(groupId))
                 return Result<List<GroupInviteViewModel>>.Forbiden();
-
-            if (!await _db.Groups.AnyAsync(s => s.Id == groupId))
-                return Result<List<GroupInviteViewModel>>.NotFound("Group not found");
 
             var groupInvitesFromDb = await _db.GroupInvites
                 .AsNoTracking()
@@ -73,10 +66,7 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<bool>> RemoveGroupInviteAsync(int groupId, Guid groupInviteId)
         {
-            var member = await _db.UserGroups.AsNoTracking().Include(s => s.UserGroupRole).FirstOrDefaultAsync(s => s.GroupId == groupId && s.UserId == _identityService.GetUserId());
-            if (member == null)
-                return Result<bool>.Forbiden();
-            if (!member.UserGroupRole.Permissions.CanRemoveInviteCode)
+            if (!await CanRemoveInviteAsync(groupId))
                 return Result<bool>.Forbiden();
 
             var groupInvite = await _db.GroupInvites.AsNoTracking().FirstOrDefaultAsync(x => x.Id == groupInviteId);
@@ -93,10 +83,7 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<GroupInviteViewModel>> UpdateGroupInviteAsync(GroupInviteEditModel model)
         {
-            var member = await _db.UserGroups.AsNoTracking().Include(s => s.UserGroupRole).FirstOrDefaultAsync(s => s.GroupId == model.GroupId && s.UserId == _identityService.GetUserId());
-            if (member == null)
-                return Result<GroupInviteViewModel>.Forbiden();
-            if (!member.UserGroupRole.Permissions.CanUpdateInviteCode)
+            if(!await CanUpdateInviteAsync(model.GroupId.Value))
                 return Result<GroupInviteViewModel>.Forbiden();
 
             var groupInviteFromDb = await _db.GroupInvites.FindAsync(model.Id);
@@ -114,5 +101,58 @@ namespace URLS.Application.Services.Implementations
 
             return Result<GroupInviteViewModel>.SuccessWithData(_mapper.Map<GroupInviteViewModel>(groupInviteFromDb));
         }
+
+
+        #region Private
+
+        private async Task<bool> CanCreateInviteAsync(int groupId)
+        {
+            if (_identityService.IsAdministrator())
+                return true;
+            var member = await _db.UserGroups.AsNoTracking().Include(s => s.UserGroupRole).FirstOrDefaultAsync(s => s.GroupId == groupId && s.UserId == _identityService.GetUserId() && s.Status == UserGroupStatus.Member);
+            if (member == null)
+                return false;
+            if (!member.UserGroupRole.Permissions.CanCreateInviteCode)
+                return false;
+            return true;
+        }
+
+        private async Task<bool> CanViewInviteAsync(int groupId)
+        {
+            if (_identityService.IsAdministrator())
+                return true;
+            var member = await _db.UserGroups.AsNoTracking().Include(s => s.UserGroupRole).FirstOrDefaultAsync(s => s.GroupId == groupId && s.UserId == _identityService.GetUserId() && s.Status == UserGroupStatus.Member);
+            if (member == null)
+                return false;
+            if (!member.UserGroupRole.Permissions.CanViewInviteCodes)
+                return false;
+            return true;
+        }
+
+        private async Task<bool> CanRemoveInviteAsync(int groupId)
+        {
+            if (_identityService.IsAdministrator())
+                return true;
+            var member = await _db.UserGroups.AsNoTracking().Include(s => s.UserGroupRole).FirstOrDefaultAsync(s => s.GroupId == groupId && s.UserId == _identityService.GetUserId() && s.Status == UserGroupStatus.Member);
+            if (member == null)
+                return false;
+            if (!member.UserGroupRole.Permissions.CanRemoveInviteCode)
+                return false;
+            return true;
+        }
+
+        private async Task<bool> CanUpdateInviteAsync(int groupId)
+        {
+            if (_identityService.IsAdministrator())
+                return true;
+            var member = await _db.UserGroups.AsNoTracking().Include(s => s.UserGroupRole).FirstOrDefaultAsync(s => s.GroupId == groupId && s.UserId == _identityService.GetUserId() && s.Status == UserGroupStatus.Member);
+            if (member == null)
+                return false;
+            if (!member.UserGroupRole.Permissions.CanUpdateInviteCode)
+                return false;
+            return true;
+        }
+
+        #endregion
     }
 }
