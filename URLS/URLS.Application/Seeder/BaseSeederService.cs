@@ -282,6 +282,7 @@ namespace URLS.Application.Seeder
                 Permissions = new UserGroupPermission
                 {
                     CanCreateInviteCode = true,
+                    CanViewInviteCodes = true,
                     CanRemoveInviteCode = true,
                     CanCreateComment = true,
                     CanUpdateImage = true,
@@ -293,7 +294,8 @@ namespace URLS.Application.Seeder
                     CanOpenCloseComment = true,
                     CanRemoveAllComments = true,
                     CanRemoveAllPosts = true,
-                    CanUpdateInviteCode = true
+                    CanUpdateInviteCode = true,
+                    CanEditInfo = true
                 },
                 CanEdit = false,
                 UniqId = UserGroupRoles.UniqIds.ClassTeacher
@@ -311,6 +313,7 @@ namespace URLS.Application.Seeder
                 Permissions = new UserGroupPermission
                 {
                     CanCreateInviteCode = true,
+                    CanViewInviteCodes = true,
                     CanRemoveInviteCode = true,
                     CanCreateComment = true,
                     CanUpdateImage = true,
@@ -322,7 +325,8 @@ namespace URLS.Application.Seeder
                     CanOpenCloseComment = true,
                     CanRemoveAllComments = false,
                     CanRemoveAllPosts = false,
-                    CanUpdateInviteCode = true
+                    CanUpdateInviteCode = true,
+                    CanEditInfo = false
                 },
                 CanEdit = false,
                 UniqId = UserGroupRoles.UniqIds.Headmaster
@@ -340,6 +344,7 @@ namespace URLS.Application.Seeder
                 Permissions = new UserGroupPermission
                 {
                     CanCreateInviteCode = false,
+                    CanViewInviteCodes = false,
                     CanRemoveInviteCode = false,
                     CanCreateComment = true,
                     CanUpdateImage = false,
@@ -351,7 +356,8 @@ namespace URLS.Application.Seeder
                     CanOpenCloseComment = false,
                     CanRemoveAllComments = false,
                     CanRemoveAllPosts = false,
-                    CanUpdateInviteCode = false
+                    CanUpdateInviteCode = false,
+                    CanEditInfo = false
                 },
                 CanEdit = false,
                 UniqId = UserGroupRoles.UniqIds.Student
