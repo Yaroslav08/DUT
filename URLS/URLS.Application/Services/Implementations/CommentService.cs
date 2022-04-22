@@ -13,11 +13,13 @@ namespace URLS.Application.Services.Implementations
         private readonly URLSDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
-        public CommentService(URLSDbContext db, IMapper mapper, IIdentityService identityService) : base(db)
+        private readonly IPermissionCommentService _permissionCommentService;
+        public CommentService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IPermissionCommentService permissionCommentService) : base(db)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
+            _permissionCommentService = permissionCommentService;
         }
 
         public async Task<Result<CommentViewModel>> CreateCommentAsync(CommentCreateModel model)
