@@ -6,6 +6,8 @@ using URLS.Application.ViewModels.Post.Comment;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
+using URLS.Constants.Extensions;
+
 namespace URLS.Application.Services.Implementations
 {
     public class CommentService : BaseService<Comment>, ICommentService
@@ -14,16 +16,27 @@ namespace URLS.Application.Services.Implementations
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
         private readonly IPermissionCommentService _permissionCommentService;
-        public CommentService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IPermissionCommentService permissionCommentService) : base(db)
+        private readonly ICommonService _commonService;
+        public CommentService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IPermissionCommentService permissionCommentService, ICommonService commonService) : base(db)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
             _permissionCommentService = permissionCommentService;
+            _commonService = commonService;
         }
 
         public async Task<Result<CommentViewModel>> CreateCommentAsync(CommentCreateModel model)
         {
+            if (!await _commonService.IsExistAsync<Group>(s => s.Id == model.GroupId))
+                return Result<CommentViewModel>.NotFound(typeof(Group).NotFoundMessage(model.GroupId));
+
+            if (!await _commonService.IsExistAsync<Post>(s => s.Id == model.PostId))
+                return Result<CommentViewModel>.NotFound(typeof(Post).NotFoundMessage(model.PostId));
+
+            if (!await _permissionCommentService.CanCreateCommentAsync(model.GroupId))
+                return Result<CommentViewModel>.Forbiden();
+
             var newComment = new Comment
             {
                 IsPublic = model.IsPublic,
@@ -42,8 +55,12 @@ namespace URLS.Application.Services.Implementations
             if (!await _db.Posts.AnyAsync(s => s.Id == postId && s.GroupId == groupId))
                 return Result<List<CommentViewModel>>.NotFound("Post from this group not found");
 
-            var comments = await _db.Comments
-                .AsNoTracking()
+            var query = _db.Comments.AsNoTracking();
+
+            if (!await _permissionCommentService.CanViewAllCommentsAsync(groupId, postId))
+                query = query.Where(s => s.IsPublic);
+
+            var comments = await query
                 .Where(x => x.PostId == postId)
                 .OrderByDescending(s => s.CreatedAt)
                 .Include(x => x.User)
