@@ -43,6 +43,10 @@ namespace URLS.Infrastructure.Data.Context
         public DbSet<Timetable> Timetables { get; set; }
         public DbSet<Audit> Audits { get; set; }
         public DbSet<Report> Reports { get; set; }
+        public DbSet<Quiz> Quizzes { get; set; }
+        public DbSet<Question> Questions { get; set; }
+        public DbSet<Answer> Answers { get; set; }
+        public DbSet<QuizResult> QuizResults { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
