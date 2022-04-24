@@ -62,6 +62,8 @@ namespace URLS.Infrastructure.Data.Context
             builder.ApplyConfiguration(new SettingConfiguration());
             builder.ApplyConfiguration(new TimetableConfiguration());
             builder.ApplyConfiguration(new ReportConfiguration());
+            builder.ApplyConfiguration(new QuizConfiguration());
+            builder.ApplyConfiguration(new QuizResultConfiguration());
         }
     }
 }

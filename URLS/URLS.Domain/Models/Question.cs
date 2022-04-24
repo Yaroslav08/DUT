@@ -8,7 +8,7 @@ namespace URLS.Domain.Models
         [Required]
         public int Index { get; set; }
         public long? CorrectAnswerId { get; set; }
-        public int QuizId { get; set; }
+        public Guid QuizId { get; set; }
         public Quiz Quiz { get; set; }
         public List<Answer> Answers { get; set; }
     }
