@@ -9,11 +9,21 @@
         public User User { get; set; }
         public Guid QuizId { get; set; }
         public Quiz Quiz { get; set; }
-        public List<QuizAnswer> Answers { get; set; }
+        public List<QuestionModel> Result { get; set; }
     }
 
-    public class QuizAnswer
+    public class QuestionModel
     {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public List<AnswerModel> Answers { get; set; }
+    }
 
+    public class AnswerModel
+    {
+        public long Id { get; set; }
+        public string Name { get; set; }
+        public bool? IsCorrect { get; set; }
+        public bool IsChoice { get; set; }
     }
 }
