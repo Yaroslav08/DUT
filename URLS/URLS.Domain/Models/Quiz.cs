@@ -19,6 +19,7 @@ namespace URLS.Domain.Models
     {
         public int MaxAttempts { get; set; } // (-1) without limits
         public double MarkPerQuiz { get; set; }
+        public int Minutes { get; set; } // (-1) without limits
         public bool AtRandomQuestions { get; set; }
         public bool AtRandomAnswers { get; set; }
         public bool ShowResults { get; set; }

@@ -9,6 +9,7 @@ using URLS.Application.ViewModels.Lesson;
 using URLS.Application.ViewModels.Notification;
 using URLS.Application.ViewModels.Post;
 using URLS.Application.ViewModels.Post.Comment;
+using URLS.Application.ViewModels.Quiz;
 using URLS.Application.ViewModels.Report;
 using URLS.Application.ViewModels.RoleClaim;
 using URLS.Application.ViewModels.Session;
@@ -81,6 +82,11 @@ namespace URLS.Application.ViewModels
             CreateMap<Domain.Models.Timetable, TimetableViewModel>().ReverseMap();
 
             CreateMap<Domain.Models.Report, ReportViewModel>().ReverseMap();
+
+            CreateMap<Domain.Models.Quiz, QuizViewModel>().ReverseMap();
+            CreateMap<Domain.Models.Question, QuestionViewModel>().ReverseMap();
+            CreateMap<Domain.Models.Answer, AnswerViewModel>().ReverseMap();
+            CreateMap<Domain.Models.QuizResult, QuizResultViewModel>().ReverseMap();
         }
 
         private string BuildFullName(Domain.Models.User user)
