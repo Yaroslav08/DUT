@@ -8,6 +8,7 @@ namespace URLS.Domain.Models
         public DateTime? ActiveFrom { get; set; }
         public DateTime? ActiveTo { get; set; }
         public QuizConfig Config { get; set; }
+        public AuthorModel Author { get; set; }
         public bool IsTemplate { get; set; }
         public int? SubjectId { get; set; }
         public Subject Subject { get; set; }
@@ -22,5 +23,13 @@ namespace URLS.Domain.Models
         public bool AtRandomAnswers { get; set; }
         public bool ShowResults { get; set; }
         public bool ShowCorrectAnswers { get; set; }
+    }
+
+    public class AuthorModel
+    {
+        public int? UserId { get; set; }
+        public string FullName { get; set; }
+        public string Title { get; set; }
+        public string Image { get; set; }
     }
 }

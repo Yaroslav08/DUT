@@ -10,9 +10,14 @@ namespace URLS.Infrastructure.Data.Configurations
         public void Configure(EntityTypeBuilder<Quiz> builder)
         {
             builder.HasKey(s => s.Id);
+
             builder.Property(s => s.Config).HasConversion(
                 v => v.ToJson(),
                 v => v.FromJson<QuizConfig>());
+
+            builder.Property(s => s.Author).HasConversion(
+                v => v.ToJson(),
+                v => v.FromJson<AuthorModel>());
         }
     }
 }
