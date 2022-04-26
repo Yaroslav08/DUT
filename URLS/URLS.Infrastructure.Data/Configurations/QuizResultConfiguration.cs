@@ -15,9 +15,9 @@ namespace URLS.Infrastructure.Data.Configurations
                 v => v.ToJson(),
                 v => v.FromJson<QuizResultStatistics>());
 
-            builder.Property(s => s.Answers).HasConversion(
+            builder.Property(s => s.Result).HasConversion(
                 v => v.ToJson(),
-                v => v.FromJson<List<QuizAnswer>>());
+                v => v.FromJson<List<QuestionModel>>());
         }
     }
 }
