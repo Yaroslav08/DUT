@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using URLS.Application.Services.Interfaces;
+using URLS.Application.Validations;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Quiz;
 using URLS.Constants.Extensions;
@@ -13,15 +14,35 @@ namespace URLS.Application.Services.Implementations
     {
         private readonly URLSDbContext _db;
         private readonly IIdentityService _identityService;
+        private readonly ICommonService _commonService;
         private readonly IMapper _mapper;
-        public QuizService(URLSDbContext db, IIdentityService identityService, IMapper mapper) : base(db)
+        public QuizService(URLSDbContext db, IIdentityService identityService, IMapper mapper, ICommonService commonService) : base(db)
         {
             _db = db;
             _identityService = identityService;
             _mapper = mapper;
+            _commonService = commonService;
         }
 
-        public async Task<Result<QuizViewModel>> GetQuizByIdAsync(Guid id, bool withQuestions = false)
+        public async Task<Result<QuizViewModel>> CreateAsync(QuizCreateModel quiz)
+        {
+            if (!quiz.IsTemplate)
+                if (!await _commonService.IsExistAsync<Subject>(s => s.Id == quiz.SubjectId))
+                    return Result<QuizViewModel>.NotFound(typeof(Subject).NotFoundMessage(quiz.SubjectId));
+
+            if (!QuizValidation.TryValidate(quiz, out var error))
+                return Result<QuizViewModel>.Error(error);
+
+            var newQuiz = QuizValidation.BuildNewQuiz(quiz, _identityService);
+            await _db.Quizzes.AddAsync(newQuiz);
+            await _db.SaveChangesAsync();
+
+            var viewModel = _mapper.Map<QuizViewModel>(quiz);
+
+            return Result<QuizViewModel>.SuccessWithData(viewModel);
+        }
+
+        public async Task<Result<QuizViewModel>> GetByIdAsync(Guid id, bool withQuestions = false)
         {
             var quiz = await _db.Quizzes.AsNoTracking().FirstOrDefaultAsync(d => d.Id == id);
             if (quiz == null)
@@ -35,12 +56,11 @@ namespace URLS.Application.Services.Implementations
             return Result<QuizViewModel>.SuccessWithData(quizViewModel);
         }
 
-        public async Task<Result<List<QuizViewModel>>> GetQuizzesBySubjectIdAsync(int subjectId, int offset = 0, int count = 10)
+        public async Task<Result<List<QuizViewModel>>> GetBySubjectIdAsync(int subjectId, int offset = 0, int count = 10)
         {
             var quizzes = await _db.Quizzes
                 .AsNoTracking()
                 .Where(s => s.SubjectId == subjectId)
-                .OrderByDescending(s => s.ActiveFrom)
                 .Skip(offset).Take(count)
                 .ToListAsync();
             var quizzesViewModel = _mapper.Map<List<QuizViewModel>>(quizzes);

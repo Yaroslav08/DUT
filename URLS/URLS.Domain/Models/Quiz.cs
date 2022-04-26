@@ -5,8 +5,6 @@ namespace URLS.Domain.Models
     {
         [Required, StringLength(150, MinimumLength = 2)]
         public string Name { get; set; }
-        public DateTime? ActiveFrom { get; set; }
-        public DateTime? ActiveTo { get; set; }
         public QuizConfig Config { get; set; }
         public AuthorModel Author { get; set; }
         public bool IsTemplate { get; set; }

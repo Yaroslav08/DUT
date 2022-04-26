@@ -1,0 +1,80 @@
+﻿using URLS.Application.Extensions;
+using URLS.Application.Services.Interfaces;
+using URLS.Application.ViewModels.Quiz;
+using URLS.Domain.Models;
+
+namespace URLS.Application.Validations
+{
+    public static class QuizValidation
+    {
+        public static bool TryValidate(QuizCreateModel quiz, out string error)
+        {
+            if (quiz.IsTemplate && quiz.SubjectId != null)
+            {
+                error = "Template can`t related with subject";
+                return false;
+            }
+
+            if (quiz.Questions == null)
+            {
+                error = "Quiz must be contains any questions";
+                return false;
+            }
+
+            foreach (var question in quiz.Questions)
+            {
+                if (question.Answers != null)
+                {
+                    var correctAnswers = question.Answers.Count(s => s.IsCorrect);
+                    if (correctAnswers != 1)
+                    {
+                        error = "Each question should contain only 1 correct answer";
+                        return false;
+                    }
+                }
+            }
+            error = null;
+            return true;
+        }
+
+        public static Quiz BuildNewQuiz(QuizCreateModel model, IIdentityService identityService)
+        {
+            var quiz = new Quiz
+            {
+                Name = model.Name,
+                Author = model.Author,
+                Config = model.Config,
+                IsTemplate = model.IsTemplate,
+                SubjectId = model.SubjectId
+            };
+
+            model.Questions.ForEach(question =>
+            {
+                var newQuestion = new Question
+                {
+                    Index = question.Index,
+                    Name = question.Name
+                };
+                newQuestion.PrepareToCreate(identityService);
+                if (question.Answers != null)
+                {
+                    question.Answers.ForEach(answer =>
+                    {
+                        var newAnswer = new Answer
+                        {
+                            IsCorrect = answer.IsCorrect,
+                            Name = answer.Name
+                        };
+                        newAnswer.PrepareToCreate(identityService);
+                        newQuestion.Answers.Add(newAnswer);
+                    });
+                }
+                quiz.Questions.Add(newQuestion);
+            });
+
+            quiz.PrepareToCreate(identityService);
+
+            return quiz;
+        }
+    }
+}
