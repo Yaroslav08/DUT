@@ -1,4 +1,5 @@
-﻿using URLS.Application.Extensions;
+﻿using System.Linq;
+using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.Quiz;
 using URLS.Domain.Models;
@@ -18,6 +19,12 @@ namespace URLS.Application.Validations
             if (quiz.Questions == null)
             {
                 error = "Quiz must be contains any questions";
+                return false;
+            }
+
+            if (quiz.Questions.GroupBy(x => x.Index).Any(g => g.Count() >= 2))
+            {
+                error = "Indexes can`t be repeating";
                 return false;
             }
 
