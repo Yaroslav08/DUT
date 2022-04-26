@@ -66,7 +66,7 @@ namespace URLS.Infrastructure.IoC
             services.AddScoped<IPermissionPostService, PermissionPostService>();
             services.AddScoped<IPermissionGroupInviteService, PermissionGroupInviteService>();
             services.AddScoped<IPermissionCommentService, PermissionCommentService>();
-            services.AddScoped<ICommonService , CommonService>();
+            services.AddScoped<IQuizService, QuizService>();
 
             #endregion
 

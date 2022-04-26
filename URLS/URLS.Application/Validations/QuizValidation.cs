@@ -45,7 +45,8 @@ namespace URLS.Application.Validations
                 Author = model.Author,
                 Config = model.Config,
                 IsTemplate = model.IsTemplate,
-                SubjectId = model.SubjectId
+                SubjectId = model.SubjectId,
+                Questions = new List<Question>()
             };
 
             model.Questions.ForEach(question =>
@@ -53,7 +54,8 @@ namespace URLS.Application.Validations
                 var newQuestion = new Question
                 {
                     Index = question.Index,
-                    Name = question.Name
+                    QuestionText = question.QuestionText,
+                    Answers = new List<Answer>()
                 };
                 newQuestion.PrepareToCreate(identityService);
                 if (question.Answers != null)
@@ -63,7 +65,7 @@ namespace URLS.Application.Validations
                         var newAnswer = new Answer
                         {
                             IsCorrect = answer.IsCorrect,
-                            Name = answer.Name
+                            Response = answer.Response
                         };
                         newAnswer.PrepareToCreate(identityService);
                         newQuestion.Answers.Add(newAnswer);

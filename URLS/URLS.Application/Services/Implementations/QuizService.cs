@@ -14,20 +14,20 @@ namespace URLS.Application.Services.Implementations
     {
         private readonly URLSDbContext _db;
         private readonly IIdentityService _identityService;
-        private readonly ICommonService _commonService;
         private readonly IMapper _mapper;
-        public QuizService(URLSDbContext db, IIdentityService identityService, IMapper mapper, ICommonService commonService) : base(db)
+        private readonly ISubjectService _subjectService;
+        public QuizService(URLSDbContext db, IIdentityService identityService, IMapper mapper, ISubjectService subjectService) : base(db)
         {
             _db = db;
             _identityService = identityService;
             _mapper = mapper;
-            _commonService = commonService;
+            _subjectService = subjectService;
         }
 
         public async Task<Result<QuizViewModel>> CreateAsync(QuizCreateModel quiz)
         {
             if (!quiz.IsTemplate)
-                if (!await _commonService.IsExistAsync<Subject>(s => s.Id == quiz.SubjectId))
+                if (!await _subjectService.IsExistAsync(s => s.Id == quiz.SubjectId))
                     return Result<QuizViewModel>.NotFound(typeof(Subject).NotFoundMessage(quiz.SubjectId));
 
             if (!QuizValidation.TryValidate(quiz, out var error))
@@ -37,7 +37,7 @@ namespace URLS.Application.Services.Implementations
             await _db.Quizzes.AddAsync(newQuiz);
             await _db.SaveChangesAsync();
 
-            var viewModel = _mapper.Map<QuizViewModel>(quiz);
+            var viewModel = _mapper.Map<QuizViewModel>(newQuiz);
 
             return Result<QuizViewModel>.SuccessWithData(viewModel);
         }

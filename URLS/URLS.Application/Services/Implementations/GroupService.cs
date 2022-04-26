@@ -20,14 +20,12 @@ namespace URLS.Application.Services.Implementations
         private readonly IUserService _userService;
         private readonly IIdentityService _identityService;
         private readonly IPostService _postService;
-        private readonly ICommentService _commentService;
-        public GroupService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IPostService postService, ICommentService commentService, IUserService userService) : base(db)
+        public GroupService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IPostService postService, IUserService userService) : base(db)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
             _postService = postService;
-            _commentService = commentService;
             _userService = userService;
         }
 

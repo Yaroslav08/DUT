@@ -4,7 +4,7 @@ namespace URLS.Domain.Models
     public class Question : BaseModel<int>
     {
         [Required, StringLength(500, MinimumLength = 1)]
-        public string Name { get; set; }
+        public string QuestionText { get; set; }
         [Required]
         public int Index { get; set; }
         public long? CorrectAnswerId { get; set; }

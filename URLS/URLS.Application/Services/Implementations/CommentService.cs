@@ -16,22 +16,24 @@ namespace URLS.Application.Services.Implementations
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
         private readonly IPermissionCommentService _permissionCommentService;
-        private readonly ICommonService _commonService;
-        public CommentService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IPermissionCommentService permissionCommentService, ICommonService commonService) : base(db)
+        private readonly IGroupService _groupService;
+        private readonly IPostService _postService;
+        public CommentService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IPermissionCommentService permissionCommentService, IGroupService groupService, IPostService postService) : base(db)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
             _permissionCommentService = permissionCommentService;
-            _commonService = commonService;
+            _groupService = groupService;
+            _postService = postService;
         }
 
         public async Task<Result<CommentViewModel>> CreateCommentAsync(CommentCreateModel model)
         {
-            if (!await _commonService.IsExistAsync<Group>(s => s.Id == model.GroupId))
+            if (!await _groupService.IsExistAsync(s => s.Id == model.GroupId))
                 return Result<CommentViewModel>.NotFound(typeof(Group).NotFoundMessage(model.GroupId));
 
-            if (!await _commonService.IsExistAsync<Post>(s => s.Id == model.PostId))
+            if (!await _postService.IsExistAsync(s => s.Id == model.PostId))
                 return Result<CommentViewModel>.NotFound(typeof(Post).NotFoundMessage(model.PostId));
 
             if (!await _permissionCommentService.CanCreateCommentAsync(model.GroupId))

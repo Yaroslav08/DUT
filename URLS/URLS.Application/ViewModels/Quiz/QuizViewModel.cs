@@ -10,7 +10,7 @@ namespace URLS.Application.ViewModels.Quiz
         public string Name { get; set; }
         public QuizConfig Config { get; set; }
         public AuthorModel Author { get; set; }
-        public SubjectViewModel Subject { get; set; }
+        //public SubjectViewModel Subject { get; set; }
         public List<QuestionViewModel> Questions { get; set; }
     }
 }
