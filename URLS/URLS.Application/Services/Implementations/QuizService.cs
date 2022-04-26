@@ -42,7 +42,7 @@ namespace URLS.Application.Services.Implementations
             return Result<QuizViewModel>.SuccessWithData(viewModel);
         }
 
-        public async Task<Result<QuizViewModel>> GetByIdAsync(Guid id, bool withQuestions = false)
+        public async Task<Result<QuizViewModel>> GetByIdAsync(Guid id, bool fullTest = false)
         {
             var quiz = await _db.Quizzes.AsNoTracking().FirstOrDefaultAsync(d => d.Id == id);
             if (quiz == null)
@@ -50,8 +50,10 @@ namespace URLS.Application.Services.Implementations
 
             var quizViewModel = _mapper.Map<QuizViewModel>(quiz);
 
-            if (withQuestions)
-                quizViewModel.Questions = _mapper.Map<List<QuestionViewModel>>(await _db.Questions.AsNoTracking().Where(s => s.QuizId == id).OrderBy(s => s.Index).ToListAsync());
+            if (fullTest)
+            {
+                quizViewModel.Questions = _mapper.Map<List<QuestionViewModel>>(await _db.Questions.AsNoTracking().Where(s => s.QuizId == id).Include(s => s.Answers).OrderBy(s => s.Index).ToListAsync());
+            }
 
             return Result<QuizViewModel>.SuccessWithData(quizViewModel);
         }
