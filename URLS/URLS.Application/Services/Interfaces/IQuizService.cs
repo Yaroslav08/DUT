@@ -1,7 +1,6 @@
 ﻿using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Quiz;
 using URLS.Domain.Models;
-
 namespace URLS.Application.Services.Interfaces
 {
     public interface IQuizService : IBaseService<Quiz>
@@ -11,7 +10,12 @@ namespace URLS.Application.Services.Interfaces
         Task<Result<List<QuizResultViewModel>>> GetResultsAsync(Guid quizId, int offset = 0, int count = 10);
         Task<Result<List<QuizResultViewModel>>> GetUserResultsAsync(int userId, int offset = 0, int count = 10);
         Task<Result<QuizViewModel>> CreateAsync(QuizCreateModel quiz);
+        Task<Result<QuizViewModel>> UpdateAsync(QuizEditModel quiz);
+        Task<Result<QuizViewModel>> UpdateQuestionAsync(Guid quizId, QuestionEditModel question);
+        Task<Result<QuizViewModel>> UpdateAnswerAsync(Guid quizId, int questionId, AnswerEditModel answer);
         Task<Result<bool>> DeleteAsync(Guid id);
+        Task<Result<bool>> DeleteQuestionAsync(Guid id, int questionId);
+        Task<Result<bool>> DeleteAnswerAsync(Guid id, int questionId, long answerId);
         Task<Result<QuizStartedViewModel>> StartQuizAsync(Guid quizId);
         Task<Result<QuizResultViewModel>> FinishQuizAsync(int quizResultId, QuizAnswerCreateModel model);
     }

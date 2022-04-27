@@ -190,17 +190,6 @@ namespace URLS.Application.Services.Implementations
             return Result<QuizStartedViewModel>.SuccessWithData(resultViewModel);
         }
 
-        private bool CanViewQuiz(Quiz quiz)
-        {
-            if (_identityService.IsAdministrator())
-                return true;
-            if (quiz.CreatedByUserId == _identityService.GetUserId())
-                return true;
-            if (!quiz.IsAvalible && quiz.CreatedByUserId != _identityService.GetUserId())
-                return false;
-            return false;
-        }
-
         private async Task<QuizViewModel> ReadyQuizToViewAsync(Quiz quiz)
         {
             var quizViewModel = _mapper.Map<QuizViewModel>(quiz);
@@ -312,12 +301,51 @@ namespace URLS.Application.Services.Implementations
             return Result<bool>.Success();
         }
 
+        public async Task<Result<QuizViewModel>> UpdateAsync(QuizEditModel quiz)
+        {
+            throw new NotImplementedException();
+        }
 
+        public async Task<Result<QuizViewModel>> UpdateQuestionAsync(Guid quizId, QuestionEditModel question)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Result<QuizViewModel>> UpdateAnswerAsync(Guid quizId, int questionId, AnswerEditModel answer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Result<bool>> DeleteQuestionAsync(Guid id, int questionId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Result<bool>> DeleteAnswerAsync(Guid id, int questionId, long answerId)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+        #region Private
         private bool TryMapUserAnswersToQuiz(List<Question> questions, List<QuizAnswerResponse> quizResponse, QuizResult result, out string error)
         {
             //ToDo write logic later
             error = null;
             return true;
         }
+
+        private bool CanViewQuiz(Quiz quiz)
+        {
+            if (_identityService.IsAdministrator())
+                return true;
+            if (quiz.CreatedByUserId == _identityService.GetUserId())
+                return true;
+            if (!quiz.IsAvalible && quiz.CreatedByUserId != _identityService.GetUserId())
+                return false;
+            return false;
+        }
+        #endregion
     }
 }
