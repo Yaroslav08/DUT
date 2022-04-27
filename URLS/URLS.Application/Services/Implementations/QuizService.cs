@@ -48,6 +48,9 @@ namespace URLS.Application.Services.Implementations
             if (quiz == null)
                 return Result<QuizViewModel>.NotFound(typeof(Quiz).NotFoundMessage(id));
 
+            if (!CanViewQuiz(quiz))
+                return Result<QuizViewModel>.NotFound(typeof(Quiz).NotFoundMessage(id));
+
             var quizViewModel = _mapper.Map<QuizViewModel>(quiz);
 
             if (fullTest)
@@ -74,6 +77,7 @@ namespace URLS.Application.Services.Implementations
             var results = await _db.QuizResults
                 .AsNoTracking()
                 .Where(s => s.QuizId == quizId)
+                .Include(s => s.User)
                 .OrderByDescending(s => s.CreatedAt)
                 .Skip(offset).Take(count)
                 .ToListAsync();
@@ -86,11 +90,23 @@ namespace URLS.Application.Services.Implementations
             var results = await _db.QuizResults
                 .AsNoTracking()
                 .Where(s => s.UserId == userId)
+                .Include(s => s.Quiz)
                 .OrderByDescending(s => s.CreatedAt)
                 .Skip(offset).Take(count)
                 .ToListAsync();
             var resultsViewModel = _mapper.Map<List<QuizResultViewModel>>(results);
             return Result<List<QuizResultViewModel>>.SuccessWithData(resultsViewModel);
+        }
+
+        private bool CanViewQuiz(Quiz quiz)
+        {
+            if (_identityService.IsAdministrator())
+                return true;
+            if (quiz.CreatedByUserId == _identityService.GetUserId())
+                return true;
+            if (!quiz.IsAvalible && quiz.CreatedByUserId != _identityService.GetUserId())
+                return false;
+            return false;
         }
     }
 }

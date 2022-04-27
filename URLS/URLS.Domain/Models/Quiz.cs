@@ -7,6 +7,9 @@ namespace URLS.Domain.Models
         public string Name { get; set; }
         public QuizConfig Config { get; set; }
         public AuthorModel Author { get; set; }
+        public DateTime? From { get; set; }
+        public DateTime? To { get; set; }
+        public bool IsAvalible { get; set; }
         public bool IsTemplate { get; set; }
         public int? SubjectId { get; set; }
         public Subject Subject { get; set; }

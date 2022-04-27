@@ -12,6 +12,7 @@ namespace URLS.Application.Extensions
             baseModel.LastUpdatedFromIP = null;
             baseModel.CreatedAt = DateTime.Now;
             baseModel.CreatedBy = identityService is null ? Defaults.CreatedBy : identityService.GetIdentityData();
+            baseModel.CreatedByUserId = identityService is null ? Defaults.CreatedByUserId : identityService.GetUserId();
             baseModel.CreatedFromIP = identityService is null ? Defaults.IP : identityService.GetIP();
             baseModel.Version = 1;
             return baseModel;
@@ -21,6 +22,7 @@ namespace URLS.Application.Extensions
         {
             baseModel.LastUpdatedAt = DateTime.Now;
             baseModel.LastUpdatedBy = identityService is null ? Defaults.CreatedBy : identityService.GetIdentityData();
+            baseModel.LastUpdatedByUserId = identityService is null ? Defaults.CreatedByUserId : identityService.GetUserId();
             baseModel.LastUpdatedFromIP = identityService is null ? Defaults.IP : identityService.GetIP();
             baseModel.Version++;
             return baseModel;

@@ -8,10 +8,12 @@ namespace URLS.Domain.Models
         [Required]
         public DateTime CreatedAt { get; set; }
         public string CreatedBy { get; set; }
+        public int CreatedByUserId { get; set; }
         public string CreatedFromIP { get; set; }
 
         public DateTime? LastUpdatedAt { get; set; }
         public string LastUpdatedBy { get; set; }
+        public int LastUpdatedByUserId { get; set; }
         public string LastUpdatedFromIP { get; set; }
 
         public int Version { get; set; }
