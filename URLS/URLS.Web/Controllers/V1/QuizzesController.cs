@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.Quiz;
-
 namespace URLS.Web.Controllers.V1
 {
     [ApiVersion("1.0")]
@@ -26,6 +24,25 @@ namespace URLS.Web.Controllers.V1
         public async Task<IActionResult> GetById(Guid id)
         {
             return JsonResult(await _quizService.GetByIdAsync(id, true));
+        }
+
+        [HttpPost("{id}/start")]
+        public async Task<IActionResult> StartQuiz(Guid id)
+        {
+            return JsonResult(await _quizService.StartQuizAsync(id));
+        }
+
+        [HttpPost("{id}/finish/{resulId}")]
+        public async Task<IActionResult> FinishQuiz(Guid id, int resultId, QuizAnswerCreateModel model)
+        {
+            model.QuizId = id;
+            return JsonResult(await _quizService.FinishQuizAsync(resultId, model));
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteQuiz(Guid id)
+        {
+            return JsonResult(await _quizService.DeleteAsync(id));
         }
     }
 }

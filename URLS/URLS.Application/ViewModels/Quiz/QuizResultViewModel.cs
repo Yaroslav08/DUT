@@ -9,7 +9,10 @@ namespace URLS.Application.ViewModels.Quiz
         public DateTime CreatedAt { get; set; }
         public double Mark { get; set; }
         public int Attempt { get; set; }
+        public DateTime StartAt { get; set; }
         public QuizResultStatistics Statistics { get; set; }
+        public DateTime? EndAt { get; set; }
+        public bool TimeIsExpired { get; set; }
         public UserViewModel User { get; set; }
         public QuizViewModel Quiz { get; set; }
         public List<QuestionModel> Result { get; set; }

@@ -18,11 +18,10 @@ namespace URLS.Domain.Models
     }
     public class QuizConfig
     {
-        public int MaxAttempts { get; set; } // (-1) without limits
+        public int MaxAttempts { get; set; } // (0) without limits
         public double MarkPerQuiz { get; set; }
-        public int Minutes { get; set; } // (-1) without limits
-        public bool AtRandomQuestions { get; set; }
-        public bool AtRandomAnswers { get; set; }
+        public int Minutes { get; set; } // (0) without limits
+        public bool RandomQuestionsAndAnswers { get; set; }
         public bool ShowResults { get; set; }
         public bool ShowCorrectAnswers { get; set; }
     }

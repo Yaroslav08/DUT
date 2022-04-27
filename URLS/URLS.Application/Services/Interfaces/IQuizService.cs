@@ -11,5 +11,8 @@ namespace URLS.Application.Services.Interfaces
         Task<Result<List<QuizResultViewModel>>> GetResultsAsync(Guid quizId, int offset = 0, int count = 10);
         Task<Result<List<QuizResultViewModel>>> GetUserResultsAsync(int userId, int offset = 0, int count = 10);
         Task<Result<QuizViewModel>> CreateAsync(QuizCreateModel quiz);
+        Task<Result<bool>> DeleteAsync(Guid id);
+        Task<Result<QuizStartedViewModel>> StartQuizAsync(Guid quizId);
+        Task<Result<QuizResultViewModel>> FinishQuizAsync(int quizResultId, QuizAnswerCreateModel model);
     }
 }
