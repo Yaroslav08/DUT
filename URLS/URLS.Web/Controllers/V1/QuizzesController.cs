@@ -44,5 +44,52 @@ namespace URLS.Web.Controllers.V1
         {
             return JsonResult(await _quizService.DeleteAsync(id));
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateQuiz(Guid id, [FromBody] QuizEditModel model)
+        {
+            model.Id = id;
+            return JsonResult(await _quizService.UpdateAsync(model));
+        }
+
+        [HttpPut("{id}/questions/{questionId}")]
+        public async Task<IActionResult> UpdateQuestion(Guid id, int questionId, [FromBody] QuestionEditModel model)
+        {
+            model.Id = questionId;
+            var list = new List<QuestionEditModel> { model };
+            return JsonResult(await _quizService.UpdateQuestionsAsync(id, list));
+        }
+
+        [HttpPut("{id}/questions/bulk")]
+        public async Task<IActionResult> UpdateQuestionBulk(Guid id, int questionId, [FromBody] List<QuestionEditModel> models)
+        {
+            return JsonResult(await _quizService.UpdateQuestionsAsync(id, models));
+        }
+
+        [HttpDelete("{id}/questions/{questionId}")]
+        public async Task<IActionResult> DeleteQuestion(Guid id, int questionId)
+        {
+            return JsonResult(await _quizService.DeleteQuestionAsync(id, questionId));
+        }
+
+        [HttpPut("{id}/questions/{questionId}/answers/bulk")]
+        public async Task<IActionResult> UpdateAnswer(Guid id, int questionId, [FromBody] List<AnswerEditModel> models)
+        {
+            return JsonResult(await _quizService.UpdateAnswersAsync(id, questionId, models));
+        }
+
+        [HttpPut("{id}/questions/{questionId}/answers/{answerId}")]
+        public async Task<IActionResult> UpdateAnswer(Guid id, int questionId, long answerId, [FromBody] AnswerEditModel model)
+        {
+            model.Id = answerId;
+            var models = new List<AnswerEditModel> { model };
+            return JsonResult(await _quizService.UpdateAnswersAsync(id, questionId, models));
+        }
+
+        [HttpDelete("{id}/questions/{questionId}/answers/{answerId}")]
+        public async Task<IActionResult> DeleteAnswer(Guid id, int questionId, long answerId)
+        {
+            return JsonResult(await _quizService.DeleteAnswerAsync(id, questionId, answerId));
+        }
     }
 }

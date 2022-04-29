@@ -303,29 +303,145 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<QuizViewModel>> UpdateAsync(QuizEditModel quiz)
         {
-            throw new NotImplementedException();
-        }
+            var quizToUpdate = await _db.Quizzes.AsNoTracking().FirstOrDefaultAsync(s => s.Id == quiz.Id);
+            if (quizToUpdate == null)
+                return Result<QuizViewModel>.NotFound(typeof(Quiz).NotFoundMessage(quiz.Id));
 
-        public async Task<Result<QuizViewModel>> UpdateQuestionAsync(Guid quizId, QuestionEditModel question)
-        {
-            throw new NotImplementedException();
-        }
+            if (!_identityService.IsAdministrator())
+                if (quizToUpdate.CreatedByUserId != _identityService.GetUserId())
+                    return Result<QuizViewModel>.Forbiden();
 
-        public async Task<Result<QuizViewModel>> UpdateAnswerAsync(Guid quizId, int questionId, AnswerEditModel answer)
-        {
-            throw new NotImplementedException();
+            quizToUpdate.Author = quiz.Author;
+            quizToUpdate.Config = quiz.Config;
+            quizToUpdate.IsAvalible = quiz.IsAvalible;
+            quizToUpdate.From = quiz.From;
+            quizToUpdate.To = quiz.To;
+            quizToUpdate.IsTemplate = quiz.IsTemplate;
+            quizToUpdate.Name = quiz.Name;
+            quizToUpdate.PrepareToUpdate(_identityService);
+            _db.Quizzes.Update(quizToUpdate);
+            await _db.SaveChangesAsync();
+
+            return Result<QuizViewModel>.SuccessWithData(_mapper.Map<QuizViewModel>(quizToUpdate));
         }
 
         public async Task<Result<bool>> DeleteQuestionAsync(Guid id, int questionId)
         {
-            throw new NotImplementedException();
+            var questionForDelete = await _db.Questions.AsNoTracking().FirstOrDefaultAsync(s => s.Id == questionId);
+            if (questionForDelete == null)
+                return Result<bool>.NotFound(typeof(Question).NotFoundMessage(questionId));
+
+            if (questionForDelete.QuizId != id)
+                return Result<bool>.Forbiden();
+
+            if (!_identityService.IsAdministrator())
+                if (questionForDelete.CreatedByUserId != _identityService.GetUserId())
+                    return Result<bool>.Forbiden();
+
+            _db.Questions.Remove(questionForDelete);
+            await _db.SaveChangesAsync();
+            return Result<bool>.Success();
         }
 
         public async Task<Result<bool>> DeleteAnswerAsync(Guid id, int questionId, long answerId)
         {
-            throw new NotImplementedException();
+            var answerForDelete = await _db.Answers.AsNoTracking().FirstOrDefaultAsync(s => s.Id == answerId);
+            if (answerForDelete == null)
+                return Result<bool>.NotFound(typeof(Answer).NotFoundMessage(answerId));
+
+            if (answerForDelete.QuestionId != questionId)
+                return Result<bool>.Forbiden();
+
+            if (!_identityService.IsAdministrator())
+                if (answerForDelete.CreatedByUserId != _identityService.GetUserId())
+                    return Result<bool>.Forbiden();
+
+            _db.Answers.Remove(answerForDelete);
+            await _db.SaveChangesAsync();
+            return Result<bool>.Success();
         }
 
+        public async Task<Result<List<QuestionViewModel>>> UpdateQuestionsAsync(Guid quizId, List<QuestionEditModel> questions)
+        {
+            var updatedIds = questions.Select(q => q.Id);
+            var questionsToUpdate = await _db.Questions
+                .AsNoTracking()
+                .Where(s => s.QuizId == quizId && updatedIds.Contains(s.Id))
+                .ToListAsync();
+
+            if (questionsToUpdate == null || questionsToUpdate.Count == 0)
+                return Result<List<QuestionViewModel>>.NotFound($"Questions with IDs ({string.Join(',', updatedIds)}) not found");
+
+            if (questionsToUpdate.Count < updatedIds.Count())
+                return Result<List<QuestionViewModel>>.NotFound();
+
+            if (!questionsToUpdate.All(s => s.QuizId == quizId))
+                return Result<List<QuestionViewModel>>.Error("Not all questions in current quiz");
+
+            if (!_identityService.IsAdministrator())
+                if (!questionsToUpdate.All(s => s.CreatedByUserId == _identityService.GetUserId()))
+                    return Result<List<QuestionViewModel>>.Forbiden();
+
+            var diff = updatedIds.Except(questionsToUpdate.Select(s => s.Id));
+
+            if (diff != null || diff.Count() > 0)
+                return Result<List<QuestionViewModel>>.Error($"Questions with IDs ({string.Join(',', diff)}) not found");
+
+            foreach (var question in questionsToUpdate)
+            {
+                var questionViewModel = questions.First(s => s.Id == question.Id);
+
+                question.Index = questionViewModel.Index;
+                question.QuestionText = questionViewModel.QuestionText;
+                question.PrepareToUpdate(_identityService);
+            }
+
+            _db.Questions.UpdateRange(questionsToUpdate);
+            await _db.SaveChangesAsync();
+
+            return Result<List<QuestionViewModel>>.SuccessWithData(_mapper.Map<List<QuestionViewModel>>(questionsToUpdate));
+        }
+
+        public async Task<Result<List<AnswerViewModel>>> UpdateAnswersAsync(Guid quizId, int questionId, List<AnswerEditModel> answers)
+        {
+            var updatedIds = answers.Select(q => q.Id);
+            var answersToUpdate = await _db.Answers
+                .AsNoTracking()
+                .Where(s => s.QuestionId == questionId && updatedIds.Contains(s.Id))
+                .ToListAsync();
+
+            if (answersToUpdate == null || answersToUpdate.Count == 0)
+                return Result<List<AnswerViewModel>>.NotFound($"Answers with IDs ({string.Join(',', updatedIds)}) not found");
+
+            if (answersToUpdate.Count < updatedIds.Count())
+                return Result<List<AnswerViewModel>>.NotFound();
+
+            if (!answersToUpdate.All(s => s.QuestionId == questionId))
+                return Result<List<AnswerViewModel>>.Error("Not all answers in current quiz");
+
+            if (!_identityService.IsAdministrator())
+                if (!answersToUpdate.All(s => s.CreatedByUserId == _identityService.GetUserId()))
+                    return Result<List<AnswerViewModel>>.Forbiden();
+
+            var diff = updatedIds.Except(answersToUpdate.Select(s => s.Id));
+
+            if (diff != null || diff.Count() > 0)
+                return Result<List<AnswerViewModel>>.Error($"Answers with IDs ({string.Join(',', diff)}) not found");
+
+            foreach (var answer in answersToUpdate)
+            {
+                var answerViewModel = answers.First(s => s.Id == answer.Id);
+
+                answer.Response = answerViewModel.Response;
+                answer.IsCorrect = answerViewModel.IsCorrect;
+                answer.PrepareToUpdate(_identityService);
+            }
+
+            _db.Answers.UpdateRange(answersToUpdate);
+            await _db.SaveChangesAsync();
+
+            return Result<List<AnswerViewModel>>.SuccessWithData(_mapper.Map<List<AnswerViewModel>>(answersToUpdate));
+        }
 
 
         #region Private
