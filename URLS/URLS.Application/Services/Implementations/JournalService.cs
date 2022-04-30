@@ -8,12 +8,13 @@ using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
 using Force.DeepCloner;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace URLS.Application.Services.Implementations
 {
     public class JournalService : IJournalService
     {
-        private readonly char[] avalible = new char[] { 'н', 'н', 'n' };
+        private readonly string[] avalible = new string[] { "н", "н", "n" };
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
         private readonly URLSDbContext _db;
@@ -122,7 +123,7 @@ namespace URLS.Application.Services.Implementations
             return Result<LessonViewModel>.SuccessWithData(updatedLesson);
         }
 
-        public async Task<Result<Journal>> GetJournalAsync(int subjectId, long lessonId)
+        public async Task<Result<Journal>> GetLessonJournalAsync(int subjectId, long lessonId)
         {
             var lesson = await _db.Lessons.AsNoTracking().FirstOrDefaultAsync(s => s.Id == lessonId);
             if (lesson == null)
@@ -134,8 +135,29 @@ namespace URLS.Application.Services.Implementations
             return Result<Journal>.SuccessWithData(lesson.Journal);
         }
 
+        public async Task<Result<FullJournalViewModel>> GetFullJournalAsync(int subjectId)
+        {
+            var lessons = await _db.Lessons.AsNoTracking().Where(s => s.SubjectId == subjectId).ToListAsync();
+            if (lessons == null || lessons.Count == 0)
+                return Result<FullJournalViewModel>.SuccessWithData(FullJournalViewModel.GetBase());
 
+            var res = GetJournal(lessons);
 
+            return Result<FullJournalViewModel>.SuccessWithData(res);
+        }
+
+        public async Task<Result<FullJournalViewModel>> GetStudentJournalAsync(int subjectId, int userId)
+        {
+            var lessons = await _db.Lessons.AsNoTracking().Where(s => s.SubjectId == subjectId).ToListAsync();
+            if (lessons == null || lessons.Count == 0)
+                return Result<FullJournalViewModel>.SuccessWithData(FullJournalViewModel.GetBase());
+
+            var studentJournal = GetJournal(lessons, userId);
+
+            return Result<FullJournalViewModel>.SuccessWithData(studentJournal);
+        }
+
+        #region Private
         private async Task<(bool Success, string Error)> MapMarksInJournalAsync(Subject subject, Lesson currentLesson, Journal newJournal)
         {
             string error = null;
@@ -242,7 +264,7 @@ namespace URLS.Application.Services.Implementations
             if (char.IsLetter(mark[0]))
             {
                 mark = mark.Substring(0, 1).ToLower();
-                var res = avalible.Contains(mark[0]);
+                var res = avalible.Contains(mark);
                 error = res ? null : "Isn't valid mark";
                 return res;
             }
@@ -268,7 +290,7 @@ namespace URLS.Application.Services.Implementations
         private JournalStatistics GetJournalStatistics(Journal journal)
         {
             var countOfStudents = journal.Students.Count;
-            var countOfExist = countOfStudents - journal.Students.Count(s => s.Mark != null && avalible.Contains(s.Mark[0]));
+            var countOfExist = countOfStudents - journal.Students.Count(s => s.Mark != null && avalible.Contains(s.Mark));
 
             var countWithMarks = journal.Students.Count(s => double.TryParse(s.Mark, out var markNumber) && markNumber > 0);
             var countWithoutMarks = countOfStudents - countWithMarks;
@@ -325,5 +347,67 @@ namespace URLS.Application.Services.Implementations
                 lesson.Journal.Statistics = GetJournalStatistics(newJournal);
             }
         }
+
+        private FullJournalViewModel GetJournal(List<Lesson> lessons, int? studentId = null)
+        {
+            var fullJournal = new FullJournalViewModel
+            {
+                Statistics = new JournalStatic(),
+                Students = new List<StudentJournal>()
+            };
+            foreach (var lesson in lessons)
+            {
+                foreach (var studentMark in lesson.Journal.Students)
+                {
+                    var reqId = studentId ?? studentMark.Id;
+                    var student = fullJournal.Students.FirstOrDefault(s => s.Id == reqId);
+                    if (student != null)
+                    {
+                        student.Lessons.Add(new LessonMark
+                        {
+                            Date = lesson.Date,
+                            Mark = studentMark.Mark
+                        });
+                    }
+                    else
+                    {
+                        fullJournal.Students.Add(new StudentJournal
+                        {
+                            Id = studentMark.Id,
+                            Name = studentMark.Name,
+                            Lessons = new List<LessonMark>
+                            {
+                                new LessonMark
+                                {
+                                    Date = lesson.Date,
+                                    Mark = studentMark.Mark
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+
+            CalculateOfAttendance(fullJournal);
+
+            return fullJournal;
+        }
+
+        private void CalculateOfAttendance(FullJournalViewModel fullJournal)
+        {
+            foreach (var sJournal in fullJournal.Students)
+            {
+                var countOfLessons = sJournal.Lessons.Count;
+                var countOfExist = countOfLessons - sJournal.Lessons.Count(s => avalible.Contains(s.Mark));
+
+                double percente = (countOfExist * 100) / countOfLessons;
+
+                sJournal.PercentOfAttendance = percente;
+            }
+
+            var allAttendance = fullJournal.Students.Average(s => s.PercentOfAttendance);
+            fullJournal.Statistics.PercentOfAttendance = $"{allAttendance}%";
+        }
+        #endregion
     }
 }

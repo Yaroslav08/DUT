@@ -5,6 +5,8 @@ using URLS.Application.ViewModels.Report;
 using URLS.Application.ViewModels.Subject;
 using URLS.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+
 namespace URLS.Web.Controllers.V1
 {
     [ApiVersion("1.0")]
@@ -141,10 +143,23 @@ namespace URLS.Web.Controllers.V1
 
         #region Journals
 
+        [HttpGet("{subjectId}/journal")]
+        public async Task<IActionResult> GetJournal(int subjectId)
+        {
+            return JsonResult(await _journalService.GetFullJournalAsync(subjectId));
+        }
+
+        [HttpGet("{subjectId}/journal/{studentId}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetStudentJournal(int subjectId, int studentId)
+        {
+            return JsonResult(await _journalService.GetStudentJournalAsync(subjectId, studentId));
+        }
+
         [HttpGet("{subjectId}/lessons/{lessonId}/journal")]
         public async Task<IActionResult> GetJournalByLesson(int subjectId, long lessonId)
         {
-            return JsonResult(await _journalService.GetJournalAsync(subjectId, lessonId));
+            return JsonResult(await _journalService.GetLessonJournalAsync(subjectId, lessonId));
         }
 
         [HttpPost("{subjectId}/lessons/{lessonId}/journal")]
