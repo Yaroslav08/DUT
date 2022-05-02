@@ -38,7 +38,7 @@ namespace URLS.Web.Controllers.V1
             return JsonResult(await _quizService.StartQuizAsync(id));
         }
 
-        [HttpPost("{id}/finish/{resulId}")]
+        [HttpPost("{id}/finish/{resultId}")]
         public async Task<IActionResult> FinishQuiz(Guid id, int resultId, QuizAnswerCreateModel model)
         {
             model.QuizId = id;

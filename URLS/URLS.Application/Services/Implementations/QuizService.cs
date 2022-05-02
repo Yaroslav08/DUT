@@ -49,6 +49,9 @@ namespace URLS.Application.Services.Implementations
             if (quizResullt == null)
                 return Result<QuizResultViewModel>.NotFound(typeof(QuizResult).NotFoundMessage(quizResultId));
 
+            if (quizResullt.UserId != _identityService.GetUserId())
+                return Result<QuizResultViewModel>.Forbiden();
+
             var quiz = quizResullt.Quiz;
             quizResullt.EndAt = DateTime.Now;
 
@@ -69,7 +72,7 @@ namespace URLS.Application.Services.Implementations
                 }
             }
 
-            var questions = await _db.Questions.AsNoTracking().Where(s => s.QuizId == model.QuizId).ToListAsync();
+            var questions = await _db.Questions.AsNoTracking().Where(s => s.QuizId == model.QuizId).Include(s => s.Answers).ToListAsync();
 
             if (!TryMapUserAnswersToQuiz(questions, model.Responses, quizResullt, out var error))
             {
@@ -460,24 +463,26 @@ namespace URLS.Application.Services.Implementations
         #region Private
         private bool TryMapUserAnswersToQuiz(List<Question> questions, List<QuizAnswerResponse> quizResponse, QuizResult result, out string error)
         {
-            if (questions.Count != quizResponse.Count)
+            if (quizResponse.Count < questions.Count)
             {
                 error = "Need more answers";
                 return false;
             }
 
-            var diff = quizResponse.Select(s => s.QuestionId).Except(questions.Select(s => s.Id));
-            
-            if (diff != null || diff.Count() > 0)
+            if (!TryCheckQuestions(questions, quizResponse, out var errorQuestion))
             {
-                if (diff.Count() == 1)
-                    error = $"Питання {quizResponse.FirstOrDefault(s => s.QuestionId == diff.First()).QuestionId} не існує";
-                else
-                    error = $"Питань з Id ({string.Join(",", quizResponse.Where(s => diff.Contains(s.QuestionId)).Select(s => s.QuestionId))}) не існує";
+                error = errorQuestion;
+                return false;
+            }
+
+            if (!TryCheckAnswers(questions, quizResponse, out var errorAnswers))
+            {
+                error = errorAnswers;
+                return false;
             }
 
 
-            //ToDo
+
 
 
             error = null;
@@ -493,6 +498,69 @@ namespace URLS.Application.Services.Implementations
             if (!quiz.IsAvalible && quiz.CreatedByUserId != _identityService.GetUserId())
                 return false;
             return false;
+        }
+
+        private bool TryCheckQuestions(List<Question> questions, List<QuizAnswerResponse> quizResponse, out string error)
+        {
+            var diffQuestions = quizResponse.Select(s => s.QuestionId).Except(questions.Select(s => s.Id));
+
+            if (diffQuestions != null && diffQuestions.Count() > 0)
+            {
+                if (diffQuestions.Count() == 1)
+                    error = $"Питання з Id {diffQuestions.First()} не існує";
+                else
+                    error = $"Питань з Id ({string.Join(",", diffQuestions)}) не існує";
+                return false;
+            }
+            error = null;
+            return true;
+        }
+
+        private bool TryCheckAnswers(List<Question> questions, List<QuizAnswerResponse> quizResponse, out string error)
+        {
+            var originalAnswerdIds = new List<long>();
+
+            questions.ForEach(question =>
+            {
+                question.Answers.ForEach(answer =>
+                {
+                    originalAnswerdIds.Add(answer.Id);
+                });
+            });
+
+            var answerdIds = new List<long>();
+
+            quizResponse.ForEach(response =>
+            {
+                response.AnswerIds.ToList().ForEach(answer =>
+                {
+                    answerdIds.Add(answer);
+                });
+            });
+
+            var diffAnswers = answerdIds.Except(originalAnswerdIds);
+
+            if (diffAnswers != null && diffAnswers.Count() > 0)
+            {
+                if (diffAnswers.Count() == 1)
+                    error = $"Відповіді з Id {diffAnswers.First()} не існує";
+                else
+                    error = $"Відповідей з Id ({string.Join(",", diffAnswers)}) не існує";
+                return false;
+            }
+
+            foreach (var response in quizResponse)
+            {
+                var question = questions.FirstOrDefault(s => s.Id == response.QuestionId);
+                var answerDiff = response.AnswerIds.Except(question.Answers.Select(s => s.Id));
+                if (answerDiff != null && answerDiff.Count() > 0)
+                {
+                    error = $"Відповіді з Id ({string.Join(",", answerDiff)}) для питання з Id ({question.Id}) не знайдено";
+                    return false;
+                }
+            }
+            error = null;
+            return true;
         }
         #endregion
     }
