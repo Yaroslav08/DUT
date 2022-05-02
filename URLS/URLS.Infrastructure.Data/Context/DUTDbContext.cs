@@ -5,16 +5,8 @@ namespace URLS.Infrastructure.Data.Context
 {
     public class URLSDbContext : DbContext
     {
-        #region ctors
-        public URLSDbContext(DbContextOptions<URLSDbContext> options) : base(options)
-        {
-            Database.EnsureCreated();
-        }
-        public URLSDbContext()
-        {
+        public URLSDbContext(DbContextOptions<URLSDbContext> options) : base(options) { }
 
-        }
-        #endregion
 
         public DbSet<User> Users { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }

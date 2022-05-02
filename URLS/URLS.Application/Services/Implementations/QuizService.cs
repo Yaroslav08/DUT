@@ -443,11 +443,43 @@ namespace URLS.Application.Services.Implementations
             return Result<List<AnswerViewModel>>.SuccessWithData(_mapper.Map<List<AnswerViewModel>>(answersToUpdate));
         }
 
+        public async Task<Result<List<QuizViewModel>>> GetAllAsync(int offset = 0, int count = 20)
+        {
+            var query = _db.Quizzes.AsNoTracking();
+
+            if (!_identityService.IsAdministrator())
+                query = query.Where(s => s.CreatedByUserId == _identityService.GetUserId());
+
+            query = query.OrderByDescending(s => s.CreatedAt);
+            query = query.Skip(offset).Take(count);
+            var quizes = await query.ToListAsync();
+
+            return Result<List<QuizViewModel>>.SuccessWithData(_mapper.Map<List<QuizViewModel>>(quizes));
+        }
 
         #region Private
         private bool TryMapUserAnswersToQuiz(List<Question> questions, List<QuizAnswerResponse> quizResponse, QuizResult result, out string error)
         {
-            //ToDo write logic later
+            if (questions.Count != quizResponse.Count)
+            {
+                error = "Need more answers";
+                return false;
+            }
+
+            var diff = quizResponse.Select(s => s.QuestionId).Except(questions.Select(s => s.Id));
+            
+            if (diff != null || diff.Count() > 0)
+            {
+                if (diff.Count() == 1)
+                    error = $"Питання {quizResponse.FirstOrDefault(s => s.QuestionId == diff.First()).QuestionId} не існує";
+                else
+                    error = $"Питань з Id ({string.Join(",", quizResponse.Where(s => diff.Contains(s.QuestionId)).Select(s => s.QuestionId))}) не існує";
+            }
+
+
+            //ToDo
+
+
             error = null;
             return true;
         }

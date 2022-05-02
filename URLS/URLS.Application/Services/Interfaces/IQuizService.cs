@@ -5,6 +5,7 @@ namespace URLS.Application.Services.Interfaces
 {
     public interface IQuizService : IBaseService<Quiz>
     {
+        Task<Result<List<QuizViewModel>>> GetAllAsync(int offset = 0, int count = 20);
         Task<Result<List<QuizViewModel>>> GetBySubjectIdAsync(int subjectId, int offset = 0, int count = 10);
         Task<Result<QuizViewModel>> GetByIdAsync(Guid id, bool fullTest = false);
         Task<Result<List<QuizResultViewModel>>> GetResultsAsync(Guid quizId, int offset = 0, int count = 10);

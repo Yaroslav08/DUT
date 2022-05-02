@@ -20,6 +20,12 @@ namespace URLS.Web.Controllers.V1
             return JsonResult(await _quizService.CreateAsync(quiz));
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAllQuizes(int offset = 0, int count = 20)
+        {
+            return JsonResult(await _quizService.GetAllAsync(offset, count));
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
