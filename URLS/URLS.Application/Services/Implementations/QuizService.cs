@@ -72,9 +72,11 @@ namespace URLS.Application.Services.Implementations
                 }
             }
 
+            quizResullt.Result = new List<QuestionModel>();
+
             var questions = await _db.Questions.AsNoTracking().Where(s => s.QuizId == model.QuizId).Include(s => s.Answers).ToListAsync();
 
-            if (!TryMapUserAnswersToQuiz(questions, model.Responses, quizResullt, out var error))
+            if (!TryMapUserAnswersToQuiz( new MapAnswersToQuiz(questions, model.Responses, quizResullt, quiz), out var error))//questions, model.Responses, quizResullt, quiz.Config.ShowCorrectAnswers, out var error))
             {
                 return Result<QuizResultViewModel>.Error(error);
             }
@@ -191,102 +193,6 @@ namespace URLS.Application.Services.Implementations
             };
 
             return Result<QuizStartedViewModel>.SuccessWithData(resultViewModel);
-        }
-
-        private async Task<QuizViewModel> ReadyQuizToViewAsync(Quiz quiz)
-        {
-            var quizViewModel = _mapper.Map<QuizViewModel>(quiz);
-
-            var questions = await _db.Questions.AsNoTracking().Where(s => s.QuizId == quiz.Id).Include(s => s.Answers).ToListAsync();
-
-            if (quiz.Config.RandomQuestionsAndAnswers)
-                quizViewModel.Questions = GetRandomQuestions(questions);
-            else
-                quizViewModel.Questions = GetSortingQuestions(questions);
-
-            return quizViewModel;
-        }
-
-        private List<QuestionViewModel> GetSortingQuestions(List<Question> questions)
-        {
-            var sortingQuestions = new List<QuestionViewModel>();
-
-            if (questions == null || questions.Count == 0)
-                return sortingQuestions;
-
-            int questionNumber = 1;
-            foreach (var question in questions.OrderBy(s => s.Index))
-            {
-                var questionViewModel = new QuestionViewModel
-                {
-                    Id = question.Id,
-                    Index = question.Index,
-                    CreatedAt = question.CreatedAt,
-                    QuestionText = question.QuestionText.GetNumericQuestion(questionNumber),
-                    Answers = new List<AnswerViewModel>()
-                };
-                if (question.Answers != null && question.Answers.Count > 0)
-                {
-                    int answerNumber = 1;
-                    foreach (var answer in question.Answers)
-                    {
-                        questionViewModel.Answers.Add(new AnswerViewModel
-                        {
-                            Id = answer.Id,
-                            Response = answer.Response.GetNumericAnswer(answerNumber)
-                        });
-                        answerNumber++;
-                    }
-                }
-                sortingQuestions.Add(questionViewModel);
-                questionNumber++;
-            }
-
-            return sortingQuestions;
-        }
-
-        private List<QuestionViewModel> GetRandomQuestions(List<Question> questions)
-        {
-            var randomQuestions = new List<QuestionViewModel>();
-
-            if (questions == null || questions.Count == 0)
-                return randomQuestions;
-
-            var questionIds = questions.Select(x => x.Id).ToList();
-
-            for (int i = 1; i <= questions.Count; i++)
-            {
-                var randomQuestionId = questionIds[new Random().Next(0, questionIds.Count)];
-                var question = questions.FirstOrDefault(s => s.Id == randomQuestionId);
-                var questionViewModel = new QuestionViewModel
-                {
-                    Id = question.Id,
-                    CreatedAt = question.CreatedAt,
-                    Index = question.Index,
-                    QuestionText = question.QuestionText.GetNumericQuestion(i),
-                    Answers = new List<AnswerViewModel>()
-                };
-
-                if (question.Answers != null && question.Answers.Count > 0)
-                {
-                    var answersIds = question.Answers.Select(s => s.Id).ToList();
-                    for (int j = 1; j <= question.Answers.Count; j++)
-                    {
-                        var randomAnswerId = answersIds[new Random().Next(0, answersIds.Count)];
-                        var answer = question.Answers.FirstOrDefault(s => s.Id == randomAnswerId);
-                        var answerViewModel = new AnswerViewModel
-                        {
-                            Id = answer.Id,
-                            Response = answer.Response.GetNumericAnswer(j),
-                        };
-                        answersIds.Remove(answer.Id);
-                        questionViewModel.Answers.Add(answerViewModel);
-                    }
-                }
-                randomQuestions.Add(questionViewModel);
-                questionIds.Remove(question.Id);
-            }
-            return randomQuestions;
         }
 
         public async Task<Result<bool>> DeleteAsync(Guid id)
@@ -461,28 +367,80 @@ namespace URLS.Application.Services.Implementations
         }
 
         #region Private
-        private bool TryMapUserAnswersToQuiz(List<Question> questions, List<QuizAnswerResponse> quizResponse, QuizResult result, out string error)
+        private bool TryMapUserAnswersToQuiz(MapAnswersToQuiz answersToQuiz, out string error)//List<Question> questions, List<QuizAnswerResponse> quizResponse, QuizResult result, bool showCorrectAnswer, out string error)
         {
-            if (quizResponse.Count < questions.Count)
+            if (answersToQuiz.QuizResponse.Count < answersToQuiz.Questions.Count)
             {
                 error = "Need more answers";
                 return false;
             }
 
-            if (!TryCheckQuestions(questions, quizResponse, out var errorQuestion))
+            if (!TryCheckQuestions(answersToQuiz.Questions, answersToQuiz.QuizResponse, out var errorQuestion))
             {
                 error = errorQuestion;
                 return false;
             }
 
-            if (!TryCheckAnswers(questions, quizResponse, out var errorAnswers))
+            if (!TryCheckAnswers(answersToQuiz.Questions, answersToQuiz.QuizResponse, out var errorAnswers))
             {
                 error = errorAnswers;
                 return false;
             }
 
 
+            var maxMark = answersToQuiz.Quiz.Config.MarkPerQuiz;
+            var markPerTrueAnswer = maxMark / answersToQuiz.Questions.Count;
 
+            double markResult = 0;
+
+            foreach (var resposne in answersToQuiz.QuizResponse)
+            {
+                var question = answersToQuiz.Questions.FirstOrDefault(s => s.Id == resposne.QuestionId);
+                var questionModel = new QuestionModel
+                {
+                    Id = question.Id,
+                    QuestionText = question.QuestionText,
+                    Answers = new List<AnswerModel>()
+                };
+                foreach (var answer in question.Answers)
+                {
+                    var d = new AnswerModel
+                    {
+                        Id = answer.Id,
+                        Response = answer.Response,
+                        IsCorrect = answersToQuiz.Quiz.Config.ShowCorrectAnswers ? answer.IsCorrect : null,
+                        IsChoice = resposne.AnswerIds.Contains(answer.Id)
+                    };
+                    if (d.IsCorrectAnswer())
+                        markResult += markPerTrueAnswer;
+                    questionModel.Answers.Add(d);
+                }
+                answersToQuiz.Result.Result.Add(questionModel);
+            }
+
+            answersToQuiz.Result.Mark = Math.Round(markResult, 2);
+            //foreach (var question in questions)
+            //{
+            //    var resposneModel = quizResponse.FirstOrDefault(s => s.QuestionId == question.Id);
+
+            //    var questionModel = new QuestionModel
+            //    {
+            //        Id = question.Id,
+            //        QuestionText = question.QuestionText,
+            //        Answers = new List<AnswerModel>()
+            //    };
+            //    foreach (var answer in question.Answers)
+            //    {
+            //        questionModel.Answers.Add(new AnswerModel
+            //        {
+            //            Id = answer.Id,
+            //            Response = answer.Response,
+            //            IsCorrect = showCorrectAnswer ? answer.IsCorrect : null,
+            //            IsChoice = resposneModel.AnswerIds.Contains(answer.Id)
+            //        });
+            //    }
+            //    result.Result.Add(questionModel);
+            //}
 
 
             error = null;
@@ -561,6 +519,102 @@ namespace URLS.Application.Services.Implementations
             }
             error = null;
             return true;
+        }
+
+        private async Task<QuizViewModel> ReadyQuizToViewAsync(Quiz quiz)
+        {
+            var quizViewModel = _mapper.Map<QuizViewModel>(quiz);
+
+            var questions = await _db.Questions.AsNoTracking().Where(s => s.QuizId == quiz.Id).Include(s => s.Answers).ToListAsync();
+
+            if (quiz.Config.RandomQuestionsAndAnswers)
+                quizViewModel.Questions = GetRandomQuestions(questions);
+            else
+                quizViewModel.Questions = GetSortingQuestions(questions);
+
+            return quizViewModel;
+        }
+
+        private List<QuestionViewModel> GetSortingQuestions(List<Question> questions)
+        {
+            var sortingQuestions = new List<QuestionViewModel>();
+
+            if (questions == null || questions.Count == 0)
+                return sortingQuestions;
+
+            int questionNumber = 1;
+            foreach (var question in questions.OrderBy(s => s.Index))
+            {
+                var questionViewModel = new QuestionViewModel
+                {
+                    Id = question.Id,
+                    Index = question.Index,
+                    CreatedAt = question.CreatedAt,
+                    QuestionText = question.QuestionText.GetNumericQuestion(questionNumber),
+                    Answers = new List<AnswerViewModel>()
+                };
+                if (question.Answers != null && question.Answers.Count > 0)
+                {
+                    int answerNumber = 1;
+                    foreach (var answer in question.Answers)
+                    {
+                        questionViewModel.Answers.Add(new AnswerViewModel
+                        {
+                            Id = answer.Id,
+                            Response = answer.Response.GetNumericAnswer(answerNumber)
+                        });
+                        answerNumber++;
+                    }
+                }
+                sortingQuestions.Add(questionViewModel);
+                questionNumber++;
+            }
+
+            return sortingQuestions;
+        }
+
+        private List<QuestionViewModel> GetRandomQuestions(List<Question> questions)
+        {
+            var randomQuestions = new List<QuestionViewModel>();
+
+            if (questions == null || questions.Count == 0)
+                return randomQuestions;
+
+            var questionIds = questions.Select(x => x.Id).ToList();
+
+            for (int i = 1; i <= questions.Count; i++)
+            {
+                var randomQuestionId = questionIds[new Random().Next(0, questionIds.Count)];
+                var question = questions.FirstOrDefault(s => s.Id == randomQuestionId);
+                var questionViewModel = new QuestionViewModel
+                {
+                    Id = question.Id,
+                    CreatedAt = question.CreatedAt,
+                    Index = question.Index,
+                    QuestionText = question.QuestionText.GetNumericQuestion(i),
+                    Answers = new List<AnswerViewModel>()
+                };
+
+                if (question.Answers != null && question.Answers.Count > 0)
+                {
+                    var answersIds = question.Answers.Select(s => s.Id).ToList();
+                    for (int j = 1; j <= question.Answers.Count; j++)
+                    {
+                        var randomAnswerId = answersIds[new Random().Next(0, answersIds.Count)];
+                        var answer = question.Answers.FirstOrDefault(s => s.Id == randomAnswerId);
+                        var answerViewModel = new AnswerViewModel
+                        {
+                            Id = answer.Id,
+                            Response = answer.Response.GetNumericAnswer(j),
+                        };
+                        answersIds.Remove(answer.Id);
+                        questionViewModel.Answers.Add(answerViewModel);
+                    }
+                }
+                randomQuestions.Add(questionViewModel);
+                questionIds.Remove(question.Id);
+            }
+            return randomQuestions;
         }
         #endregion
     }
