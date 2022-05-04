@@ -20,21 +20,23 @@ namespace URLS.Application.Services.Implementations
         private readonly IUserService _userService;
         private readonly IIdentityService _identityService;
         private readonly IPostService _postService;
-        public GroupService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IPostService postService, IUserService userService) : base(db)
+        private readonly ICommonService _commonService;
+        public GroupService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IPostService postService, IUserService userService, ICommonService commonService) : base(db)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
             _postService = postService;
             _userService = userService;
+            _commonService = commonService;
         }
 
         public async Task<Result<GroupViewModel>> CreateGroupAsync(GroupCreateModel model)
         {
-            if (await IsExistAsync(s => s.Name == model.Name && s.StartStudy == model.StartStudy))
+            if (await _commonService.IsExistAsync<Group>(s => s.Name == model.Name && s.StartStudy == model.StartStudy))
                 return Result<GroupViewModel>.Error("Same group already exist");
 
-            if (!await _db.Specialties.AsNoTracking().AnyAsync(s => s.Id == model.SpecialtyId))
+            if (!await _commonService.IsExistAsync<Specialty>(s => s.Id == model.SpecialtyId))
                 return Result<GroupViewModel>.NotFound("Specialty not found");
 
             if (!model.TryValidateGroupName(out var error))
