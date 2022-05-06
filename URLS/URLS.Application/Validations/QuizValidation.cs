@@ -28,18 +28,6 @@ namespace URLS.Application.Validations
                 return false;
             }
 
-            foreach (var question in quiz.Questions)
-            {
-                if (question.Answers != null)
-                {
-                    var correctAnswers = question.Answers.Count(s => s.IsCorrect);
-                    if (correctAnswers != 1)
-                    {
-                        error = "Each question should contain only 1 correct answer";
-                        return false;
-                    }
-                }
-            }
             error = null;
             return true;
         }

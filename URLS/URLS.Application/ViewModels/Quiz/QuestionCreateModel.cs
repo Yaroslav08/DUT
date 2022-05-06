@@ -8,6 +8,7 @@ namespace URLS.Application.ViewModels.Quiz
         public string QuestionText { get; set; }
         [Required]
         public int Index { get; set; }
+        [Required]
         public bool IsMultipleAnswers { get; set; }
         public List<AnswerCreateModel> Answers { get; set; }
     }
