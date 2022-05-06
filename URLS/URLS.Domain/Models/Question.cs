@@ -7,7 +7,7 @@ namespace URLS.Domain.Models
         public string QuestionText { get; set; }
         [Required]
         public int Index { get; set; }
-        public long? CorrectAnswerId { get; set; }
+        public bool IsMultipleAnswers { get; set; }
         public Guid QuizId { get; set; }
         public Quiz Quiz { get; set; }
         public List<Answer> Answers { get; set; }

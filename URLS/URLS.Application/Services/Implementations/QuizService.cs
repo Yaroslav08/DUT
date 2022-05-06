@@ -17,12 +17,14 @@ namespace URLS.Application.Services.Implementations
         private readonly IIdentityService _identityService;
         private readonly IMapper _mapper;
         private readonly ISubjectService _subjectService;
-        public QuizService(URLSDbContext db, IIdentityService identityService, IMapper mapper, ISubjectService subjectService) : base(db)
+        private readonly ICommonService _commonService;
+        public QuizService(URLSDbContext db, IIdentityService identityService, IMapper mapper, ISubjectService subjectService, ICommonService commonService) : base(db)
         {
             _db = db;
             _identityService = identityService;
             _mapper = mapper;
             _subjectService = subjectService;
+            _commonService = commonService;
         }
 
         public async Task<Result<QuizViewModel>> CreateAsync(QuizCreateModel quiz)
@@ -45,48 +47,67 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<QuizResultViewModel>> FinishQuizAsync(int quizResultId, QuizAnswerCreateModel model)
         {
-            var quizResullt = await _db.QuizResults.AsNoTracking().Include(s => s.Quiz).FirstOrDefaultAsync(s => s.Id == quizResultId);
-            if (quizResullt == null)
+            var quizResult = await _db.QuizResults.AsNoTracking().Include(s => s.Quiz).FirstOrDefaultAsync(s => s.Id == quizResultId);
+            if (quizResult == null)
                 return Result<QuizResultViewModel>.NotFound(typeof(QuizResult).NotFoundMessage(quizResultId));
 
-            if (quizResullt.UserId != _identityService.GetUserId())
+            if (quizResult.UserId != _identityService.GetUserId())
                 return Result<QuizResultViewModel>.Forbiden();
 
-            var quiz = quizResullt.Quiz;
-            quizResullt.EndAt = DateTime.Now;
+            if (quizResult.EndAt != null)
+                return Result<QuizResultViewModel>.Error("Test already pass");
+
+            var maxCountOfAttempts = quizResult.Quiz.Config.MaxAttempts;
+
+            var currentCountOfUserAttempts = await _db
+                .QuizResults
+                .CountAsync(s => s.QuizId == quizResult.QuizId && s.UserId == quizResult.UserId);
+
+            if (maxCountOfAttempts >= 0 && currentCountOfUserAttempts >= maxCountOfAttempts)
+                return Result<QuizResultViewModel>.Error("Max attempt of test");
+            else
+                quizResult.Attempt = currentCountOfUserAttempts + 1;
+
+            var quiz = quizResult.Quiz;
+            quizResult.EndAt = DateTime.Now;
 
             if (quiz.Config.Minutes <= 0)
             {
-                quizResullt.TimeIsExpired = false;
+                quizResult.TimeIsExpired = false;
             }
             else
             {
-                var time = DateTime.Now - quizResullt.StartAt;
+                var time = DateTime.Now - quizResult.StartAt;
                 if (time.TotalMinutes <= quiz.Config.Minutes)
                 {
-                    quizResullt.TimeIsExpired = false;
+                    quizResult.TimeIsExpired = false;
                 }
                 else
                 {
-                    quizResullt.TimeIsExpired = true;
+                    quizResult.TimeIsExpired = true;
                 }
             }
 
-            quizResullt.Result = new List<QuestionModel>();
+            quizResult.Result = new List<QuestionModel>();
 
             var questions = await _db.Questions.AsNoTracking().Where(s => s.QuizId == model.QuizId).Include(s => s.Answers).ToListAsync();
 
-            if (!TryMapUserAnswersToQuiz( new MapAnswersToQuiz(questions, model.Responses, quizResullt, quiz), out var error))//questions, model.Responses, quizResullt, quiz.Config.ShowCorrectAnswers, out var error))
+            if (!TryMapUserAnswersToQuiz(new MapAnswersToQuiz(questions, model.Responses, quizResult, quiz), out var error))//questions, model.Responses, quizResullt, quiz.Config.ShowCorrectAnswers, out var error))
             {
                 return Result<QuizResultViewModel>.Error(error);
             }
 
-            quizResullt.PrepareToUpdate(_identityService);
+            quizResult.PrepareToUpdate(_identityService);
 
-            _db.QuizResults.Update(quizResullt);
+            _db.QuizResults.Update(quizResult);
             await _db.SaveChangesAsync();
 
-            return Result<QuizResultViewModel>.SuccessWithData(_mapper.Map<QuizResultViewModel>(quizResullt));
+            var quizResultViewModel = _mapper.Map<QuizResultViewModel>(quizResult);
+
+            if (!quizResult.Quiz.Config.ShowResults)
+                quizResultViewModel.Result = null;
+
+            return Result<QuizResultViewModel>.SuccessWithData(quizResultViewModel);
         }
 
         public async Task<Result<QuizViewModel>> GetByIdAsync(Guid id, bool fullTest = false)
@@ -125,14 +146,35 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<List<QuizResultViewModel>>> GetResultsAsync(Guid quizId, int offset = 0, int count = 10)
         {
-            var results = await _db.QuizResults
-                .AsNoTracking()
-                .Where(s => s.QuizId == quizId)
-                .Include(s => s.User)
-                .OrderByDescending(s => s.CreatedAt)
-                .Skip(offset).Take(count)
-                .ToListAsync();
+            var request = await _commonService.IsExistWithResultsAsync<Quiz>(s => s.Id == quizId);
+
+            if (!request.IsExist)
+                return Result<List<QuizResultViewModel>>.NotFound(typeof(Quiz).NotFoundMessage(quizId));
+
+            var quiz = request.Results.First();
+
+            var query = _db.QuizResults.AsNoTracking();
+
+            var allResults = quiz.CreatedByUserId == _identityService.GetUserId() || _identityService.IsAdministrator();
+
+            if (allResults)
+                query = query.Where(s => s.QuizId == quizId);
+            else
+                query = query.Where(s => s.QuizId == quizId && s.CreatedByUserId == _identityService.GetUserId());
+
+
+            query = query.Include(s => s.User)
+                .OrderByDescending(s => s.EndAt)
+                .Skip(offset).Take(count);
+
+            var results = await query.ToListAsync();
             var resultsViewModel = _mapper.Map<List<QuizResultViewModel>>(results);
+
+            resultsViewModel.ForEach(result =>
+            {
+                result.Result = null;
+            });
+
             return Result<List<QuizResultViewModel>>.SuccessWithData(resultsViewModel);
         }
 
@@ -302,6 +344,7 @@ namespace URLS.Application.Services.Implementations
 
                 question.Index = questionViewModel.Index;
                 question.QuestionText = questionViewModel.QuestionText;
+                question.IsMultipleAnswers = questionViewModel.IsMultipleAnswers;
                 question.PrepareToUpdate(_identityService);
             }
 
@@ -366,15 +409,36 @@ namespace URLS.Application.Services.Implementations
             return Result<List<QuizViewModel>>.SuccessWithData(_mapper.Map<List<QuizViewModel>>(quizes));
         }
 
+        public async Task<Result<QuizResultViewModel>> GetResultAsync(Guid quizId, int quizResultId)
+        {
+            var request = await _commonService.IsExistWithResultsAsync<Quiz>(s => s.Id == quizId);
+
+            if (!request.IsExist)
+                return Result<QuizResultViewModel>.NotFound(typeof(Quiz).NotFoundMessage(quizId));
+
+            var quiz = request.Results.First();
+
+            var quizResult = await _db.QuizResults.AsNoTracking().FirstOrDefaultAsync(s => s.Id == quizResultId);
+
+            if (quizResult == null)
+                return Result<QuizResultViewModel>.NotFound(typeof(QuizResult).NotFoundMessage(quizResultId));
+
+            if (!_identityService.IsAdministrator())
+                if (quizResult.CreatedByUserId != _identityService.GetUserId())
+                    if (quiz.CreatedByUserId != _identityService.GetUserId())
+                        return Result<QuizResultViewModel>.Forbiden();
+
+            var quizResultViewModel = _mapper.Map<QuizResultViewModel>(quizResult);
+
+            if (quizResult.UserId == _identityService.GetUserId() && !quiz.Config.ShowResults)
+                quizResultViewModel.Result = null;
+
+            return Result<QuizResultViewModel>.SuccessWithData(quizResultViewModel);
+        }
+
         #region Private
         private bool TryMapUserAnswersToQuiz(MapAnswersToQuiz answersToQuiz, out string error)//List<Question> questions, List<QuizAnswerResponse> quizResponse, QuizResult result, bool showCorrectAnswer, out string error)
         {
-            if (answersToQuiz.QuizResponse.Count < answersToQuiz.Questions.Count)
-            {
-                error = "Need more answers";
-                return false;
-            }
-
             if (!TryCheckQuestions(answersToQuiz.Questions, answersToQuiz.QuizResponse, out var errorQuestion))
             {
                 error = errorQuestion;
@@ -388,59 +452,49 @@ namespace URLS.Application.Services.Implementations
             }
 
 
-            var maxMark = answersToQuiz.Quiz.Config.MarkPerQuiz;
-            var markPerTrueAnswer = maxMark / answersToQuiz.Questions.Count;
+            var maxMark = Math.Round(answersToQuiz.Quiz.Config.MarkPerQuiz, 2);
+            var markPerTrueAnswer = Math.Round(maxMark / answersToQuiz.Questions.Count, 2);
 
             double markResult = 0;
 
-            foreach (var resposne in answersToQuiz.QuizResponse)
+            foreach (var question in answersToQuiz.Questions)
             {
-                var question = answersToQuiz.Questions.FirstOrDefault(s => s.Id == resposne.QuestionId);
+                var resposneModel = answersToQuiz.QuizResponse.FirstOrDefault(s => s.QuestionId == question.Id);
+
                 var questionModel = new QuestionModel
                 {
                     Id = question.Id,
                     QuestionText = question.QuestionText,
                     Answers = new List<AnswerModel>()
                 };
+
+                var perOneTrueAnswer = Math.Round(markPerTrueAnswer / question.Answers.Count(), 2);
+
                 foreach (var answer in question.Answers)
                 {
-                    var d = new AnswerModel
+                    var answerModel = new AnswerModel
                     {
                         Id = answer.Id,
                         Response = answer.Response,
                         IsCorrect = answersToQuiz.Quiz.Config.ShowCorrectAnswers ? answer.IsCorrect : null,
-                        IsChoice = resposne.AnswerIds.Contains(answer.Id)
+                        IsChoice = resposneModel != null ? resposneModel.AnswerIds?.Contains(answer.Id) : null
                     };
-                    if (d.IsCorrectAnswer())
-                        markResult += markPerTrueAnswer;
-                    questionModel.Answers.Add(d);
+
+                    if (answerModel.IsCorrectAnswer())
+                        if (question.IsMultipleAnswers)
+                        {
+                            markResult += perOneTrueAnswer;
+                        }
+                        else
+                        {
+                            markResult += markPerTrueAnswer;
+                        }
+
+                    questionModel.Answers.Add(answerModel);
                 }
                 answersToQuiz.Result.Result.Add(questionModel);
             }
-
             answersToQuiz.Result.Mark = Math.Round(markResult, 2);
-            //foreach (var question in questions)
-            //{
-            //    var resposneModel = quizResponse.FirstOrDefault(s => s.QuestionId == question.Id);
-
-            //    var questionModel = new QuestionModel
-            //    {
-            //        Id = question.Id,
-            //        QuestionText = question.QuestionText,
-            //        Answers = new List<AnswerModel>()
-            //    };
-            //    foreach (var answer in question.Answers)
-            //    {
-            //        questionModel.Answers.Add(new AnswerModel
-            //        {
-            //            Id = answer.Id,
-            //            Response = answer.Response,
-            //            IsCorrect = showCorrectAnswer ? answer.IsCorrect : null,
-            //            IsChoice = resposneModel.AnswerIds.Contains(answer.Id)
-            //        });
-            //    }
-            //    result.Result.Add(questionModel);
-            //}
 
 
             error = null;

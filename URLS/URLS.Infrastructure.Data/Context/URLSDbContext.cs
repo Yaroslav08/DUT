@@ -1,12 +1,14 @@
 ﻿using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Configurations;
 using Microsoft.EntityFrameworkCore;
+
 namespace URLS.Infrastructure.Data.Context
 {
+
     public class URLSDbContext : DbContext
     {
         public URLSDbContext(DbContextOptions<URLSDbContext> options) : base(options) { }
-
+        
 
         public DbSet<User> Users { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }

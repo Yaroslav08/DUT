@@ -62,6 +62,7 @@ namespace URLS.Application.Validations
                 {
                     Index = question.Index,
                     QuestionText = question.QuestionText,
+                    IsMultipleAnswers = question.IsMultipleAnswers,
                     Answers = new List<Answer>()
                 };
                 newQuestion.PrepareToCreate(identityService);

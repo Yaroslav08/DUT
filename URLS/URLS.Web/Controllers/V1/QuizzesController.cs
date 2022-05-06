@@ -32,6 +32,18 @@ namespace URLS.Web.Controllers.V1
             return JsonResult(await _quizService.GetByIdAsync(id, true));
         }
 
+        [HttpGet("{id}/results")]
+        public async Task<IActionResult> GetQuizResults(Guid id, int offset = 0, int count = 10)
+        {
+            return JsonResult(await _quizService.GetResultsAsync(id, offset, count));
+        }
+
+        [HttpGet("{id}/results/{resultId}")]
+        public async Task<IActionResult> GetQuizResultById(Guid id, int resultId)
+        {
+            return JsonResult(await _quizService.GetResultAsync(id, resultId));
+        }
+
         [HttpPost("{id}/start")]
         public async Task<IActionResult> StartQuiz(Guid id)
         {

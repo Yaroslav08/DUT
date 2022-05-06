@@ -27,11 +27,11 @@
         public long Id { get; set; }
         public string Response { get; set; }
         public bool? IsCorrect { get; set; }
-        public bool IsChoice { get; set; }
+        public bool? IsChoice { get; set; }
 
         public bool IsCorrectAnswer()
         {
-            return IsChoice && (IsCorrect.HasValue && IsCorrect.Value);
+            return (IsChoice.HasValue && IsChoice.Value) && (IsCorrect.HasValue && IsCorrect.Value);
         }
     }
 }
