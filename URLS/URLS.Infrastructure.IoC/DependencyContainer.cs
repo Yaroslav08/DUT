@@ -69,6 +69,7 @@ namespace URLS.Infrastructure.IoC
             services.AddScoped<IQuizService, QuizService>();
             services.AddScoped<ICommonService, CommonService>();
             services.AddScoped<IReactionService, ReactionService>();
+            services.AddSingleton<IPushNotificationService, FirebasePushNotificationService>();
 
             #endregion
 

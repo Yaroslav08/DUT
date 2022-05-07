@@ -7,10 +7,12 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="10.1.1" />
+    <PackageReference Include="CorePush" Version="3.0.10" />
     <PackageReference Include="DeepCloner" Version="0.10.3" />
     <PackageReference Include="Extensions.Converters" Version="1.0.0" />
     <PackageReference Include="Extensions.Generator" Version="1.0.0" />
     <PackageReference Include="Extensions.Password" Version="1.0.0" />
+    <PackageReference Include="FirebaseAdmin" Version="2.3.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.15.1" />
   </ItemGroup>
 
