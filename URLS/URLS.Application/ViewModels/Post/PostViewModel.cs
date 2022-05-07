@@ -1,5 +1,6 @@
 ﻿using URLS.Application.ViewModels.Group;
 using URLS.Application.ViewModels.Post.Comment;
+using URLS.Application.ViewModels.Reaction;
 using URLS.Application.ViewModels.User;
 namespace URLS.Application.ViewModels.Post
 {
@@ -13,6 +14,7 @@ namespace URLS.Application.ViewModels.Post
         public bool AvailableToComment { get; set; }
         public bool IsPublic { get; set; }
         public int CountComments { get; set; }
+        public ReactionStatistics Statistics { get; set; }
         public UserViewModel User { get; set; }
         public GroupViewModel Group { get; set; }
         public List<CommentViewModel> Comments { get; set; }

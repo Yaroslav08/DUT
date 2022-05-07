@@ -8,7 +8,7 @@ namespace URLS.Infrastructure.Data.Context
     public class URLSDbContext : DbContext
     {
         public URLSDbContext(DbContextOptions<URLSDbContext> options) : base(options) { }
-        
+
 
         public DbSet<User> Users { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
@@ -41,6 +41,7 @@ namespace URLS.Infrastructure.Data.Context
         public DbSet<Question> Questions { get; set; }
         public DbSet<Answer> Answers { get; set; }
         public DbSet<QuizResult> QuizResults { get; set; }
+        public DbSet<Reaction> Reactions { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -58,6 +59,7 @@ namespace URLS.Infrastructure.Data.Context
             builder.ApplyConfiguration(new ReportConfiguration());
             builder.ApplyConfiguration(new QuizConfiguration());
             builder.ApplyConfiguration(new QuizResultConfiguration());
+            builder.ApplyConfiguration(new ReactionConfiguration());
         }
     }
 }

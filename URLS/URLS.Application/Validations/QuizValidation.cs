@@ -28,6 +28,19 @@ namespace URLS.Application.Validations
                 return false;
             }
 
+            foreach (var question in quiz.Questions)
+            {
+                var isMultipleAnswers = question.IsMultipleAnswers;
+
+                if (!isMultipleAnswers && question.Answers.Count(s => s.IsCorrect) > 1)
+                {
+                    error = "Current question can't support multiple answers";
+                    return false;
+                }
+            }
+
+
+
             error = null;
             return true;
         }
@@ -54,6 +67,7 @@ namespace URLS.Application.Validations
                     Answers = new List<Answer>()
                 };
                 newQuestion.PrepareToCreate(identityService);
+
                 if (question.Answers != null)
                 {
                     question.Answers.ForEach(answer =>

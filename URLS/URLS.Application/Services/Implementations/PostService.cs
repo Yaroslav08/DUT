@@ -16,12 +16,14 @@ namespace URLS.Application.Services.Implementations
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
         private readonly IPermissionPostService _permissionPostService;
-        public PostService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IPermissionPostService permissionPostService) : base(db)
+        private readonly IReactionService _reactionService;
+        public PostService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IPermissionPostService permissionPostService, IReactionService reactionService) : base(db)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
             _permissionPostService = permissionPostService;
+            _reactionService = reactionService;
         }
 
         public async Task<Result<PostViewModel>> CreatePostAsync(PostCreateModel model)
@@ -62,7 +64,15 @@ namespace URLS.Application.Services.Implementations
 
             var posts = await query.ToListAsync();
 
-            return Result<List<PostViewModel>>.SuccessWithData(_mapper.Map<List<PostViewModel>>(posts));
+            var postsToView = _mapper.Map<List<PostViewModel>>(posts);
+
+            postsToView.ForEach(async post =>
+            {
+                var request = await _reactionService.GetStatisticsByPostIdAsync(post.Id);
+                post.Statistics = request.IsSuccess ? request.Data : null;
+            });
+
+            return Result<List<PostViewModel>>.SuccessWithData(postsToView);
         }
 
         public async Task<Result<PostViewModel>> GetPostByIdAsync(int postId, int groupId)
@@ -79,6 +89,7 @@ namespace URLS.Application.Services.Implementations
 
             var postToView = _mapper.Map<PostViewModel>(post);
             postToView.CountComments = await _db.Comments.CountAsync(s => s.PostId == postId);
+            postToView.Statistics = (await _reactionService.GetStatisticsByPostIdAsync(postId)).Data;
 
             return Result<PostViewModel>.SuccessWithData(postToView);
         }

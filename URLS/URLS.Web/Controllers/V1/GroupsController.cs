@@ -7,6 +7,7 @@ using URLS.Application.ViewModels.Post.Comment;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using URLS.Application.ViewModels.Group.GroupRole;
+using URLS.Application.ViewModels.Reaction;
 
 namespace URLS.Web.Controllers.V1
 {
@@ -21,7 +22,8 @@ namespace URLS.Web.Controllers.V1
         private readonly IGroupMemberService _groupMemberService;
         private readonly ISubjectService _subjectService;
         private readonly IIdentityService _identityService;
-        public GroupsController(IGroupService groupService, IIdentityService identityService, ISubjectService subjectService, IGroupRoleService groupRoleService, IGroupMemberService groupMemberService, IGroupInviteService groupInviteService, IPostService postService, ICommentService commentService)
+        private readonly IReactionService _reactionService;
+        public GroupsController(IGroupService groupService, IIdentityService identityService, ISubjectService subjectService, IGroupRoleService groupRoleService, IGroupMemberService groupMemberService, IGroupInviteService groupInviteService, IPostService postService, ICommentService commentService, IReactionService reactionService)
         {
             _groupService = groupService;
             _identityService = identityService;
@@ -31,6 +33,7 @@ namespace URLS.Web.Controllers.V1
             _groupInviteService = groupInviteService;
             _postService = postService;
             _commentService = commentService;
+            _reactionService = reactionService;
         }
 
         #region Groups
@@ -254,6 +257,34 @@ namespace URLS.Web.Controllers.V1
         public async Task<IActionResult> RemoveComment(int groupId, int postId, long commentId)
         {
             return JsonResult(await _commentService.RemoveCommentAsync(groupId, postId, commentId));
+        }
+
+        #endregion
+
+        #region Reactions
+
+        [HttpPost("{groupId}/posts/{postId}/reactions")]
+        public async Task<IActionResult> CreateReaction(int groupId, int postId, [FromBody] ReactionCreateModel model)
+        {
+            model.PostId = postId;
+            return JsonResult(await _reactionService.CreateAsync(model));
+        }
+
+        [HttpDelete("{groupId}/posts/{postId}/reactions")]
+        public async Task<IActionResult> DeleteReaction(int groupId, int postId)
+        {
+            var reactionToDelete = new ReactionCreateModel
+            {
+                PostId = postId
+            };
+            return JsonResult(await _reactionService.DeleteAsync(reactionToDelete));
+        }
+
+
+        [HttpGet("{groupId}/posts/{postId}/reactions")]
+        public async Task<IActionResult> GetAllReactions(int groupId, int postId, int offset, int count)
+        {
+            return JsonResult(await _reactionService.GetAllByPostIdAsync(postId, offset, count));
         }
 
         #endregion

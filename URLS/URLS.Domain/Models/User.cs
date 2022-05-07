@@ -41,6 +41,7 @@ namespace URLS.Domain.Models
         public List<Timetable> Timetables { get; set; }
         public List<App> Apps { get; set; }
         public List<QuizResult> QuizResults { get; set; }
+        public List<Reaction> Reactions { get; set; }
 
         public User(string firstName, string middleName, string lastName, string login, string userName)
         {

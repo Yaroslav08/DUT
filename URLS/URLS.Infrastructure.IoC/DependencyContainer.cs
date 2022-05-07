@@ -68,6 +68,7 @@ namespace URLS.Infrastructure.IoC
             services.AddScoped<IPermissionCommentService, PermissionCommentService>();
             services.AddScoped<IQuizService, QuizService>();
             services.AddScoped<ICommonService, CommonService>();
+            services.AddScoped<IReactionService, ReactionService>();
 
             #endregion
 

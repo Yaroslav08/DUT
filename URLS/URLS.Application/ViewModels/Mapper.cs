@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using System.Text;
+using URLS.Application.Helpers;
 using URLS.Application.ViewModels.Apps;
 using URLS.Application.ViewModels.Diploma;
 using URLS.Application.ViewModels.Faculty;
@@ -10,6 +11,7 @@ using URLS.Application.ViewModels.Notification;
 using URLS.Application.ViewModels.Post;
 using URLS.Application.ViewModels.Post.Comment;
 using URLS.Application.ViewModels.Quiz;
+using URLS.Application.ViewModels.Reaction;
 using URLS.Application.ViewModels.Report;
 using URLS.Application.ViewModels.RoleClaim;
 using URLS.Application.ViewModels.Session;
@@ -87,6 +89,10 @@ namespace URLS.Application.ViewModels
             CreateMap<Domain.Models.Question, QuestionViewModel>().ReverseMap();
             CreateMap<Domain.Models.Answer, AnswerViewModel>().ReverseMap();
             CreateMap<Domain.Models.QuizResult, QuizResultViewModel>().ReverseMap();
+
+            CreateMap<Domain.Models.Reaction, ReactionViewModel>()
+                .ForMember(s => s.Reaction, s => s.MapFrom(s => ReactionHelper.GetReactionFromId(s.ReactionTypeId)))
+                .ReverseMap();
         }
 
         private string BuildFullName(Domain.Models.User user)

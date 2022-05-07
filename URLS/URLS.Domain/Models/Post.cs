@@ -19,5 +19,6 @@ namespace URLS.Domain.Models
         public int GroupId { get; set; }
         public Group Group { get; set; }
         public List<Comment> Comments { get; set; }
+        public List<Reaction> Reactions { get; set; }
     }
 }

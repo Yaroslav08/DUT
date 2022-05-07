@@ -430,8 +430,9 @@ namespace URLS.Application.Services.Implementations
 
             var quizResultViewModel = _mapper.Map<QuizResultViewModel>(quizResult);
 
-            if (quizResult.UserId == _identityService.GetUserId() && !quiz.Config.ShowResults)
-                quizResultViewModel.Result = null;
+            if (!_identityService.IsAdministrator())
+                if (quizResult.UserId == _identityService.GetUserId() && !quiz.Config.ShowResults)
+                    quizResultViewModel.Result = null;
 
             return Result<QuizResultViewModel>.SuccessWithData(quizResultViewModel);
         }
@@ -453,7 +454,7 @@ namespace URLS.Application.Services.Implementations
 
 
             var maxMark = Math.Round(answersToQuiz.Quiz.Config.MarkPerQuiz, 2);
-            var markPerTrueAnswer = Math.Round(maxMark / answersToQuiz.Questions.Count, 2);
+            var markPerTrueAnswer = maxMark / answersToQuiz.Questions.Count;
 
             double markResult = 0;
 
@@ -468,7 +469,7 @@ namespace URLS.Application.Services.Implementations
                     Answers = new List<AnswerModel>()
                 };
 
-                var perOneTrueAnswer = Math.Round(markPerTrueAnswer / question.Answers.Count(), 2);
+                var perOneTrueAnswer = markPerTrueAnswer / question.Answers.Count();
 
                 foreach (var answer in question.Answers)
                 {

@@ -21,7 +21,7 @@ namespace URLS.Web.Controllers
                 return BadRequest(APIResponse.BadRequestResponse(result.ErrorMessage));
             if (result.IsForbid)
                 return JsonForbiddenResult();
-            return JsonInternalServerError();
+            return JsonInternalServerErrorResult();
         }
 
         [NonAction]
@@ -32,10 +32,17 @@ namespace URLS.Web.Controllers
         }
 
         [NonAction]
-        public IActionResult JsonInternalServerError()
+        public IActionResult JsonInternalServerErrorResult()
         {
             HttpContext.Response.StatusCode = 500;
             return Json(APIResponse.InternalServerError(HttpContext.TraceIdentifier));
+        }
+
+        [NonAction]
+        public IActionResult CreatedResult(object data)
+        {
+            HttpContext.Response.StatusCode = 201;
+            return Json(APIResponse.OkResponse(data));
         }
     }
 }
