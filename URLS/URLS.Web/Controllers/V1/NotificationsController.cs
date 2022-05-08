@@ -1,16 +1,22 @@
 ﻿using URLS.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using URLS.Application.ViewModels.Firebase;
+using URLS.Application.ViewModels;
+using URLS.Constants.APIResponse;
+
 namespace URLS.Web.Controllers.V1
 {
     [ApiVersion("1.0")]
     public class NotificationsController : ApiBaseController
     {
         private readonly INotificationService _notificationsService;
+        private readonly IPushNotificationService _pushNotificationService;
         private readonly IIdentityService _identityService;
-        public NotificationsController(INotificationService notificationsService, IIdentityService identityService)
+        public NotificationsController(INotificationService notificationsService, IIdentityService identityService, IPushNotificationService pushNotificationService)
         {
             _notificationsService = notificationsService;
             _identityService = identityService;
+            _pushNotificationService = pushNotificationService;
         }
 
         [HttpGet]
@@ -30,6 +36,20 @@ namespace URLS.Web.Controllers.V1
         public async Task<IActionResult> ReadNotification(long id)
         {
             return JsonResult(await _notificationsService.ReadNotificationAsync(id));
+        }
+
+        [HttpPost("subscribe")]
+        public IActionResult Subscribe([FromBody] SubscribeModel model)
+        {
+            _pushNotificationService.Subscribe(model);
+            return Ok(APIResponse.OkResponse());
+        }
+
+        [HttpPost("unsubscribe")]
+        public IActionResult Unsubscribe([FromBody] SubscribeModel model)
+        {
+            _pushNotificationService.Unsubscribe(model);
+            return Ok(APIResponse.OkResponse());
         }
     }
 }
