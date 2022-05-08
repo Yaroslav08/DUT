@@ -5,6 +5,7 @@ namespace URLS.Application.ViewModels.Firebase
     {
         [Required]
         public string Token { get; set; }
+        [Required, Range(1,3)]
         public int Type { get; set; }
     }
 }

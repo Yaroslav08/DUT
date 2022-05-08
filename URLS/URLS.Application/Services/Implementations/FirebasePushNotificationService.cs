@@ -91,8 +91,10 @@ namespace URLS.Application.Services.Implementations
 
                 if (model.Type == 1)
                     newUser.Devices.Add(FirebaseDevice.AsAndroid(model.Token));
-                else
+                if (model.Type == 2)
                     newUser.Devices.Add(FirebaseDevice.AsIOS(model.Token));
+                else
+                    newUser.Devices.Add(FirebaseDevice.AsWeb(model.Token));
 
                 _subscribedUsers.Add(newUser);
             }

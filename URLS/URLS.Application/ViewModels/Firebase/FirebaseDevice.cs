@@ -4,15 +4,15 @@
     {
         public string Token { get; set; }
         public string Type { get; set; }
-
-        public bool IsAndroid => Type == "Andoid";
+        public DeviceType DeviceType { get; set; }
 
         public static FirebaseDevice AsAndroid(string token)
         {
             return new FirebaseDevice
             {
                 Token = token,
-                Type = "Andoid"
+                Type = "Andoid",
+                DeviceType = DeviceType.Android
             };
         }
 
@@ -21,8 +21,26 @@
             return new FirebaseDevice
             {
                 Token = token,
-                Type = "IOS"
+                Type = "IOS",
+                DeviceType= DeviceType.IOS
             };
         }
+
+        public static FirebaseDevice AsWeb(string token)
+        {
+            return new FirebaseDevice
+            {
+                Token = token,
+                Type = "Web",
+                DeviceType = DeviceType.Web
+            };
+        }
+    }
+
+    public enum DeviceType
+    {
+        Android = 1,
+        IOS = 2,
+        Web = 3
     }
 }
