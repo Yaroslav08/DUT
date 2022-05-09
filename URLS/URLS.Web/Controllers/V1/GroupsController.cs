@@ -280,7 +280,6 @@ namespace URLS.Web.Controllers.V1
             return JsonResult(await _reactionService.DeleteAsync(reactionToDelete));
         }
 
-
         [HttpGet("{groupId}/posts/{postId}/reactions")]
         public async Task<IActionResult> GetAllReactions(int groupId, int postId, int offset, int count)
         {
