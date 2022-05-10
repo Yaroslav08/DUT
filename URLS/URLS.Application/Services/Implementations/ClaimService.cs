@@ -6,6 +6,7 @@ using URLS.Application.ViewModels.RoleClaim;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
+using URLS.Constants.Extensions;
 
 namespace URLS.Application.Services.Implementations
 {
@@ -43,7 +44,7 @@ namespace URLS.Application.Services.Implementations
         {
             var claimToUpdate = await _db.Claims.FindAsync(model.Id);
             if (claimToUpdate == null)
-                return Result<ClaimViewModel>.NotFound("Claim not found");
+                return Result<ClaimViewModel>.NotFound(typeof(Claim).NotFoundMessage(model.Id));
 
             claimToUpdate.DisplayName = model.DisplayName;
 

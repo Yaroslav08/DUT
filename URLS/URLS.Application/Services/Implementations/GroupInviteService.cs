@@ -7,6 +7,7 @@ using URLS.Constants;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
+using URLS.Constants.Extensions;
 
 namespace URLS.Application.Services.Implementations
 {
@@ -30,7 +31,7 @@ namespace URLS.Application.Services.Implementations
                 return Result<GroupInviteViewModel>.Forbiden();
 
             if (!await _db.Groups.AnyAsync(s => s.Id == model.GroupId))
-                return Result<GroupInviteViewModel>.NotFound("Group not found");
+                return Result<GroupInviteViewModel>.NotFound(typeof(Group).NotFoundMessage(model.GroupId));
 
             if (await _db.GroupInvites.AsNoTracking().CountAsync(s => s.GroupId == model.GroupId) >= 5)
                 return Result<GroupInviteViewModel>.Error("One group must be have max 5 invites");
@@ -73,7 +74,7 @@ namespace URLS.Application.Services.Implementations
 
             var groupInvite = await _db.GroupInvites.AsNoTracking().FirstOrDefaultAsync(x => x.Id == groupInviteId);
             if (groupInvite == null)
-                return Result<bool>.NotFound("Group invite not found");
+                return Result<bool>.NotFound(typeof(Group).NotFoundMessage(groupId));
 
             if (groupInvite.GroupId != groupId)
                 return Result<bool>.Error("Incorrect groupId");
@@ -90,7 +91,7 @@ namespace URLS.Application.Services.Implementations
 
             var groupInviteFromDb = await _db.GroupInvites.FindAsync(model.Id);
             if (groupInviteFromDb == null)
-                return Result<GroupInviteViewModel>.NotFound("Group invite not found");
+                return Result<GroupInviteViewModel>.NotFound(typeof(Group).NotFoundMessage(model.GroupId));
 
             groupInviteFromDb.Name = model.Name;
             groupInviteFromDb.ActiveFrom = model.ActiveFrom;

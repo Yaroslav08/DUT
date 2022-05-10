@@ -7,6 +7,7 @@ using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Extensions.Generator;
+using URLS.Constants.Extensions;
 
 namespace URLS.Application.Services.Implementations
 {
@@ -25,16 +26,12 @@ namespace URLS.Application.Services.Implementations
         public async Task<Result<List<DiplomaViewModel>>> GetDiplomaTemplatesAsync()
         {
             var userDiplomas = await _db.Diplomas.AsNoTracking().Where(x => x.IsTemplate).ToListAsync();
-            if (userDiplomas == null || !userDiplomas.Any())
-                return Result<List<DiplomaViewModel>>.Success();
             return Result<List<DiplomaViewModel>>.SuccessWithData(_mapper.Map<List<DiplomaViewModel>>(userDiplomas));
         }
 
         public async Task<Result<List<DiplomaViewModel>>> GetUserDiplomasAsync(int userId)
         {
             var userDiplomas = await _db.Diplomas.AsNoTracking().Where(x => x.UserId == userId).ToListAsync();
-            if (userDiplomas == null || !userDiplomas.Any())
-                return Result<List<DiplomaViewModel>>.Success();
             return Result<List<DiplomaViewModel>>.SuccessWithData(_mapper.Map<List<DiplomaViewModel>>(userDiplomas));
         }
 
@@ -72,7 +69,7 @@ namespace URLS.Application.Services.Implementations
         {
             var templateToUpdate = await _db.Diplomas.AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.Id && x.IsTemplate);
             if (templateToUpdate == null)
-                return Result<DiplomaViewModel>.NotFound("Diploma not found");
+                return Result<DiplomaViewModel>.NotFound(typeof(Diploma).NotFoundMessage(model.Id));
 
             templateToUpdate.Name = model.Name;
             templateToUpdate.DirectorSignature = model.DirectorSignaturePath;
@@ -95,7 +92,7 @@ namespace URLS.Application.Services.Implementations
         {
             var diploma = await _db.Diplomas.FindAsync(diplomaId);
             if (diploma == null)
-                return Result<bool>.NotFound("Diploma not found");
+                return Result<bool>.NotFound(typeof(Diploma).NotFoundMessage(diplomaId));
             _db.Diplomas.Remove(diploma);
             await _db.SaveChangesAsync();
             return Result<bool>.Success();
@@ -107,7 +104,7 @@ namespace URLS.Application.Services.Implementations
                 return Result<DiplomaViewModel>.Error("Diploma is already created");
 
             if (!await IsExistAsync(s => s.Id == templateId))
-                return Result<DiplomaViewModel>.NotFound("Diploma template not found");
+                return Result<DiplomaViewModel>.NotFound(typeof(Diploma).NotFoundMessage(templateId));
 
             var studentDiploma = Exists.First();
 
@@ -140,7 +137,7 @@ namespace URLS.Application.Services.Implementations
         {
             var diploma = await _db.Diplomas.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             if (diploma == null)
-                return Result<DiplomaViewModel>.NotFound("Diploma not found");
+                return Result<DiplomaViewModel>.NotFound(typeof(Diploma).NotFoundMessage(id));
             return Result<DiplomaViewModel>.SuccessWithData(_mapper.Map<DiplomaViewModel>(diploma));
         }
 
@@ -148,7 +145,7 @@ namespace URLS.Application.Services.Implementations
         {
             var diploma = await _db.Diplomas.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id && x.IsTemplate);
             if (diploma == null)
-                return Result<DiplomaViewModel>.NotFound("Diploma not found");
+                return Result<DiplomaViewModel>.NotFound(typeof(Diploma).NotFoundMessage(templateId));
             return Result<DiplomaViewModel>.SuccessWithData(_mapper.Map<DiplomaViewModel>(diploma));
         }
     }

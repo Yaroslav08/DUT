@@ -7,6 +7,7 @@ using URLS.Application.ViewModels.Specialty;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
+using URLS.Constants.Extensions;
 
 namespace URLS.Application.Services.Implementations
 {
@@ -41,7 +42,7 @@ namespace URLS.Application.Services.Implementations
         {
             var currentFaculty = await _db.Faculties.AsNoTracking().FirstOrDefaultAsync(x => x.Id == model.Id);
             if (currentFaculty == null)
-                return Result<FacultyViewModel>.NotFound();
+                return Result<FacultyViewModel>.NotFound(typeof(Faculty).NotFoundMessage(model.Id));
             currentFaculty.Name = model.Name;
             currentFaculty.PrepareToUpdate(_identityService);
             _db.Faculties.Update(currentFaculty);
@@ -68,7 +69,7 @@ namespace URLS.Application.Services.Implementations
                 Name = x.Name
             }).FirstOrDefaultAsync(x => x.Id == id);
             if (faculty == null)
-                return Result<FacultyViewModel>.NotFound();
+                return Result<FacultyViewModel>.NotFound(typeof(Faculty).NotFoundMessage(id));
             return Result<FacultyViewModel>.SuccessWithData(faculty);
         }
 

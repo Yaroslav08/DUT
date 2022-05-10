@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Force.DeepCloner;
+using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
@@ -6,15 +8,12 @@ using URLS.Application.ViewModels.Lesson;
 using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Force.DeepCloner;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
 
 namespace URLS.Application.Services.Implementations
 {
     public class JournalService : IJournalService
     {
-        private readonly string[] avalible = new string[] { "н", "н", "n" };
+        private readonly string[] available = new string[] { "н", "н", "n", "np", "нб", "нп" };
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
         private readonly URLSDbContext _db;
@@ -264,7 +263,7 @@ namespace URLS.Application.Services.Implementations
             if (char.IsLetter(mark[0]))
             {
                 mark = mark.Substring(0, 1).ToLower();
-                var res = avalible.Contains(mark);
+                var res = available.Contains(mark);
                 error = res ? null : "Isn't valid mark";
                 return res;
             }
@@ -290,7 +289,7 @@ namespace URLS.Application.Services.Implementations
         private JournalStatistics GetJournalStatistics(Journal journal)
         {
             var countOfStudents = journal.Students.Count;
-            var countOfExist = countOfStudents - journal.Students.Count(s => s.Mark != null && avalible.Contains(s.Mark));
+            var countOfExist = countOfStudents - journal.Students.Count(s => s.Mark != null && available.Contains(s.Mark));
 
             var countWithMarks = journal.Students.Count(s => double.TryParse(s.Mark, out var markNumber) && markNumber > 0);
             var countWithoutMarks = countOfStudents - countWithMarks;
@@ -398,7 +397,7 @@ namespace URLS.Application.Services.Implementations
             foreach (var sJournal in fullJournal.Students)
             {
                 var countOfLessons = sJournal.Lessons.Count;
-                var countOfExist = countOfLessons - sJournal.Lessons.Count(s => avalible.Contains(s.Mark));
+                var countOfExist = countOfLessons - sJournal.Lessons.Count(s => available.Contains(s.Mark));
 
                 double percente = (countOfExist * 100) / countOfLessons;
 

@@ -28,7 +28,7 @@ namespace URLS.Application.Services.Implementations
             var appForUpdate = await _db.Apps.AsNoTracking().FirstOrDefaultAsync(s => s.Id == appId);
 
             if (appForUpdate == null)
-                return Result<AppViewModel>.NotFound("App not found");
+                return Result<AppViewModel>.NotFound(typeof(App).NotFoundMessage(appId));
 
             if (!_identityService.IsAdministrator())
                 if (appForUpdate.UserId != _identityService.GetUserId())
@@ -58,21 +58,21 @@ namespace URLS.Application.Services.Implementations
             return Result<AppViewModel>.SuccessWithData(_mapper.Map<AppViewModel>(newApp));
         }
 
-        public async Task<Result<AppViewModel>> DeleteAppAsync(int id)
+        public async Task<Result<bool>> DeleteAppAsync(int id)
         {
             var appForDelete = await _db.Apps.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
 
             if (appForDelete == null)
-                return Result<AppViewModel>.NotFound("App not found");
+                return Result<bool>.NotFound(typeof(App).NotFoundMessage(id));
 
             if (!_identityService.IsAdministrator())
                 if (appForDelete.UserId != _identityService.GetUserId())
-                    return Result<AppViewModel>.Forbiden();
+                    return Result<bool>.Forbiden();
 
             _db.Apps.Remove(appForDelete);
             await _db.SaveChangesAsync();
 
-            return Result<AppViewModel>.SuccessWithData(_mapper.Map<AppViewModel>(appForDelete));
+            return Result<bool>.Success();
         }
 
         public async Task<Result<List<AppViewModel>>> GetAllAppsAsync(int offset = 0, int limit = 20)
@@ -95,7 +95,7 @@ namespace URLS.Application.Services.Implementations
             var app = await _db.Apps.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
 
             if (app == null)
-                return Result<AppViewModel>.NotFound("App by id not found");
+                return Result<AppViewModel>.NotFound(typeof(App).NotFoundMessage(id));
 
             if (!_identityService.IsAdministrator())
                 if (app.UserId != _identityService.GetUserId())
@@ -128,7 +128,7 @@ namespace URLS.Application.Services.Implementations
             var appToUpdate = await _db.Apps.AsNoTracking().FirstOrDefaultAsync(x => x.Id == app.Id);
 
             if (appToUpdate == null)
-                return Result<AppViewModel>.NotFound("App by id not found");
+                return Result<AppViewModel>.NotFound(typeof(App).NotFoundMessage(app.Id));
 
             if (!_identityService.IsAdministrator())
                 if (appToUpdate.UserId != _identityService.GetUserId())

@@ -13,6 +13,7 @@ using Extensions.DeviceDetector;
 using Extensions.Password;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using URLS.Constants.Extensions;
 
 namespace URLS.Application.Services.Implementations
 {
@@ -41,20 +42,20 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<UserViewModel>> BlockUserConfigAsync(BlockUserModel model)
         {
-            var currentRoles = _identityService.GetRoles();
-            if (currentRoles.Contains(Roles.Admin) || currentRoles.Contains(Roles.Moderator))
-                return Result<UserViewModel>.Error("Access denited");
+            if (!_identityService.IsAdministrator())
+                return Result<UserViewModel>.Forbiden();
 
             var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(s => s.Id == model.UserId);
             if (user == null)
-                return Result<UserViewModel>.NotFound("User not found");
+                return Result<UserViewModel>.NotFound(typeof(User).NotFoundMessage(model.UserId));
             var count = model.AccessFailedCount;
             if (count < 0 || count > 5)
                 model.AccessFailedCount = 0;
+            else
+                user.AccessFailedCount = model.AccessFailedCount;
 
             user.LockoutEnabled = model.LockoutEnabled;
             user.LockoutEnd = model.LockoutEnd;
-            user.AccessFailedCount = model.AccessFailedCount;
 
             user.PrepareToUpdate(_identityService);
             _db.Users.Update(user);
@@ -67,10 +68,10 @@ namespace URLS.Application.Services.Implementations
         {
             var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(s => s.Id == _identityService.GetUserId());
             if (user == null)
-                return Result<AuthenticationInfo>.NotFound("User not found");
+                return Result<AuthenticationInfo>.NotFound(typeof(User).NotFoundMessage(_identityService.GetUserId()));
 
             if (model.OldPassword.VerifyPasswordHash(user.PasswordHash))
-                return Result<AuthenticationInfo>.Error("Password not comparer");
+                return Result<AuthenticationInfo>.Error("Old password not comparer");
 
             if (model.OldPassword == model.NewPassword)
                 return Result<AuthenticationInfo>.Error("This passwords are match");
@@ -98,7 +99,7 @@ namespace URLS.Application.Services.Implementations
                 .FirstOrDefaultAsync(x => x.AppId == model.App.Id && x.AppSecret == model.App.Secret);
 
             if (app == null)
-                return Result<JwtToken>.Error("App not found");
+                return Result<JwtToken>.NotFound(typeof(App).NotFoundMessage(model.App.Id));
 
             if (!app.IsActive)
                 return Result<JwtToken>.Error("App already unactive");
@@ -108,7 +109,7 @@ namespace URLS.Application.Services.Implementations
 
             var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Login == model.Login);
             if (user == null)
-                return Result<JwtToken>.Error("User by login not found");
+                return Result<JwtToken>.NotFound(typeof(User).NotFoundMessage(model.Login));
 
             if (user.LockoutEnabled)
             {
@@ -226,7 +227,7 @@ namespace URLS.Application.Services.Implementations
 
             var session = await _db.Sessions.AsNoTracking().FirstOrDefaultAsync(x => x.Id == _identityService.GetCurrentSessionId());
             if (session == null)
-                return Result<bool>.Error("Session not found");
+                return Result<bool>.NotFound(typeof(Session).NotFoundMessage(_identityService.GetCurrentSessionId()));
 
             var now = DateTime.Now;
             session.IsActive = false;
@@ -250,7 +251,7 @@ namespace URLS.Application.Services.Implementations
         {
             var sessionToClose = await _db.Sessions.FirstOrDefaultAsync(x => x.Id == id);
             if (sessionToClose == null)
-                return Result<bool>.Error("Session not found");
+                return Result<bool>.NotFound(typeof(Session).NotFoundMessage(id));
             var now = DateTime.Now;
             sessionToClose.IsActive = false;
             sessionToClose.DeactivatedAt = now;

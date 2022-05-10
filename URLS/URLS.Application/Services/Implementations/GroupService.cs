@@ -37,7 +37,7 @@ namespace URLS.Application.Services.Implementations
                 return Result<GroupViewModel>.Error("Same group already exist");
 
             if (!await _commonService.IsExistAsync<Specialty>(s => s.Id == model.SpecialtyId))
-                return Result<GroupViewModel>.NotFound("Specialty not found");
+                return Result<GroupViewModel>.NotFound(typeof(Specialty).NotFoundMessage(model.SpecialtyId));
 
             if (!model.TryValidateGroupName(out var error))
             {
@@ -134,7 +134,7 @@ namespace URLS.Application.Services.Implementations
         public async Task<Result<GroupViewModel>> GetGroupByIdAsync(int id)
         {
             if (!await IsExistAsync(s => s.Id == id))
-                return Result<GroupViewModel>.NotFound($"Group with ID ({id}) not found");
+                return Result<GroupViewModel>.NotFound(typeof(Group).NotFoundMessage(id));
             var groupToView = _mapper.Map<GroupViewModel>(Exists.First());
             groupToView.CountOfStudents = await _db.UserGroups.CountAsync(x => x.GroupId == id && x.Status == Domain.Models.UserGroupStatus.Member);
             return Result<GroupViewModel>.SuccessWithData(groupToView);
@@ -167,7 +167,7 @@ namespace URLS.Application.Services.Implementations
         public async Task<Result<GroupViewModel>> IncreaseCourseOfGroupAsync(int groupId)
         {
             if (!await IsExistAsync(x => x.Id == groupId))
-                return Result<GroupViewModel>.NotFound($"Group with ID ({groupId}) not found");
+                return Result<GroupViewModel>.NotFound(typeof(Group).NotFoundMessage(groupId));
 
             var group = Exists.First();
 
@@ -216,26 +216,49 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<GroupMemberViewModel>> UpdateClassTeacherGroupAsync(GroupClassTeacherEditModel model)
         {
+            if (!_identityService.IsAdministrator())
+                return Result<GroupMemberViewModel>.Forbiden();
+
             if (!await IsExistAsync(s => s.Id == model.GroupId.Value))
                 return Result<GroupMemberViewModel>.NotFound(typeof(Group).NotFoundMessage(model.GroupId.Value));
+
+            if (!await _commonService.IsExistAsync<User>(s => s.Id == model.UserId))
+                return Result<GroupMemberViewModel>.NotFound(typeof(User).NotFoundMessage(model.UserId));
 
             var currentUserGroup = await _db.UserGroups
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.GroupId == model.GroupId.Value && s.IsAdmin);
 
             if (currentUserGroup == null)
-                return Result<GroupMemberViewModel>.NotFound(typeof(UserGroup).NotFoundMessage(model.GroupId.Value));
+            {
 
-            if (currentUserGroup.UserId == model.UserId)
-                return Result<GroupMemberViewModel>.Success();
+                var exist = await _commonService.IsExistWithResultsAsync<UserGroupRole>(s => s.UniqId == UserGroupRoles.UniqIds.ClassTeacher);
+                if (!exist.IsExist)
+                    return Result<GroupMemberViewModel>.NotFound(typeof(UserGroupRole).NotFoundMessage(UserGroupRoles.UniqIds.ClassTeacher));
 
-            if (!await _userService.IsExistAsync(s => s.Id == model.UserId))
-                return Result<GroupMemberViewModel>.NotFound(typeof(User).NotFoundMessage(model.UserId));
+                currentUserGroup = new UserGroup
+                {
+                    GroupId = model.GroupId.Value,
+                    IsAdmin = true,
+                    Status = UserGroupStatus.Member,
+                    Title = model.Title,
+                    UserGroupRoleId = exist.Results.First().Id,
+                    UserId = model.UserId
+                };
 
-            currentUserGroup.UserId = model.UserId;
-            currentUserGroup.Title = model.Title;
-            currentUserGroup.PrepareToUpdate(_identityService);
-            _db.UserGroups.Update(currentUserGroup);
+                currentUserGroup.PrepareToUpdate(_identityService);
+
+            }
+            else
+            {
+                if (currentUserGroup.UserId == model.UserId)
+                    return Result<GroupMemberViewModel>.Success(); 
+                currentUserGroup.UserId = model.UserId;
+                currentUserGroup.Title = model.Title;
+                currentUserGroup.PrepareToUpdate(_identityService);
+                _db.UserGroups.Update(currentUserGroup);
+            }
+
             await _db.SaveChangesAsync();
 
             var groupMember = await _db.UserGroups

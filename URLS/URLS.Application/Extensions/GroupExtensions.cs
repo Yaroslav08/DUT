@@ -8,7 +8,7 @@ namespace URLS.Application.Extensions
         public static void IncreaseCourse(this Group group)
         {
             var value = group.Name[group.IndexNumber];
-            var numberForIncrease = Int32.Parse(value.ToString());
+            var numberForIncrease = int.Parse(value.ToString());
             numberForIncrease = numberForIncrease + 1;
             group.Course = numberForIncrease;
             var sb = new StringBuilder();

@@ -55,7 +55,7 @@ namespace URLS.Application.Services.Implementations
         public async Task<Result<List<CommentViewModel>>> GetCommentsByPostIdAsync(int groupId, int postId, int skip = 0, int count = 20)
         {
             if (!await _db.Posts.AnyAsync(s => s.Id == postId && s.GroupId == groupId))
-                return Result<List<CommentViewModel>>.NotFound("Post from this group not found");
+                return Result<List<CommentViewModel>>.NotFound(typeof(Post).NotFoundMessage(postId));
 
             var query = _db.Comments.AsNoTracking();
 
@@ -79,14 +79,14 @@ namespace URLS.Application.Services.Implementations
 
             var commentToRemove = await _db.Comments.FirstOrDefaultAsync(s => s.Id == commentId);
             if (commentToRemove == null)
-                return Result<bool>.NotFound("Comment not found");
+                return Result<bool>.NotFound(typeof(Comment).NotFoundMessage(commentId));
 
             if (commentToRemove.PostId != postId)
-                return Result<bool>.Error("Access denited");
+                return Result<bool>.Forbiden();
 
             if (!_identityService.IsAdministrator())
                 if (commentToRemove.UserId != _identityService.GetUserId())
-                    return Result<bool>.Error("Access denited");
+                    return Result<bool>.Forbiden();
 
             _db.Comments.Remove(commentToRemove);
             await _db.SaveChangesAsync();
@@ -97,11 +97,11 @@ namespace URLS.Application.Services.Implementations
         {
             var commentToUpdate = await _db.Comments.FindAsync(model.Id);
             if (commentToUpdate == null)
-                return Result<CommentViewModel>.NotFound("Comment not found");
+                return Result<CommentViewModel>.NotFound(typeof(Comment).NotFoundMessage(model.Id));
 
             if (!_identityService.IsAdministrator())
                 if (commentToUpdate.UserId != _identityService.GetUserId())
-                    return Result<CommentViewModel>.Error("Access denited");
+                    return Result<CommentViewModel>.Forbiden();
 
             commentToUpdate.Text = model.Text;
             commentToUpdate.IsPublic = model.IsPublic;

@@ -12,6 +12,6 @@ namespace URLS.Application.Services.Interfaces
         Task<Result<AppViewModel>> CreateAppAsync(AppCreateModel app);
         Task<Result<AppViewModel>> UpdateAppAsync(AppEditModel app);
         Task<Result<AppViewModel>> ChangeAppSecretAsync(int appId);
-        Task<Result<AppViewModel>> DeleteAppAsync(int id);
+        Task<Result<bool>> DeleteAppAsync(int id);
     }
 }
