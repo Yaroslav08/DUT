@@ -1,29 +1,31 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Setting;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
 
 namespace URLS.Application.Services.Implementations
 {
-    public class SettingService : BaseService<Setting>, ISettingService
+    public class SettingService : ISettingService
     {
         private readonly URLSDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
-        public SettingService(URLSDbContext db, IMapper mapper, IIdentityService identityService) : base(db)
+        private readonly ICommonService _commonService;
+        public SettingService(URLSDbContext db, IMapper mapper, IIdentityService identityService, ICommonService commonService)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
+            _commonService = commonService;
         }
 
         public async Task<Result<SettingViewModel>> CreateSettingAsync(SettingCreateModel model)
         {
-            if (await CountAsync() >= 1)
+            if (await _commonService.CountAsync<Setting>() >= 1)
                 return Result<SettingViewModel>.Error("Can't create more then 1 item");
 
             var newSetting = new Setting

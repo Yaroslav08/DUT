@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
@@ -6,20 +6,17 @@ using URLS.Application.ViewModels.Group.GroupMember;
 using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
 
 namespace URLS.Application.Services.Implementations
 {
-    public class GroupMemberService: BaseService<UserGroup>, IGroupMemberService
+    public class GroupMemberService: IGroupMemberService
     {
         private readonly URLSDbContext _db;
-        private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
         private readonly ICommonService _commonService;
-        public GroupMemberService(URLSDbContext db, IMapper mapper, IIdentityService identityService, ICommonService commonService) : base(db)
+        public GroupMemberService(URLSDbContext db, IIdentityService identityService, ICommonService commonService)
         {
             _db = db;
-            _mapper = mapper;
             _identityService = identityService;
             _commonService = commonService;
         }

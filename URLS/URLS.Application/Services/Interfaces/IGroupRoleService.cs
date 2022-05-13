@@ -4,7 +4,7 @@ using URLS.Domain.Models;
 
 namespace URLS.Application.Services.Interfaces
 {
-    public interface IGroupRoleService : IBaseService<UserGroupRole>
+    public interface IGroupRoleService
     {
         Task<Result<List<UserGroupRoleViewModel>>> GetAllGroupRolesAsync();
         Task<Result<UserGroupRoleViewModel>> GetGroupRoleByIdAsync(int id);

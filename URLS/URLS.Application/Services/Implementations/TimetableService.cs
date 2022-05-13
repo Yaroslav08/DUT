@@ -9,18 +9,18 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 namespace URLS.Application.Services.Implementations
 {
-    public class TimetableService : BaseService<Timetable>, ITimetableService
+    public class TimetableService : ITimetableService
     {
         private readonly IIdentityService _identityService;
-        private readonly IGroupService _groupService;
         private readonly IMapper _mapper;
+        private readonly ICommonService _commonService;
         private readonly URLSDbContext _db;
-        public TimetableService(IIdentityService identityService, URLSDbContext db, IGroupService groupService, IMapper mapper) : base(db)
+        public TimetableService(IIdentityService identityService, URLSDbContext db, IMapper mapper, ICommonService commonService)
         {
             _identityService = identityService;
             _db = db;
-            _groupService = groupService;
             _mapper = mapper;
+            _commonService = commonService;
         }
 
         public async Task<Result<TimetableViewModel>> CreateTimetableAsync(TimetableCreateModel model)
@@ -65,7 +65,7 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<List<TimetableViewModel>>> GetTimetableBetweenDatesAsync(int groupId, DateTime startDate, DateTime endDate)
         {
-            if (!await _groupService.IsExistAsync(s => s.Id == groupId))
+            if (!await _commonService.IsExistAsync<Group>(s => s.Id == groupId))
                 return Result<List<TimetableViewModel>>.NotFound("Group not found");
 
             ValidateDates(ref startDate, ref endDate);

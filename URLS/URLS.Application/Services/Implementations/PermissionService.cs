@@ -1,18 +1,14 @@
 ﻿using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.Identity;
 using URLS.Constants;
-using URLS.Domain.Models;
-using URLS.Infrastructure.Data.Context;
 
 namespace URLS.Application.Services.Implementations
 {
-    public class PermissionService : BaseService<User>, IPermissionService
+    public class PermissionService : IPermissionService
     {
-        private readonly URLSDbContext _db;
         private readonly IIdentityService _identityService;
-        public PermissionService(URLSDbContext db, IIdentityService identityService) : base(db)
+        public PermissionService(IIdentityService identityService)
         {
-            _db = db;
             _identityService = identityService;
         }
 

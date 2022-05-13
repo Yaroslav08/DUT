@@ -13,21 +13,17 @@ using URLS.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 namespace URLS.Application.Services.Implementations
 {
-    public class GroupService : BaseService<Group>, IGroupService
+    public class GroupService : IGroupService
     {
         private readonly URLSDbContext _db;
         private readonly IMapper _mapper;
-        private readonly IUserService _userService;
         private readonly IIdentityService _identityService;
-        private readonly IPostService _postService;
         private readonly ICommonService _commonService;
-        public GroupService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IPostService postService, IUserService userService, ICommonService commonService) : base(db)
+        public GroupService(URLSDbContext db, IMapper mapper, IIdentityService identityService, ICommonService commonService)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
-            _postService = postService;
-            _userService = userService;
             _commonService = commonService;
         }
 
@@ -133,9 +129,11 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<GroupViewModel>> GetGroupByIdAsync(int id)
         {
-            if (!await IsExistAsync(s => s.Id == id))
+            var query = await _commonService.IsExistWithResultsAsync<Group>(s => s.Id == id);
+
+            if (!query.IsExist)
                 return Result<GroupViewModel>.NotFound(typeof(Group).NotFoundMessage(id));
-            var groupToView = _mapper.Map<GroupViewModel>(Exists.First());
+            var groupToView = _mapper.Map<GroupViewModel>(query.Results.First());
             groupToView.CountOfStudents = await _db.UserGroups.CountAsync(x => x.GroupId == id && x.Status == Domain.Models.UserGroupStatus.Member);
             return Result<GroupViewModel>.SuccessWithData(groupToView);
         }
@@ -166,10 +164,12 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<GroupViewModel>> IncreaseCourseOfGroupAsync(int groupId)
         {
-            if (!await IsExistAsync(x => x.Id == groupId))
+            var query = await _commonService.IsExistWithResultsAsync<Group>(x => x.Id == groupId);
+
+            if (!query.IsExist)
                 return Result<GroupViewModel>.NotFound(typeof(Group).NotFoundMessage(groupId));
 
-            var group = Exists.First();
+            var group = query.Results.First();
 
             if (group.Course >= 6)
                 return Result<GroupViewModel>.Error($"Group course can`t be more then {group.Course}");
@@ -219,7 +219,9 @@ namespace URLS.Application.Services.Implementations
             if (!_identityService.IsAdministrator())
                 return Result<GroupMemberViewModel>.Forbiden();
 
-            if (!await IsExistAsync(s => s.Id == model.GroupId.Value))
+            var query = await _commonService.IsExistWithResultsAsync<Group>(s => s.Id == model.GroupId.Value);
+
+            if (!query.IsExist)
                 return Result<GroupMemberViewModel>.NotFound(typeof(Group).NotFoundMessage(model.GroupId.Value));
 
             if (!await _commonService.IsExistAsync<User>(s => s.Id == model.UserId))
@@ -252,7 +254,7 @@ namespace URLS.Application.Services.Implementations
             else
             {
                 if (currentUserGroup.UserId == model.UserId)
-                    return Result<GroupMemberViewModel>.Success(); 
+                    return Result<GroupMemberViewModel>.Success();
                 currentUserGroup.UserId = model.UserId;
                 currentUserGroup.Title = model.Title;
                 currentUserGroup.PrepareToUpdate(_identityService);

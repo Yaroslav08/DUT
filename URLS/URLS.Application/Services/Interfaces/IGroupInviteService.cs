@@ -1,10 +1,9 @@
 ﻿using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Group;
-using URLS.Domain.Models;
 
 namespace URLS.Application.Services.Interfaces
 {
-    public interface IGroupInviteService : IBaseService<GroupInvite>
+    public interface IGroupInviteService
     {
         Task<Result<List<GroupInviteViewModel>>> GetGroupInvitesByGroupIdAsync(int groupId);
         Task<Result<GroupInviteViewModel>> CreateGroupInviteAsync(GroupInviteCreateModel model);

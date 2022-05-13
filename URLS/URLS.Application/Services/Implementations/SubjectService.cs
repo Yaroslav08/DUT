@@ -11,30 +11,28 @@ using System.Linq.Expressions;
 
 namespace URLS.Application.Services.Implementations
 {
-    public class SubjectService : BaseService<Subject>, ISubjectService
+    public class SubjectService : ISubjectService
     {
         private readonly IIdentityService _identityService;
-        private readonly IGroupService _groupService;
-        private readonly IUserService _userService;
         private readonly IMapper _mapper;
+        private readonly ICommonService _commonService;
         private readonly URLSDbContext _db;
 
-        public SubjectService(IIdentityService identityService, IGroupService groupService, IUserService userService, IMapper mapper, URLSDbContext db) : base(db)
+        public SubjectService(IIdentityService identityService, IMapper mapper, URLSDbContext db, ICommonService commonService)
         {
             _identityService = identityService;
-            _groupService = groupService;
-            _userService = userService;
             _mapper = mapper;
             _db = db;
+            _commonService = commonService;
         }
 
         public async Task<Result<SubjectViewModel>> CreateSubjectAsync(SubjectCreateModel model)
         {
-            if (!await _userService.IsExistAsync(s => s.Id == model.TeacherId))
+            if (!await _commonService.IsExistAsync<User>(s => s.Id == model.TeacherId))
                 return Result<SubjectViewModel>.NotFound("Teacher with this ID not found");
 
             if (model.GroupId != null)
-                if (!await _groupService.IsExistAsync(s => s.Id == model.GroupId))
+                if (!await _commonService.IsExistAsync<Group>(s => s.Id == model.GroupId))
                     return Result<SubjectViewModel>.NotFound($"Group with ID ({model.GroupId}) not found");
 
             var newSubject = new Subject
@@ -118,17 +116,18 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<SubjectViewModel>> UpdateSubjectAsync(SubjectEditModel model)
         {
-            if (!await IsExistAsync(s => s.Id == model.Id))
+            var query = await _commonService.IsExistWithResultsAsync<Subject>(s => s.Id == model.Id);
+            if (!query.IsExist)
                 return Result<SubjectViewModel>.NotFound("Subject not found");
 
-            if (!await _userService.IsExistAsync(s => s.Id == model.TeacherId))
+            if (!await _commonService.IsExistAsync<User>(s => s.Id == model.TeacherId))
                 return Result<SubjectViewModel>.NotFound("Teacher with this ID not found");
 
             if (model.GroupId != null)
-                if (!await _groupService.IsExistAsync(s => s.Id == model.GroupId))
+                if (!await _commonService.IsExistAsync<Group>(s => s.Id == model.GroupId))
                     return Result<SubjectViewModel>.NotFound($"Group with ID ({model.GroupId}) not found");
 
-            var subjectToUpdate = Exists.First();
+            var subjectToUpdate = query.Results.First();
 
             subjectToUpdate.GroupId = model.GroupId;
             subjectToUpdate.TeacherId = model.TeacherId;
@@ -151,7 +150,7 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<SubjectViewModel>> GetGroupSubjectAsync(int groupId, int subjectId)
         {
-            if (!await _groupService.IsExistAsync(s => s.Id == groupId))
+            if (!await _commonService.IsExistAsync<Group>(s => s.Id == groupId))
                 return Result<SubjectViewModel>.NotFound($"Group with ID ({groupId}) not found");
 
             var searchResult = await SearchSubjectsAsync(new SearchSubjectOptions

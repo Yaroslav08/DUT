@@ -10,12 +10,12 @@ using URLS.Constants.Extensions;
 
 namespace URLS.Application.Services.Implementations
 {
-    public class ClaimService : BaseService<Claim>, IClaimService
+    public class ClaimService : IClaimService
     {
         private readonly URLSDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
-        public ClaimService(URLSDbContext db, IMapper mapper, IIdentityService identityService) : base(db)
+        public ClaimService(URLSDbContext db, IMapper mapper, IIdentityService identityService)
         {
             _db = db;
             _mapper = mapper;

@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Extensions.Password;
+using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Helpers;
 using URLS.Application.Options;
@@ -12,32 +14,32 @@ using URLS.Application.ViewModels.User.UserInfo;
 using URLS.Constants;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Extensions.Password;
-using Microsoft.EntityFrameworkCore;
 namespace URLS.Application.Services.Implementations
 {
-    public class UserService : BaseService<User>, IUserService
+    public class UserService : IUserService
     {
         private readonly URLSDbContext _db;
         private readonly IMapper _mapper;
+        private readonly ICommonService _commonService;
         private readonly IIdentityService _identityService;
-        public UserService(URLSDbContext db, IMapper mapper, IIdentityService identityService) : base(db)
+        public UserService(URLSDbContext db, IMapper mapper, IIdentityService identityService, ICommonService commonService)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
+            _commonService = commonService;
         }
 
         public async Task<Result<UserViewModel>> CreateUserAsync(UserCreateModel model)
         {
-            if (await IsExistAsync(s => s.Login == model.Login))
+            if (await _commonService.IsExistAsync<User>(s => s.Login == model.Login))
                 return Result<UserViewModel>.Error("Login is busy");
 
             if (!await _db.Roles.AsNoTracking().AnyAsync(s => s.Id == model.RoleId))
                 return Result<UserViewModel>.NotFound("Role not found");
 
             if (!string.IsNullOrEmpty(model.UserName))
-                if (await IsExistAsync(s => s.UserName == model.UserName))
+                if (await _commonService.IsExistAsync<User>(s => s.UserName == model.UserName))
                     return Result<UserViewModel>.Error("Username is busy");
 
             var newUser = new User(model.FirstName, model.MiddleName, model.LastName, model.Login, null);
@@ -208,7 +210,7 @@ namespace URLS.Application.Services.Implementations
             if (userToUpdate.UserName == model.Username)
                 return Result<UserViewModel>.Error("Username equals current you");
 
-            if (await IsExistAsync(s => s.UserName == model.Username))
+            if (await _commonService.IsExistAsync<User>(s => s.UserName == model.Username))
                 return Result<UserViewModel>.Error("Username is already busy");
 
             userToUpdate.UserName = model.Username;

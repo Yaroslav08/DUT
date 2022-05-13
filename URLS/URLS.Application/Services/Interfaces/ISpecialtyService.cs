@@ -1,9 +1,8 @@
 ﻿using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Specialty;
-using URLS.Domain.Models;
 namespace URLS.Application.Services.Interfaces
 {
-    public interface ISpecialtyService : IBaseService<Specialty>
+    public interface ISpecialtyService
     {
         Task<Result<SpecialtyViewModel>> CreateSpecialtyAsync(SpecialtyCreateModel model);
         Task<Result<SpecialtyViewModel>> UpdateSpecialtyAsync(SpecialtyEditModel model);

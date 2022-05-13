@@ -1,26 +1,28 @@
 ﻿using AutoMapper;
+using Extensions.Generator;
+using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Diploma;
+using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
-using Extensions.Generator;
-using URLS.Constants.Extensions;
 
 namespace URLS.Application.Services.Implementations
 {
-    public class DiplomaService : BaseService<Diploma>, IDiplomaService
+    public class DiplomaService : IDiplomaService
     {
         private readonly URLSDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
-        public DiplomaService(URLSDbContext db, IMapper mapper, IIdentityService identityService) : base(db)
+        private readonly ICommonService _commonService;
+        public DiplomaService(URLSDbContext db, IMapper mapper, IIdentityService identityService, ICommonService commonService)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
+            _commonService = commonService;
         }
 
         public async Task<Result<List<DiplomaViewModel>>> GetDiplomaTemplatesAsync()
@@ -100,13 +102,15 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<DiplomaViewModel>> CreateDiplomaBasicOnTemplateAsync(DiplomaCreateModel model, string templateId)
         {
-            if (await IsExistAsync(x => x.Number == model.Number && x.Series == model.Series))
+            var existDiploma = await _commonService.IsExistWithResultsAsync<Diploma>(x => x.Number == model.Number && x.Series == model.Series);
+            if (existDiploma.IsExist)
                 return Result<DiplomaViewModel>.Error("Diploma is already created");
 
-            if (!await IsExistAsync(s => s.Id == templateId))
+            existDiploma = await _commonService.IsExistWithResultsAsync<Diploma>(s => s.Id == templateId);
+            if (!existDiploma.IsExist)
                 return Result<DiplomaViewModel>.NotFound(typeof(Diploma).NotFoundMessage(templateId));
 
-            var studentDiploma = Exists.First();
+            var studentDiploma = existDiploma.Results.First();
 
             var userGroup = await _db.UserGroups
                 .AsNoTracking()
@@ -145,7 +149,7 @@ namespace URLS.Application.Services.Implementations
         {
             var diploma = await _db.Diplomas.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id && x.IsTemplate);
             if (diploma == null)
-                return Result<DiplomaViewModel>.NotFound(typeof(Diploma).NotFoundMessage(templateId));
+                return Result<DiplomaViewModel>.NotFound(typeof(Diploma).NotFoundMessage(id));
             return Result<DiplomaViewModel>.SuccessWithData(_mapper.Map<DiplomaViewModel>(diploma));
         }
     }

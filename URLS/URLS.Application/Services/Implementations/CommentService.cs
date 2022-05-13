@@ -1,39 +1,37 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Post.Comment;
+using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
-using URLS.Constants.Extensions;
 
 namespace URLS.Application.Services.Implementations
 {
-    public class CommentService : BaseService<Comment>, ICommentService
+    public class CommentService : ICommentService
     {
         private readonly URLSDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
         private readonly IPermissionCommentService _permissionCommentService;
-        private readonly IGroupService _groupService;
-        private readonly IPostService _postService;
-        public CommentService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IPermissionCommentService permissionCommentService, IGroupService groupService, IPostService postService) : base(db)
+        private readonly ICommonService _commonService;
+        public CommentService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IPermissionCommentService permissionCommentService, ICommonService commonService)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
             _permissionCommentService = permissionCommentService;
-            _groupService = groupService;
-            _postService = postService;
+            _commonService = commonService;
         }
 
         public async Task<Result<CommentViewModel>> CreateCommentAsync(CommentCreateModel model)
         {
-            if (!await _groupService.IsExistAsync(s => s.Id == model.GroupId))
+            if (!await _commonService.IsExistAsync<Group>(s => s.Id == model.GroupId))
                 return Result<CommentViewModel>.NotFound(typeof(Group).NotFoundMessage(model.GroupId));
 
-            if (!await _postService.IsExistAsync(s => s.Id == model.PostId))
+            if (!await _commonService.IsExistAsync<Group>(s => s.Id == model.PostId))
                 return Result<CommentViewModel>.NotFound(typeof(Post).NotFoundMessage(model.PostId));
 
             if (!await _permissionCommentService.CanCreateCommentAsync(model.GroupId))

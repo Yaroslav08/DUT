@@ -4,7 +4,7 @@ using URLS.Domain.Models;
 
 namespace URLS.Application.Services.Interfaces
 {
-    public interface IGroupMemberService : IBaseService<UserGroup>
+    public interface IGroupMemberService
     {
         Task<Result<List<GroupMemberViewModel>>> GetGroupMembersAsync(int groupId, int afterId = int.MaxValue, int count = 20, int status = 0);
         Task<Result<GroupMemberViewModel>> GetGroupMemberByIdAsync(int groupId, int memberId);

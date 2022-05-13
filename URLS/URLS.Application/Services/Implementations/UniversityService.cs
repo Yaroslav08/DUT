@@ -1,29 +1,31 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.University;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
 
 namespace URLS.Application.Services.Implementations
 {
-    public class UniversityService : BaseService<University>, IUniversityService
+    public class UniversityService : IUniversityService
     {
         private readonly IIdentityService _identityService;
+        private readonly ICommonService _commonService;
         private readonly IMapper _mapper;
         private readonly URLSDbContext _db;
-        public UniversityService(IMapper mapper, URLSDbContext db, IIdentityService identityService) : base(db)
+        public UniversityService(IMapper mapper, URLSDbContext db, IIdentityService identityService, ICommonService commonService)
         {
             _mapper = mapper;
             _db = db;
             _identityService = identityService;
+            _commonService = commonService;
         }
 
         public async Task<Result<UniversityViewModel>> CreateUniversityAsync(UniversityCreateModel model)
         {
-            var count = await CountAsync();
+            var count = await _commonService.CountAsync<University>();
             if (count > 0)
                 return Result<UniversityViewModel>.Error("University is already exist");
 

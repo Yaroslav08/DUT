@@ -10,21 +10,23 @@ using URLS.Infrastructure.Data.Context;
 
 namespace URLS.Application.Services.Implementations
 {
-    public class GroupRoleService : BaseService<UserGroupRole>, IGroupRoleService
+    public class GroupRoleService : IGroupRoleService
     {
         private readonly URLSDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
-        public GroupRoleService(URLSDbContext db, IMapper mapper, IIdentityService identityService) : base(db)
+        private readonly ICommonService _commonService;
+        public GroupRoleService(URLSDbContext db, IMapper mapper, IIdentityService identityService, ICommonService commonService)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
+            _commonService = commonService;
         }
 
         public async Task<Result<UserGroupRoleViewModel>> CreateGroupRoleAsync(UserGroupRoleCreateModel model)
         {
-            if (await IsExistAsync(s => s.Name == model.Name))
+            if (await _commonService.IsExistAsync<UserGroupRole>(s => s.Name == model.Name))
             {
                 return Result<UserGroupRoleViewModel>.Error("This role already exist");
             }

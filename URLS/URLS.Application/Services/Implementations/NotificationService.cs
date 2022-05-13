@@ -9,12 +9,12 @@ using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
 namespace URLS.Application.Services.Implementations
 {
-    public class NotificationService : BaseService<Notification>, INotificationService
+    public class NotificationService : INotificationService
     {
         private readonly URLSDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
-        public NotificationService(URLSDbContext db, IMapper mapper, IIdentityService identityService) : base(db)
+        public NotificationService(URLSDbContext db, IMapper mapper, IIdentityService identityService)
         {
             _db = db;
             _mapper = mapper;

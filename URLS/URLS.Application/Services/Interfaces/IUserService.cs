@@ -6,7 +6,7 @@ using URLS.Domain.Models;
 
 namespace URLS.Application.Services.Interfaces
 {
-    public interface IUserService : IBaseService<User>
+    public interface IUserService
     {
         Task<Result<UserViewModel>> CreateUserAsync(UserCreateModel model);
         Task<Result<List<UserShortViewModel>>> GetLastUsersAsync(int count);

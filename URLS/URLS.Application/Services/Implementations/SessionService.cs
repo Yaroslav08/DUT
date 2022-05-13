@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
@@ -6,16 +7,15 @@ using URLS.Application.ViewModels.Session;
 using URLS.Constants;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
 namespace URLS.Application.Services.Implementations
 {
-    public class SessionService : BaseService<Session>, ISessionService
+    public class SessionService : ISessionService
     {
         private readonly URLSDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
         private readonly ISessionManager _sessionManager;
-        public SessionService(URLSDbContext db, IMapper mapper, IIdentityService identityService, ISessionManager sessionManager) : base(db)
+        public SessionService(URLSDbContext db, IMapper mapper, IIdentityService identityService, ISessionManager sessionManager)
         {
             _db = db;
             _mapper = mapper;

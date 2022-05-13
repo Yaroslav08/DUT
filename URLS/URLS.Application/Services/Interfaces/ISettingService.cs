@@ -3,7 +3,7 @@ using URLS.Application.ViewModels.Setting;
 using URLS.Domain.Models;
 namespace URLS.Application.Services.Interfaces
 {
-    public interface ISettingService : IBaseService<Setting>
+    public interface ISettingService
     {
         Task<Result<Setting>> GetRootSettingAsync();
         Task<Result<SettingViewModel>> CreateSettingAsync(SettingCreateModel model);

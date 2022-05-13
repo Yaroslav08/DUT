@@ -4,7 +4,7 @@ using URLS.Domain.Models;
 
 namespace URLS.Application.Services.Interfaces
 {
-    public interface INotificationService : IBaseService<Notification>
+    public interface INotificationService
     {
         Task<Result<List<NotificationViewModel>>> GetUserNotificationsAsync(int userId, int offset, int count);
         Task<Result<NotificationViewModel>> GetNotificationByIdAsync(long notifyId);

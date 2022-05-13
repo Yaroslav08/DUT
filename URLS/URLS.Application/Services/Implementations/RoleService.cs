@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Helpers;
 using URLS.Application.Services.Interfaces;
@@ -6,29 +7,30 @@ using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.RoleClaim;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
 
 namespace URLS.Application.Services.Implementations
 {
-    public class RoleService : BaseService<Role>, IRoleService
+    public class RoleService : IRoleService
     {
         private readonly URLSDbContext _db;
         private readonly IMapper _mapper;
         private readonly IClaimService _claimService;
         private readonly IIdentityService _identityService;
         private readonly INotificationService _notificationService;
-        public RoleService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IClaimService claimService, INotificationService notificationService) : base(db)
+        private readonly ICommonService _commonService;
+        public RoleService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IClaimService claimService, INotificationService notificationService, ICommonService commonService)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
             _claimService = claimService;
             _notificationService = notificationService;
+            _commonService = commonService;
         }
 
         public async Task<Result<RoleViewModel>> CreateRoleAsync(RoleCreateModel model)
         {
-            if (await IsExistAsync(s => s.Name == model.Name && s.ClaimsHash == model.ClaimsIds.GetHashForClaimIds()))
+            if (await _commonService.IsExistAsync<Role>(s => s.Name == model.Name && s.ClaimsHash == model.ClaimsIds.GetHashForClaimIds()))
             {
                 return Result<RoleViewModel>.Error("Same role already exist");
             }
@@ -78,10 +80,11 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<RoleViewModel>> GetRoleByIdAsync(int id, bool withClaims)
         {
-            if (!await IsExistAsync(s => s.Id == id))
+            var query = await _commonService.IsExistWithResultsAsync<Role>(s => s.Id == id);
+            if (!query.IsExist)
                 return Result<RoleViewModel>.NotFound("Role not found");
 
-            var role = Exists.First();
+            var role = query.Results.First();
 
             var roleToView = _mapper.Map<RoleViewModel>(role);
 
@@ -96,10 +99,11 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<RoleViewModel>> RemoveRoleAsync(int roleId)
         {
-            if (!await IsExistAsync(s => s.Id == roleId))
+            var query = await _commonService.IsExistWithResultsAsync<Role>(s => s.Id == roleId);
+            if (!query.IsExist)
                 return Result<RoleViewModel>.NotFound("Role not found");
 
-            var roleToRemove = Exists.First();
+            var roleToRemove = query.Results.First();
 
             if (!roleToRemove.CanDelete)
                 return Result<RoleViewModel>.Error("This role can`t remove");
@@ -117,10 +121,11 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<RoleViewModel>> UpdateRoleAsync(RoleEditModel model)
         {
-            if (!await IsExistAsync(s => s.Id == model.Id))
+            var query = await _commonService.IsExistWithResultsAsync<Role>(s => s.Id == model.Id);
+            if (!query.IsExist)
                 return Result<RoleViewModel>.NotFound("Role not found");
 
-            var roleToUpdate = Exists.First();
+            var roleToUpdate = query.Results.First();
 
             if (!CheckIsNeedToUpdateRole(roleToUpdate, model))
                 return Result<RoleViewModel>.SuccessWithData(_mapper.Map<RoleViewModel>(roleToUpdate));

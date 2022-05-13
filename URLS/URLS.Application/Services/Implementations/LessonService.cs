@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
@@ -7,32 +8,31 @@ using URLS.Application.ViewModels.User;
 using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
 
 namespace URLS.Application.Services.Implementations
 {
-    public class LessonService : BaseService<Lesson>, ILessonService
+    public class LessonService : ILessonService
     {
         private readonly IIdentityService _identityService;
-        private readonly ISubjectService _subjectService;
-        private readonly IUserService _userService;
         private readonly IMapper _mapper;
+        private readonly ICommonService _commonService;
         private readonly URLSDbContext _db;
-        public LessonService(IIdentityService identityService, ISubjectService subjectService, IMapper mapper, URLSDbContext db, IUserService userService) : base(db)
+        public LessonService(IIdentityService identityService, IMapper mapper, URLSDbContext db, ICommonService commonService)
         {
             _identityService = identityService;
-            _subjectService = subjectService;
             _mapper = mapper;
             _db = db;
-            _userService = userService;
+            _commonService = commonService;
         }
 
         public async Task<Result<LessonViewModel>> CreateLessonAsync(LessonCreateModel lesson)
         {
-            if (!await _subjectService.IsExistAsync(s => s.Id == lesson.SubjectId))
+            var query = await _commonService.IsExistWithResultsAsync<Subject>(s => s.Id == lesson.SubjectId);
+
+            if (!query.IsExist)
                 return Result<LessonViewModel>.NotFound(typeof(Subject).NotFoundMessage(lesson.SubjectId));
 
-            var subject = _subjectService.Exists.First();
+            var subject = query.Results.First();
 
             if (lesson.LessonType == LessonType.Exam && !subject.Config.WithExam)
                 return Result<LessonViewModel>.Error("Exam lesson can't be create due to config");
@@ -41,31 +41,40 @@ namespace URLS.Application.Services.Implementations
                 return Result<LessonViewModel>.Error("Can't create lesson due to this subject is template");
 
             if (lesson.SubstituteTeacherId.HasValue)
-                if (!await _userService.IsExistAsync(s => s.Id == lesson.SubstituteTeacherId))
+                if (!await _commonService.IsExistAsync<User>(s => s.Id == lesson.SubstituteTeacherId))
                     return Result<LessonViewModel>.NotFound(typeof(User).NotFoundMessage(lesson.SubstituteTeacherId));
 
             if (lesson.PreviewLessonId.HasValue)
-                if (!await IsExistAsync(s => s.Id == lesson.PreviewLessonId))
+            {
+                var query2 = await _commonService.IsExistWithResultsAsync<Lesson>(s => s.Id == lesson.PreviewLessonId);
+
+                if (!query2.IsExist)
                 {
                     return Result<LessonViewModel>.NotFound(typeof(Lesson).NotFoundMessage(lesson.PreviewLessonId));
                 }
                 else
                 {
-                    var previewLesson = Exists.First();
+                    var previewLesson = query2.Results.First();
                     if (previewLesson.SubjectId != lesson.SubjectId)
                         return Result<LessonViewModel>.Error("This lesson is not on this subject");
                 }
+            }
             if (lesson.NextLessonId.HasValue)
-                if (!await IsExistAsync(s => s.Id == lesson.NextLessonId))
+            {
+                var query3 = await _commonService.IsExistWithResultsAsync<Lesson>(s => s.Id == lesson.NextLessonId);
+
+
+                if (!query3.IsExist)
                 {
                     return Result<LessonViewModel>.NotFound(typeof(Lesson).NotFoundMessage(lesson.NextLessonId));
                 }
                 else
                 {
-                    var nextLesson = Exists.First();
+                    var nextLesson = query3.Results.First();
                     if (nextLesson.SubjectId != lesson.SubjectId)
                         return Result<LessonViewModel>.Error("This lesson is not on this subject");
                 }
+            }
 
             var newLesson = new Lesson
             {
@@ -158,7 +167,7 @@ namespace URLS.Application.Services.Implementations
         public async Task<Result<LessonViewModel>> UpdateLessonAsync(LessonEditModel lesson)
         {
             if (lesson.SubstituteTeacherId.HasValue)
-                if (!await _userService.IsExistAsync(s => s.Id == lesson.SubstituteTeacherId))
+                if (!await _commonService.IsExistAsync<User>(s => s.Id == lesson.SubstituteTeacherId))
                     return Result<LessonViewModel>.NotFound(typeof(User).NotFoundMessage(lesson.SubstituteTeacherId));
 
             var currentLesson = await _db.Lessons.AsNoTracking().FirstOrDefaultAsync(s => s.Id == lesson.Id);
@@ -166,27 +175,34 @@ namespace URLS.Application.Services.Implementations
                 return Result<LessonViewModel>.NotFound(typeof(Lesson).NotFoundMessage(lesson.Id));
 
             if (lesson.PreviewLessonId.HasValue)
-                if (!await IsExistAsync(s => s.Id == lesson.PreviewLessonId))
+            {
+                var query = await _commonService.IsExistWithResultsAsync<Lesson>(s => s.Id == lesson.PreviewLessonId);
+
+                if (!query.IsExist)
                 {
                     return Result<LessonViewModel>.NotFound(typeof(Lesson).NotFoundMessage(lesson.PreviewLessonId));
                 }
                 else
                 {
-                    var previewLesson = Exists.First();
+                    var previewLesson = query.Results.First();
                     if (previewLesson.SubjectId != lesson.SubjectId)
                         return Result<LessonViewModel>.Error("This lesson is not on this subject");
                 }
+            }
             if (lesson.NextLessonId.HasValue)
-                if (!await IsExistAsync(s => s.Id == lesson.NextLessonId))
+            {
+                var query = await _commonService.IsExistWithResultsAsync<Lesson>(s => s.Id == lesson.NextLessonId);
+                if (!query.IsExist)
                 {
                     return Result<LessonViewModel>.NotFound(typeof(Lesson).NotFoundMessage(lesson.NextLessonId));
                 }
                 else
                 {
-                    var nextLesson = Exists.First();
+                    var nextLesson = query.Results.First();
                     if (nextLesson.SubjectId != lesson.SubjectId)
                         return Result<LessonViewModel>.Error("This lesson is not on this subject");
                 }
+            }
 
             currentLesson.Theme = lesson.Theme;
             currentLesson.Description = lesson.Description;

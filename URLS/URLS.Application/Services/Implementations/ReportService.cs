@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Force.DeepCloner;
+using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
@@ -6,27 +8,26 @@ using URLS.Application.ViewModels.Report;
 using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Force.DeepCloner;
-using Microsoft.EntityFrameworkCore;
 namespace URLS.Application.Services.Implementations
 {
-    public class ReportService : BaseService<Report>, IReportService
+    public class ReportService : IReportService
     {
         private readonly URLSDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
-        private readonly ISubjectService _subjectService;
-        public ReportService(URLSDbContext db, IMapper mapper, IIdentityService identityService, ISubjectService subjectService) : base(db)
+        private readonly ICommonService _commonService;
+        public ReportService(URLSDbContext db, IMapper mapper, IIdentityService identityService, ICommonService commonService)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
-            _subjectService = subjectService;
+            _commonService = commonService;
         }
 
         public async Task<Result<ReportViewModel>> CreateReportAsync(int subjectId)
         {
-            if (!await _subjectService.IsExistAsync(s => s.Id == subjectId))
+            var query = await _commonService.IsExistWithResultsAsync<Subject>(s => s.Id == subjectId);
+            if (!query.IsExist)
                 return Result<ReportViewModel>.NotFound(typeof(Subject).NotFoundMessage(subjectId));
 
             var allLessons = await _db.Lessons
@@ -48,7 +49,7 @@ namespace URLS.Application.Services.Implementations
                 Type = ReportType.Intermediate
             };
 
-            newReport.CalculatedMarks = await GetCalculatedMarksAsync(allLessons, _subjectService.Exists.First().GroupId.Value);
+            newReport.CalculatedMarks = await GetCalculatedMarksAsync(allLessons, query.Results.First().GroupId.Value);
 
             newReport.PrepareToCreate(_identityService);
 
@@ -111,7 +112,7 @@ namespace URLS.Application.Services.Implementations
                 return Result<ReportViewModel>.Error("Can`t edit final report");
 
             if (model.Type == ReportType.Finall)
-                if (await IsExistAsync(s => s.SubjectId == model.SubjectId && s.Type == ReportType.Finall))
+                if (await _commonService.IsExistAsync<Report>(s => s.SubjectId == model.SubjectId && s.Type == ReportType.Finall))
                     return Result<ReportViewModel>.Error("A subject must have only one final report");
 
             currentReport.Title = model.Title;

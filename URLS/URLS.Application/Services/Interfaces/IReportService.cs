@@ -1,9 +1,8 @@
 ﻿using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Report;
-using URLS.Domain.Models;
 namespace URLS.Application.Services.Interfaces
 {
-    public interface IReportService : IBaseService<Report>
+    public interface IReportService
     {
         Task<Result<ReportViewModel>> CreateReportAsync(int subjectId);
         Task<Result<List<ReportViewModel>>> GetReportsBySubjectIdAsync(int subjectId);

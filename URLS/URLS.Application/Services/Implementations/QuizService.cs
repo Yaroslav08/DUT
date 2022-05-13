@@ -11,26 +11,24 @@ using URLS.Infrastructure.Data.Context;
 
 namespace URLS.Application.Services.Implementations
 {
-    public class QuizService : BaseService<Quiz>, IQuizService
+    public class QuizService : IQuizService
     {
         private readonly URLSDbContext _db;
         private readonly IIdentityService _identityService;
         private readonly IMapper _mapper;
-        private readonly ISubjectService _subjectService;
         private readonly ICommonService _commonService;
-        public QuizService(URLSDbContext db, IIdentityService identityService, IMapper mapper, ISubjectService subjectService, ICommonService commonService) : base(db)
+        public QuizService(URLSDbContext db, IIdentityService identityService, IMapper mapper, ICommonService commonService)
         {
             _db = db;
             _identityService = identityService;
             _mapper = mapper;
-            _subjectService = subjectService;
             _commonService = commonService;
         }
 
         public async Task<Result<QuizViewModel>> CreateAsync(QuizCreateModel quiz)
         {
             if (!quiz.IsTemplate)
-                if (!await _subjectService.IsExistAsync(s => s.Id == quiz.SubjectId))
+                if (!await _commonService.IsExistAsync<Subject>(s => s.Id == quiz.SubjectId))
                     return Result<QuizViewModel>.NotFound(typeof(Subject).NotFoundMessage(quiz.SubjectId));
 
             if (!QuizValidation.TryValidate(quiz, out var error))
@@ -193,10 +191,11 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<QuizStartedViewModel>> StartQuizAsync(Guid quizId)
         {
-            if (!await IsExistAsync(s => s.Id == quizId))
+            var query = await _commonService.IsExistWithResultsAsync<Quiz>(s => s.Id == quizId);
+            if (!query.IsExist)
                 return Result<QuizStartedViewModel>.NotFound(typeof(Quiz).NotFoundMessage(quizId));
 
-            var currentQuiz = Exists.First();
+            var currentQuiz = query.Results.First();
 
             var currentUserId = _identityService.GetUserId();
 

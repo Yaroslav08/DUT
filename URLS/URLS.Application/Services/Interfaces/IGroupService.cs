@@ -6,7 +6,7 @@ using URLS.Domain.Models;
 
 namespace URLS.Application.Services.Interfaces
 {
-    public interface IGroupService : IBaseService<Group>
+    public interface IGroupService
     {
         Task<Result<List<GroupViewModel>>> GetGroupsBySpecialtyIdAsync(int specialtyId);
         Task<Result<List<GroupViewModel>>> GetAllGroupsAsync(int offset = 0, int limit = 20);

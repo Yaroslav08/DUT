@@ -1,9 +1,8 @@
 ﻿using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Quiz;
-using URLS.Domain.Models;
 namespace URLS.Application.Services.Interfaces
 {
-    public interface IQuizService : IBaseService<Quiz>
+    public interface IQuizService
     {
         Task<Result<List<QuizViewModel>>> GetAllAsync(int offset = 0, int count = 20);
         Task<Result<List<QuizViewModel>>> GetBySubjectIdAsync(int subjectId, int offset = 0, int count = 10);

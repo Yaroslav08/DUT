@@ -1,22 +1,22 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Apps;
 using URLS.Constants;
+using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
-using URLS.Constants.Extensions;
 
 namespace URLS.Application.Services.Implementations
 {
-    public class AppService : BaseService<App>, IAppService
+    public class AppService : IAppService
     {
         private readonly URLSDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
-        public AppService(URLSDbContext db, IMapper mapper, IIdentityService identityService) : base(db)
+        public AppService(URLSDbContext db, IMapper mapper, IIdentityService identityService)
         {
             _db = db;
             _mapper = mapper;

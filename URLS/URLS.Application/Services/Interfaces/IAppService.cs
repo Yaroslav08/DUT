@@ -1,10 +1,9 @@
 ﻿using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Apps;
-using URLS.Domain.Models;
 
 namespace URLS.Application.Services.Interfaces
 {
-    public interface IAppService : IBaseService<App>
+    public interface IAppService
     {
         Task<Result<List<AppViewModel>>> GetAllAppsAsync(int offset = 0, int limit = 20);
         Task<Result<AppViewModel>> GetAppByIdAsync(int id);

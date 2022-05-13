@@ -1,9 +1,8 @@
 ﻿using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Timetable;
-using URLS.Domain.Models;
 namespace URLS.Application.Services.Interfaces
 {
-    public interface ITimetableService : IBaseService<Timetable>
+    public interface ITimetableService
     {
         Task<Result<List<TimetableViewModel>>> GetTimetableBetweenDatesAsync(int groupId, DateTime startDate, DateTime endDate);
         Task<Result<TimetableViewModel>> CreateTimetableAsync(TimetableCreateModel model);

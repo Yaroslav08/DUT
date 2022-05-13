@@ -10,14 +10,14 @@ using URLS.Infrastructure.Data.Context;
 
 namespace URLS.Application.Services.Implementations
 {
-    public class PostService : BaseService<Post>, IPostService
+    public class PostService : IPostService
     {
         private readonly URLSDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
         private readonly IPermissionPostService _permissionPostService;
         private readonly IReactionService _reactionService;
-        public PostService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IPermissionPostService permissionPostService, IReactionService reactionService) : base(db)
+        public PostService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IPermissionPostService permissionPostService, IReactionService reactionService)
         {
             _db = db;
             _mapper = mapper;

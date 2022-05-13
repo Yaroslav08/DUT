@@ -1,4 +1,8 @@
 ﻿using AutoMapper;
+using Extensions.DeviceDetector;
+using Extensions.Password;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Helpers;
 using URLS.Application.Services.Interfaces;
@@ -7,37 +11,33 @@ using URLS.Application.ViewModels.Identity;
 using URLS.Application.ViewModels.Session;
 using URLS.Application.ViewModels.User;
 using URLS.Constants;
+using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Extensions.DeviceDetector;
-using Extensions.Password;
-using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using URLS.Constants.Extensions;
 
 namespace URLS.Application.Services.Implementations
 {
-    public class AuthenticationService : BaseService<User>, IAuthenticationService
+    public class AuthenticationService : IAuthenticationService
     {
         private readonly URLSDbContext _db;
         private readonly IMapper _mapper;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IIdentityService _identityService;
         private readonly ISessionManager _sessionManager;
         private readonly ILocationService _locationService;
         private readonly ITokenService _tokenService;
         private readonly IDetector _detector;
+        private readonly ICommonService _commonService;
 
-        public AuthenticationService(URLSDbContext db, IHttpContextAccessor httpContextAccessor, IIdentityService identityService, ISessionManager sessionManager, ILocationService locationService, ITokenService tokenService, IDetector detector, IMapper mapper) : base(db)
+        public AuthenticationService(URLSDbContext db, IIdentityService identityService, ISessionManager sessionManager, ILocationService locationService, ITokenService tokenService, IDetector detector, IMapper mapper, ICommonService commonService)
         {
             _db = db;
-            _httpContextAccessor = httpContextAccessor;
             _identityService = identityService;
             _sessionManager = sessionManager;
             _locationService = locationService;
             _tokenService = tokenService;
             _detector = detector;
             _mapper = mapper;
+            _commonService = commonService;
         }
 
         public async Task<Result<UserViewModel>> BlockUserConfigAsync(BlockUserModel model)
@@ -268,7 +268,7 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<AuthenticationInfo>> RegisterAsync(RegisterViewModel model)
         {
-            if (await IsExistAsync(s => s.Login == model.Login))
+            if (await _commonService.IsExistAsync<User>(s => s.Login == model.Login))
                 return Result<AuthenticationInfo>.Error("Login is busy");
 
             var groupInvite = await _db.GroupInvites.AsNoTracking().FirstOrDefaultAsync(s => s.CodeJoin == model.Code);

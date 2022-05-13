@@ -1,9 +1,8 @@
 ﻿using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Diploma;
-using URLS.Domain.Models;
 namespace URLS.Application.Services.Interfaces
 {
-    public interface IDiplomaService : IBaseService<Diploma>
+    public interface IDiplomaService
     {
         Task<Result<bool>> CreateTemplatesAutomaticallyAsync();
         Task<Result<DiplomaViewModel>> CreateDiplomaBasicOnTemplateAsync(DiplomaCreateModel model, string templateId);

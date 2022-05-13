@@ -1,9 +1,8 @@
 ﻿using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Faculty;
-using URLS.Domain.Models;
 namespace URLS.Application.Services.Interfaces
 {
-    public interface IFacultyService : IBaseService<Faculty>
+    public interface IFacultyService
     {
         Task<Result<FacultyViewModel>> CreateFacultyAsync(FacultyCreateModel model);
         Task<Result<FacultyViewModel>> UpdateFacultyAsync(FacultyEditModel model);

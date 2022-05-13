@@ -1,11 +1,10 @@
 ﻿using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Identity;
 using URLS.Application.ViewModels.User;
-using URLS.Domain.Models;
 
 namespace URLS.Application.Services.Interfaces
 {
-    public interface IAuthenticationService : IBaseService<User>
+    public interface IAuthenticationService
     {
         Task<Result<AuthenticationInfo>> RegisterAsync(RegisterViewModel model);
         Task<Result<JwtToken>> LoginByPasswordAsync(LoginCreateModel model);

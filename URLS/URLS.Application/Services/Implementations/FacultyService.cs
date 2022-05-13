@@ -1,31 +1,32 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Faculty;
-using URLS.Application.ViewModels.Specialty;
+using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
-using URLS.Constants.Extensions;
 
 namespace URLS.Application.Services.Implementations
 {
-    public class FacultyService : BaseService<Faculty>, IFacultyService
+    public class FacultyService : IFacultyService
     {
         private readonly URLSDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
-        public FacultyService(URLSDbContext db, IMapper mapper, IIdentityService identityService) : base(db)
+        private readonly ICommonService _commonService;
+        public FacultyService(URLSDbContext db, IMapper mapper, IIdentityService identityService, ICommonService commonService)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
+            _commonService = commonService;
         }
 
         public async Task<Result<FacultyViewModel>> CreateFacultyAsync(FacultyCreateModel model)
         {
-            if (await IsExistAsync(x => x.Name == model.Name))
+            if (await _commonService.IsExistAsync<Faculty>(x => x.Name == model.Name))
                 return Result<FacultyViewModel>.Error("Faculty already exist");
             var faculty = new Faculty
             {

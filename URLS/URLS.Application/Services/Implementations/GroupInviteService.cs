@@ -1,23 +1,23 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Group;
 using URLS.Constants;
+using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
-using URLS.Constants.Extensions;
 
 namespace URLS.Application.Services.Implementations
 {
-    public class GroupInviteService : BaseService<GroupInvite>, IGroupInviteService
+    public class GroupInviteService : IGroupInviteService
     {
         private readonly URLSDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
         private readonly IPermissionGroupInviteService _permissionGroupInviteService;
-        public GroupInviteService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IPermissionGroupInviteService permissionGroupInviteService) : base(db)
+        public GroupInviteService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IPermissionGroupInviteService permissionGroupInviteService)
         {
             _db = db;
             _mapper = mapper;

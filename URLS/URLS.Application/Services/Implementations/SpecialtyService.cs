@@ -1,31 +1,33 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Specialty;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
 
 namespace URLS.Application.Services.Implementations
 {
-    public class SpecialtyService : BaseService<Specialty>, ISpecialtyService
+    public class SpecialtyService : ISpecialtyService
     {
         private readonly URLSDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
         private readonly IFacultyService _faultyService;
-        public SpecialtyService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IFacultyService faultyService) : base(db)
+        private readonly ICommonService _commonService;
+        public SpecialtyService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IFacultyService faultyService, ICommonService commonService)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
             _faultyService = faultyService;
+            _commonService = commonService;
         }
 
         public async Task<Result<SpecialtyViewModel>> CreateSpecialtyAsync(SpecialtyCreateModel model)
         {
-            if (await IsExistAsync(x => x.Name == model.Name && x.Code == model.Code))
+            if (await _commonService.IsExistAsync<Specialty>(x => x.Name == model.Name && x.Code == model.Code))
                 return Result<SpecialtyViewModel>.Error("Specialty already exist");
             var currentFaculty = await _faultyService.GetFacultyByIdAsync(model.FacultyId);
             if (currentFaculty.IsNotFound)
@@ -41,7 +43,6 @@ namespace URLS.Application.Services.Implementations
             await _db.SaveChangesAsync();
 
             return Result<SpecialtyViewModel>.SuccessWithData(_mapper.Map<SpecialtyViewModel>(newSpecialty));
-
         }
 
         public async Task<Result<List<SpecialtyViewModel>>> GetAllSpecialtiesAsync()

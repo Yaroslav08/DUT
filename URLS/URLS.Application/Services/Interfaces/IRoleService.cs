@@ -1,9 +1,8 @@
 ﻿using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.RoleClaim;
-using URLS.Domain.Models;
 namespace URLS.Application.Services.Interfaces
 {
-    public interface IRoleService : IBaseService<Role>
+    public interface IRoleService
     {
         Task<Result<List<RoleViewModel>>> GetAllRolesAsync();
         Task<Result<RoleViewModel>> GetRoleByIdAsync(int id, bool withClaims);

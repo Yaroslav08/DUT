@@ -1,10 +1,9 @@
 ﻿using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Session;
-using URLS.Domain.Models;
 
 namespace URLS.Application.Services.Interfaces
 {
-    public interface ISessionService : IBaseService<Session>
+    public interface ISessionService
     {
         Task<Result<List<SessionViewModel>>> GetAllSessionsByUserIdAsync(int userId, int q = 0, int offset = 0, int limit = 20);
         Task<Result<SessionViewModel>> GetSessionByIdAsync(Guid sessionId);
