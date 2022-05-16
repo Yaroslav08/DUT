@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using URLS.Application.ViewModels.Group.GroupRole;
 using URLS.Application.ViewModels.Reaction;
+using URLS.Application.ViewModels.User;
 
 namespace URLS.Web.Controllers.V1
 {
@@ -113,9 +114,9 @@ namespace URLS.Web.Controllers.V1
         }
 
         [HttpPost("{groupId}/members/{memberId}/accept")]
-        public async Task<IActionResult> AcceptNewMember(int groupId, int memberId)
+        public async Task<IActionResult> AcceptNewMember(int groupId, int memberId,[FromBody] UserEditModel editModel)
         {
-            return JsonResult(await _groupMemberService.AcceptNewGroupMemberAsync(groupId, memberId));
+            return JsonResult(await _groupMemberService.AcceptNewGroupMemberAsync(groupId, memberId, editModel));
         }
 
         [HttpPut("{groupId}/members/{memberId}")]

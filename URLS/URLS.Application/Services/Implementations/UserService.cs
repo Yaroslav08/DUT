@@ -54,6 +54,7 @@ namespace URLS.Application.Services.Implementations
                 NewPost = true,
                 Welcome = true
             };
+            newUser.IsActivateAccount = true;
             newUser.PrepareToCreate(_identityService);
             await _db.Users.AddAsync(newUser);
             await _db.SaveChangesAsync();

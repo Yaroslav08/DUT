@@ -63,6 +63,7 @@ namespace URLS.Application.Seeder
             admin.LockoutEnabled = false;
             admin.AccessFailedCount = 0;
             admin.JoinAt = DateTime.Now;
+            admin.IsActivateAccount = true;
             admin.NotificationSettings = new NotificationSettings
             {
                 AcceptedInGroup = true,

@@ -111,6 +111,9 @@ namespace URLS.Application.Services.Implementations
             if (user == null)
                 return Result<JwtToken>.NotFound(typeof(User).NotFoundMessage(model.Login));
 
+            if (!user.IsActivateAccount)
+                return Result<JwtToken>.Error("Account not activated");
+
             if (user.LockoutEnabled)
             {
                 if (user.IsLocked())
@@ -292,6 +295,7 @@ namespace URLS.Application.Services.Implementations
                 NewPost = true,
                 Welcome = true
             };
+            newUser.IsActivateAccount = false;
 
             newUser.PrepareToCreate();
 

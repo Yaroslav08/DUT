@@ -3,13 +3,14 @@ using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Group.GroupMember;
+using URLS.Application.ViewModels.User;
 using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
 
 namespace URLS.Application.Services.Implementations
 {
-    public class GroupMemberService: IGroupMemberService
+    public class GroupMemberService : IGroupMemberService
     {
         private readonly URLSDbContext _db;
         private readonly IIdentityService _identityService;
@@ -45,13 +46,14 @@ namespace URLS.Application.Services.Implementations
             return Result<bool>.Success();
         }
 
-        public async Task<Result<bool>> AcceptNewGroupMemberAsync(int groupId, int groupMemberId)
+        public async Task<Result<bool>> AcceptNewGroupMemberAsync(int groupId, int groupMemberId, UserEditModel userModel)
         {
             if (!await CanAcceptNewJoinersAsync(groupId))
                 return Result<bool>.Forbiden();
 
             var newGroupMember = await _db.UserGroups
                 .AsNoTracking()
+                .Include(s => s.User)
                 .FirstOrDefaultAsync(s => s.Id == groupMemberId);
 
             if (newGroupMember == null)
@@ -62,6 +64,16 @@ namespace URLS.Application.Services.Implementations
 
             if (newGroupMember.Status == UserGroupStatus.Member)
                 return Result<bool>.Error("User is already member of group");
+
+            var newUser = newGroupMember.User;
+            if (userModel != null)
+            {
+                newUser.FirstName = userModel.FirstName;
+                newUser.LastName = userModel.LastName;
+                newUser.MiddleName = userModel.MiddleName;
+            }
+            newUser.IsActivateAccount = true;
+            newUser.PrepareToUpdate(_identityService);
 
             newGroupMember.Status = UserGroupStatus.Member;
             newGroupMember.PrepareToUpdate(_identityService);

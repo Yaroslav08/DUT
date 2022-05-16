@@ -29,6 +29,8 @@ namespace URLS.Domain.Models
         [Required]
         public bool LockoutEnabled { get; set; }
         public DateTime? LockoutEnd { get; set; }
+        [Required]
+        public bool IsActivateAccount { get; set; }
         public NotificationSettings NotificationSettings { get; set; }
         public List<Session> Sessions { get; set; }
         public List<Notification> Notifications { get; set; }

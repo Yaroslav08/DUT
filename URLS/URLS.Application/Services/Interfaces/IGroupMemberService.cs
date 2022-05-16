@@ -1,7 +1,6 @@
 ﻿using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Group.GroupMember;
-using URLS.Domain.Models;
-
+using URLS.Application.ViewModels.User;
 namespace URLS.Application.Services.Interfaces
 {
     public interface IGroupMemberService
@@ -10,6 +9,6 @@ namespace URLS.Application.Services.Interfaces
         Task<Result<GroupMemberViewModel>> GetGroupMemberByIdAsync(int groupId, int memberId);
         Task<Result<GroupMemberViewModel>> UpdateGroupMemberAsync(GroupMemberEditModel model);
         Task<Result<bool>> AcceptAllNewGroupMembersAsync(int groupId);
-        Task<Result<bool>> AcceptNewGroupMemberAsync(int groupId, int groupMemberId);
+        Task<Result<bool>> AcceptNewGroupMemberAsync(int groupId, int groupMemberId, UserEditModel editModel);
     }
 }
