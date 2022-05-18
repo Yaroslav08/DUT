@@ -14,6 +14,8 @@ namespace URLS.Domain.Models
         public DateTime SecondSemesterEnd { get; set; }
         [Required]
         public int MaxCourseInUniversity { get; set; }
+        public string DirectorSignature { get; set; }
+        public string UniversityStamp { get; set; }
         [Required]
         public IEnumerable<Holiday> Holidays { get; set; }
         [Required]

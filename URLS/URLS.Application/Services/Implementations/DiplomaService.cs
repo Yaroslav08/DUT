@@ -41,6 +41,36 @@ namespace URLS.Application.Services.Implementations
         {
             string[] diplomaNames = new string[] { "ДИПЛОМ МОЛОДШОГО СПЕЦІАЛІСТА", "ДИПЛОМ БАКАЛАВРА", "ДИПЛОМ МАГІСТРА" };
 
+            var university = await _db.Universities.FirstOrDefaultAsync();
+            var specialties = await _db.Specialties.ToListAsync();
+            var setting = await _db.Settings.FirstOrDefaultAsync();
+
+            var diplomas = new List<Diploma>();
+
+            foreach (var specialty in specialties)
+            {
+                foreach (var diplomaName in diplomaNames)
+                {
+                    var newDiploma = new Diploma
+                    {
+                        Id = RandomGenerator.GetUniqCode().ToUpper(),
+                        IsTemplate = true,
+                        Name = diplomaName,
+                        Specialty = specialty.Name,
+                        DirectorSignature = setting.DirectorSignature,
+                        UserId = null,
+                        EndedAt = DateTime.Today,
+                        Number = new Random().Next(1000, 9999),
+                        Qualification = "",
+                        Series = "ET",
+                        Student = "Бандера Степан Андрійович",
+                        University = university.Name.ToUpper(),
+                        UniversityStamp = setting.UniversityStamp
+                    };
+                }
+            }
+            await _db.Diplomas.AddRangeAsync(diplomas);
+            await _db.SaveChangesAsync();
             return Result<bool>.Success();
         }
 
