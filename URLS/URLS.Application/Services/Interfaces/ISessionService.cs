@@ -9,5 +9,6 @@ namespace URLS.Application.Services.Interfaces
         Task<Result<SessionViewModel>> GetSessionByIdAsync(Guid sessionId);
         Task<Result<bool>> CloseSessionByIdAsync(Guid sessionId);
         Task<Result<bool>> CloseAllSessionsAsync(int userId, bool withCurrent = true);
+        Task<Result<bool>> CloseAllSessionsAsync(int userId);
     }
 }

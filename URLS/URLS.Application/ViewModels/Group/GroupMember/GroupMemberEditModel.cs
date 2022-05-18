@@ -1,5 +1,6 @@
 ﻿using URLS.Domain.Models;
 using System.ComponentModel.DataAnnotations;
+using URLS.Application.ViewModels.User;
 
 namespace URLS.Application.ViewModels.Group.GroupMember
 {
@@ -14,5 +15,6 @@ namespace URLS.Application.ViewModels.Group.GroupMember
         [Required]
         public int UserGroupRoleId { get; set; }
         public int GroupId { get; set; }
+        public UserEditModel User { get; set; }
     }
 }

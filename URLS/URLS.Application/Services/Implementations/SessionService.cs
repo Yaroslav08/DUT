@@ -166,5 +166,28 @@ namespace URLS.Application.Services.Implementations
             await _db.SaveChangesAsync();
             return Result<bool>.Success();
         }
+
+        public async Task<Result<bool>> CloseAllSessionsAsync(int userId)
+        {
+            var sessionsToClose = await _db.Sessions.AsNoTracking().Where(s => s.UserId == userId && s.IsActive).ToListAsync();
+
+            if (sessionsToClose == null || sessionsToClose.Count == 0)
+                return Result<bool>.Success();
+
+            var now = DateTime.Now;
+
+            sessionsToClose.ForEach(x =>
+            {
+                x.IsActive = false;
+                x.DeactivatedAt = now;
+                x.DeactivatedBySessionId = null;
+                x.PrepareToUpdate(_identityService);
+            });
+
+            _sessionManager.RemoveRangeSession(sessionsToClose.Select(x => x.Token));
+            _db.Sessions.UpdateRange(sessionsToClose);
+            await _db.SaveChangesAsync();
+            return Result<bool>.Success();
+        }
     }
 }

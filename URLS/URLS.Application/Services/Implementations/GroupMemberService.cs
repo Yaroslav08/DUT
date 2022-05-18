@@ -15,11 +15,15 @@ namespace URLS.Application.Services.Implementations
         private readonly URLSDbContext _db;
         private readonly IIdentityService _identityService;
         private readonly ICommonService _commonService;
-        public GroupMemberService(URLSDbContext db, IIdentityService identityService, ICommonService commonService)
+        private readonly ISessionService _sessionService;
+        private readonly ISessionManager _sessionManager;
+        public GroupMemberService(URLSDbContext db, IIdentityService identityService, ICommonService commonService, ISessionService sessionService, ISessionManager sessionManager)
         {
             _db = db;
             _identityService = identityService;
             _commonService = commonService;
+            _sessionService = sessionService;
+            _sessionManager = sessionManager;
         }
 
         public async Task<Result<bool>> AcceptAllNewGroupMembersAsync(int groupId)
@@ -155,7 +159,7 @@ namespace URLS.Application.Services.Implementations
             if (!await _commonService.IsExistAsync<UserGroupRole>(s => s.Id == model.UserGroupRoleId))
                 return Result<GroupMemberViewModel>.NotFound(typeof(UserGroupRole).NotFoundMessage(model.UserGroupRoleId));
 
-            var currentGroupMember = await _db.UserGroups.FindAsync(model.Id);
+            var currentGroupMember = await _db.UserGroups.Include(s => s.User).FirstOrDefaultAsync(s => s.Id == model.Id);
             if (currentGroupMember == null)
                 return Result<GroupMemberViewModel>.NotFound(typeof(UserGroup).NotFoundMessage(model.Id));
 
@@ -167,8 +171,26 @@ namespace URLS.Application.Services.Implementations
             currentGroupMember.UserGroupRoleId = model.UserGroupRoleId;
             currentGroupMember.PrepareToUpdate(_identityService);
 
+            var userUpdated = false;
+
+            if (model.User != null)
+            {
+                var user = currentGroupMember.User;
+                user.FirstName = model.User.FirstName;
+                user.MiddleName = model.User.MiddleName;
+                user.LastName = model.User.LastName;
+                user.PrepareToUpdate(_identityService);
+                _db.Users.Update(user);
+                userUpdated = true;
+            }
+
             _db.UserGroups.Update(currentGroupMember);
             await _db.SaveChangesAsync();
+
+            if (userUpdated)
+            {
+                await _sessionService.CloseAllSessionsAsync(currentGroupMember.User.Id);
+            }
 
             return Result<GroupMemberViewModel>.Success();
         }
