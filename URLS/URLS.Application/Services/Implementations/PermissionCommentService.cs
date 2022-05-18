@@ -40,9 +40,20 @@ namespace URLS.Application.Services.Implementations
             if (_identityService.IsAdministrator())
                 return true;
 
+            var member = await _db.UserGroups
+                .AsNoTracking()
+                .Include(s => s.UserGroupRole)
+                .FirstOrDefaultAsync(s => s.Status == Domain.Models.UserGroupStatus.Member && s.GroupId == groupId && s.UserId == _identityService.GetUserId());
 
-            //ToDo fix
-            return false;
+            if (member == null)
+            {
+                var subjects = await _db.Subjects.AsNoTracking().Where(s => s.TeacherId == _identityService.GetUserId() && s.GroupId == groupId).ToListAsync();
+                return subjects == null || subjects.Count == 0 ? false : true;
+            }
+            else
+            {
+                return member.UserGroupRole.Permissions.CanCreateComment;
+            }
         }
     }
 }
