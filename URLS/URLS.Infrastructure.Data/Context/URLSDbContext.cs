@@ -7,7 +7,10 @@ namespace URLS.Infrastructure.Data.Context
 
     public class URLSDbContext : DbContext
     {
-        public URLSDbContext(DbContextOptions<URLSDbContext> options) : base(options) { }
+        public URLSDbContext(DbContextOptions<URLSDbContext> options) : base(options) 
+        {
+            Database.EnsureCreated();
+        }
 
 
         public DbSet<User> Users { get; set; }

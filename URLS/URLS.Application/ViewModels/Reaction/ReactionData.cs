@@ -11,5 +11,20 @@
         public static string Swearing = "🤬"; //7
         public static string Cry = "😭"; //8
         public static string Wow = "🤩"; //9
+
+        public static Dictionary<int, string> GetAllReactions()
+        {
+            var dictionary = new Dictionary<int, string>();
+            dictionary.Add(1,Like);
+            dictionary.Add(2,Dislike);
+            dictionary.Add(3,Heart);
+            dictionary.Add(4,Congratulations);
+            dictionary.Add(5,Laughter);
+            dictionary.Add(6,Shit);
+            dictionary.Add(7,Swearing);
+            dictionary.Add(8,Cry);
+            dictionary.Add(9,Wow);
+            return dictionary;
+        }
     }
 }

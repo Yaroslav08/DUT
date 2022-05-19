@@ -98,6 +98,11 @@ namespace URLS.Application.Services.Implementations
             return Result<List<ReactionViewModel>>.SuccessWithData(reactionsToView);
         }
 
+        public Result<Dictionary<int, string>> GetAllReactions()
+        {
+            return Result<Dictionary<int, string>>.SuccessWithData(ReactionData.GetAllReactions());
+        }
+
         public async Task<Result<ReactionStatistics>> GetStatisticsByPostIdAsync(int postId)
         {
             var reactionsByPost = await _db.Reactions.AsNoTracking()

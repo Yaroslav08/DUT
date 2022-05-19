@@ -9,6 +9,7 @@ using System.ComponentModel.DataAnnotations;
 using URLS.Application.ViewModels.Group.GroupRole;
 using URLS.Application.ViewModels.Reaction;
 using URLS.Application.ViewModels.User;
+using Microsoft.AspNetCore.Authorization;
 
 namespace URLS.Web.Controllers.V1
 {
@@ -286,6 +287,10 @@ namespace URLS.Web.Controllers.V1
         {
             return JsonResult(await _reactionService.GetAllByPostIdAsync(postId, offset, count));
         }
+
+        [HttpGet("posts/reactions")]
+        [AllowAnonymous]
+        public IActionResult GetAllReactions() => JsonResult(_reactionService.GetAllReactions());
 
         #endregion
 
