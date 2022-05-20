@@ -69,7 +69,9 @@ namespace URLS.Application.ViewModels
             CreateMap<Domain.Models.Diploma, DiplomaViewModel>().ReverseMap();
 
             CreateMap<Domain.Models.Comment, CommentViewModel>().ReverseMap();
-            CreateMap<Domain.Models.Post, PostViewModel>().ReverseMap();
+            CreateMap<Domain.Models.Post, PostViewModel>()
+                .ForMember(s => s.AvailableReactions, s => s.MapFrom(s => s.IsAvailableReactions ? ReactionHelper.MapAvailableReactions(s.AvailableReactionIds) : null))
+                .ReverseMap();
 
             CreateMap<Domain.Models.Subject, SubjectViewModel>().ReverseMap();
             CreateMap<Domain.Models.Lesson, LessonViewModel>().ReverseMap();

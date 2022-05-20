@@ -1,37 +1,70 @@
 ﻿using URLS.Application.ViewModels.Reaction;
+using URLS.Domain.Models;
 
 namespace URLS.Application.Helpers
 {
     public class ReactionHelper
     {
-        public static string GetReactionFromId(int id)
+        public static string GetReactionFromId(int reactionId)
         {
-            if (id == 1)
+            if (reactionId == 1)
                 return ReactionData.Like;
-            if (id == 2)
+            if (reactionId == 2)
                 return ReactionData.Dislike;
-            if (id == 3)
+            if (reactionId == 3)
                 return ReactionData.Heart;
-            if (id == 4)
+            if (reactionId == 4)
                 return ReactionData.Congratulations;
-            if (id == 5)
+            if (reactionId == 5)
                 return ReactionData.Laughter;
-            if (id == 6)
+            if (reactionId == 6)
                 return ReactionData.Shit;
-            if (id == 7)
+            if (reactionId == 7)
                 return ReactionData.Swearing;
-            if (id == 8)
+            if (reactionId == 8)
                 return ReactionData.Cry;
-            if (id == 9)
+            if (reactionId == 9)
                 return ReactionData.Wow;
             return string.Empty;
         }
 
-        public static bool ValidateReactionId(int id)
+        public static bool ValidateReactionId(int reactionId)
         {
-            if (id >= 1 && id <= 9)
+            if (reactionId >= 1 && reactionId <= ReactionData.MaxReactionId)
                 return true;
             return false;
+        }
+
+        public static bool ValidateReactionByPost(int reactionId, Post post)
+        {
+            if (post.IsAvailableReactions && post.AvailableReactionIds == null)
+                return ValidateReactionId(reactionId);
+
+            if (post.IsAvailableReactions && post.AvailableReactionIds != null)
+                return post.AvailableReactionIds.Contains(reactionId);
+
+            if (!post.IsAvailableReactions)
+                return false;
+
+            return true;
+        }
+
+        public static bool ValidateReactionIds(int[] ids)
+        {
+            if (ids == null || ids.Length == 0)
+                return true;
+            return ids.All(s => s >= 1 && s <= ReactionData.MaxReactionId);
+        }
+
+        public static Dictionary<int, string> MapAvailableReactions(int[] reactionIds)
+        {
+            var allReactions = ReactionData.GetAllReactions();
+            if (reactionIds == null || reactionIds.Length == 0)
+                return allReactions;
+
+            var availableReactions = allReactions.Where(s => reactionIds.Contains(s.Key));
+
+            return availableReactions.ToDictionary(s => s.Key, s => s.Value);
         }
     }
 }

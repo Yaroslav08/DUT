@@ -10,6 +10,7 @@ using URLS.Application.ViewModels.Group.GroupRole;
 using URLS.Application.ViewModels.Reaction;
 using URLS.Application.ViewModels.User;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace URLS.Web.Controllers.V1
 {
@@ -115,7 +116,7 @@ namespace URLS.Web.Controllers.V1
         }
 
         [HttpPost("{groupId}/members/{memberId}/accept")]
-        public async Task<IActionResult> AcceptNewMember(int groupId, int memberId,[FromBody] UserEditModel editModel)
+        public async Task<IActionResult> AcceptNewMember(int groupId, int memberId,[FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] UserEditModel editModel)
         {
             return JsonResult(await _groupMemberService.AcceptNewGroupMemberAsync(groupId, memberId, editModel));
         }

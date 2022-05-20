@@ -27,20 +27,21 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<ReactionViewModel>> CreateAsync(ReactionCreateModel reaction)
         {
-            if (!await _db.Posts.AnyAsync(s => s.Id == reaction.PostId))
+            var postRequest = await _commonService.IsExistWithResultsAsync<Post>(s => s.Id == reaction.PostId);
+
+            if (!postRequest.IsExist)
                 return Result<ReactionViewModel>.NotFound(typeof(Post).NotFoundMessage(reaction.PostId));
 
-            if (!ReactionHelper.ValidateReactionId(reaction.ReactionId))
-                return Result<ReactionViewModel>.Error("Reaction id not valid");
+            var post = postRequest.Results.First();
+
+            if (!ReactionHelper.ValidateReactionByPost(reaction.ReactionId, post))
+                return Result<ReactionViewModel>.Error("Reaction not valid");
 
             var response = await _commonService.IsExistWithResultsAsync<Reaction>(s => s.PostId == reaction.PostId && s.FromId == _identityService.GetUserId());
 
             if (response.IsExist)
             {
                 var reactionToUpdate = response.Results.First();
-
-                if (reactionToUpdate.FromId != _identityService.GetUserId())
-                    return Result<ReactionViewModel>.Forbiden();
 
                 reactionToUpdate.ReactionTypeId = reaction.ReactionId;
                 reactionToUpdate.PrepareToUpdate(_identityService);
@@ -87,6 +88,7 @@ namespace URLS.Application.Services.Implementations
         public async Task<Result<List<ReactionViewModel>>> GetAllByPostIdAsync(int postId, int offset = 0, int count = 20)
         {
             var query = _db.Reactions.AsNoTracking()
+                .Include(s => s.From)
                 .Where(s => s.PostId == postId)
                 .Skip(offset).Take(count)
                 .OrderByDescending(s => s.CreatedAt);
@@ -103,7 +105,7 @@ namespace URLS.Application.Services.Implementations
             return Result<Dictionary<int, string>>.SuccessWithData(ReactionData.GetAllReactions());
         }
 
-        public async Task<Result<ReactionStatistics>> GetStatisticsByPostIdAsync(int postId)
+        public async Task<Result<ReactionStatistics>> GetAllReactionsByPostIdAsync(int postId)
         {
             var reactionsByPost = await _db.Reactions.AsNoTracking()
                 .Where(s => s.PostId == postId)

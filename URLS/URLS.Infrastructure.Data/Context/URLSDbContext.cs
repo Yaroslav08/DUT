@@ -63,6 +63,7 @@ namespace URLS.Infrastructure.Data.Context
             builder.ApplyConfiguration(new QuizConfiguration());
             builder.ApplyConfiguration(new QuizResultConfiguration());
             builder.ApplyConfiguration(new ReactionConfiguration());
+            builder.ApplyConfiguration(new PostConfiguration());
         }
     }
 }

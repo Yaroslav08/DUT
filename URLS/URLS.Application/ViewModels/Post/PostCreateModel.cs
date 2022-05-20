@@ -14,6 +14,8 @@ namespace URLS.Application.ViewModels.Post
         public bool AvailableToComment { get; set; }
         [Required]
         public bool IsPublic { get; set; }
+        public bool IsAvailableReactions { get; set; }
+        public int[] AvailableReactionIds { get; set; }
         [Required]
         public int GroupId { get; set; }
     }

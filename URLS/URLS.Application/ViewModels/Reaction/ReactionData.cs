@@ -2,6 +2,8 @@
 {
     public class ReactionData
     {
+        public static int MaxReactionId = 9;
+
         public static string Like = "👍"; //1
         public static string Dislike = "👎"; //2
         public static string Heart = "❤️"; //3

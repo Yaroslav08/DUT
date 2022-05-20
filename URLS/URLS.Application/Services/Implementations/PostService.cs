@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
+using URLS.Application.Helpers;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Post;
@@ -34,6 +35,13 @@ namespace URLS.Application.Services.Implementations
             if (!await _permissionPostService.CanCreatePostAsync(model.GroupId))
                 return Result<PostViewModel>.Forbiden();
 
+            if (!model.IsAvailableReactions)
+                model.AvailableReactionIds = null;
+
+            if (model.IsAvailableReactions)
+                if (!ReactionHelper.ValidateReactionIds(model.AvailableReactionIds))
+                    return Result<PostViewModel>.Error("Reactions not valid");
+
             var newPost = new Post
             {
                 Title = model.Title,
@@ -42,6 +50,8 @@ namespace URLS.Application.Services.Implementations
                 IsImportant = model.IsImportant,
                 IsPublic = model.IsPublic,
                 GroupId = model.GroupId,
+                AvailableReactionIds = model.AvailableReactionIds,
+                IsAvailableReactions = model.IsAvailableReactions,
                 UserId = _identityService.GetUserId()
             };
             newPost.PrepareToCreate(_identityService);
@@ -68,7 +78,7 @@ namespace URLS.Application.Services.Implementations
 
             postsToView.ForEach(async post =>
             {
-                var request = await _reactionService.GetStatisticsByPostIdAsync(post.Id);
+                var request = await _reactionService.GetAllReactionsByPostIdAsync(post.Id);
                 post.Statistics = request.IsSuccess ? request.Data : null;
             });
 
@@ -89,7 +99,7 @@ namespace URLS.Application.Services.Implementations
 
             var postToView = _mapper.Map<PostViewModel>(post);
             postToView.CountComments = await _db.Comments.CountAsync(s => s.PostId == postId);
-            postToView.Statistics = (await _reactionService.GetStatisticsByPostIdAsync(postId)).Data;
+            postToView.Statistics = (await _reactionService.GetAllReactionsByPostIdAsync(postId)).Data;
 
             return Result<PostViewModel>.SuccessWithData(postToView);
         }
@@ -120,11 +130,20 @@ namespace URLS.Application.Services.Implementations
             if (!await _permissionPostService.CanUpdatePostAsync(model.GroupId, postToUpdate))
                 return Result<PostViewModel>.Forbiden();
 
+            if (!model.IsAvailableReactions)
+                model.AvailableReactionIds = null;
+
+            if (model.IsAvailableReactions)
+                if (!ReactionHelper.ValidateReactionIds(model.AvailableReactionIds))
+                    return Result<PostViewModel>.Error("Reactions not valid");
+
             postToUpdate.Title = model.Title;
             postToUpdate.Content = model.Content;
             postToUpdate.AvailableToComment = model.AvailableToComment;
             postToUpdate.IsImportant = model.IsImportant;
             postToUpdate.IsPublic = model.IsPublic;
+            postToUpdate.IsAvailableReactions = model.IsAvailableReactions;
+            postToUpdate.AvailableReactionIds = model.AvailableReactionIds;
             postToUpdate.PrepareToUpdate(_identityService);
 
             _db.Posts.Update(postToUpdate);

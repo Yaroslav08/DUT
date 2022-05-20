@@ -14,6 +14,8 @@ namespace URLS.Domain.Models
         public bool AvailableToComment { get; set; }
         [Required]
         public bool IsPublic { get; set; }
+        public int[] AvailableReactionIds { get; set; }
+        public bool IsAvailableReactions { get; set; }
         public int UserId { get; set; }
         public User User { get; set; }
         public int GroupId { get; set; }

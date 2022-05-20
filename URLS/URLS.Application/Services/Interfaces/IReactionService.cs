@@ -8,7 +8,7 @@ namespace URLS.Application.Services.Interfaces
         Task<Result<ReactionViewModel>> CreateAsync(ReactionCreateModel reaction);
         Task<Result<bool>> DeleteAsync(ReactionCreateModel reaction);
         Task<Result<List<ReactionViewModel>>> GetAllByPostIdAsync(int postId, int offset = 0, int count = 20);
-        Task<Result<ReactionStatistics>> GetStatisticsByPostIdAsync(int postId);
+        Task<Result<ReactionStatistics>> GetAllReactionsByPostIdAsync(int postId);
         Result<Dictionary<int, string>> GetAllReactions();
     }
 }
