@@ -98,9 +98,9 @@ namespace URLS.Web.Controllers.V1
         #region Members
 
         [HttpGet("{groupId}/members")]
-        public async Task<IActionResult> GetGroupMembers(int groupId, int afterId = int.MaxValue, int count = 20, int status = 0)
+        public async Task<IActionResult> GetGroupMembers(int groupId, int offset = 0, int count = 20, int status = 0)
         {
-            return JsonResult(await _groupMemberService.GetGroupMembersAsync(groupId, afterId, count, status));
+            return JsonResult(await _groupMemberService.GetGroupMembersAsync(groupId, offset, count, status));
         }
 
         [HttpPost("{groupId}/members/accept-all")]
@@ -116,7 +116,7 @@ namespace URLS.Web.Controllers.V1
         }
 
         [HttpPost("{groupId}/members/{memberId}/accept")]
-        public async Task<IActionResult> AcceptNewMember(int groupId, int memberId,[FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] UserEditModel editModel)
+        public async Task<IActionResult> AcceptNewMember(int groupId, int memberId, [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] UserEditModel editModel)
         {
             return JsonResult(await _groupMemberService.AcceptNewGroupMemberAsync(groupId, memberId, editModel));
         }

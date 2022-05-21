@@ -109,7 +109,7 @@ namespace URLS.Application.Services.Implementations
             return Result<GroupMemberViewModel>.SuccessWithData(groupMemberToView);
         }
 
-        public async Task<Result<List<GroupMemberViewModel>>> GetGroupMembersAsync(int groupId, int afterId = int.MaxValue, int count = 20, int status = 0)
+        public async Task<Result<List<GroupMemberViewModel>>> GetGroupMembersAsync(int groupId, int offset = 0, int count = 20, int status = 0)
         {
             if (!await _commonService.IsExistAsync<Group>(x => x.Id == groupId))
                 return Result<List<GroupMemberViewModel>>.NotFound(typeof(Group).NotFoundMessage(groupId));
@@ -119,9 +119,10 @@ namespace URLS.Application.Services.Implementations
             var query = _db.UserGroups
                 .AsNoTracking()
                 .Include(x => x.User)
-                .Where(x => x.GroupId == groupId && x.UserId < afterId)
+                .Where(x => x.GroupId == groupId)
                 .OrderByDescending(x => x.Id)
-                .Take(count);
+                .Skip(offset).Take(count);
+
             if (status > 0 && status < 4)
             {
                 query = query.Where(x => x.Status == (UserGroupStatus)status);
