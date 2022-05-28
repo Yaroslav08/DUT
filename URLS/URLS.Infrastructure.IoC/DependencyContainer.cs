@@ -15,11 +15,11 @@ namespace URLS.Infrastructure.IoC
         public static IServiceCollection AddURLSServices(this IServiceCollection services, IConfiguration configuration)
         {
             #region Db
-            //var connString = configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<URLSDbContext>(options =>
             {
-                //options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
-                options.UseNpgsql(configuration.GetConnectionString("PSTGConnection"));
+                options.UseSqlServer(configuration.GetConnectionString("SqlServer"));
+                //options.UseNpgsql(configuration.GetConnectionString("PostgreSQL"));
+                //options.UseSqlite(configuration.GetConnectionString("Sqlite"));
                 options.LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Error);
             });            
             #endregion
