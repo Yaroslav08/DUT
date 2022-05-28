@@ -5,6 +5,7 @@ using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Lesson;
 using URLS.Application.ViewModels.User;
+using URLS.Constants.APIResponse;
 using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
@@ -96,7 +97,7 @@ namespace URLS.Application.Services.Implementations
 
             var lessonToView = _mapper.Map<LessonViewModel>(newLesson);
 
-            return Result<LessonViewModel>.SuccessWithData(lessonToView);
+            return Result<LessonViewModel>.Created(lessonToView);
         }
 
         public async Task<Result<LessonViewModel>> GetLessonByIdAsync(long id)
@@ -135,12 +136,13 @@ namespace URLS.Application.Services.Implementations
 
             var lessons = await _db.Lessons
                 .AsNoTracking()
-                .Where(s => s.SubjectId == subjectId)
-                .Where(s => s.Date >= fromDate && s.Date <= toDate)
+                .Where(s => s.SubjectId == subjectId && s.Date >= fromDate && s.Date <= toDate)
                 .OrderBy(s => s.Date)
                 .ToListAsync();
 
             var lessonsToView = _mapper.Map<List<LessonViewModel>>(lessons);
+
+            var totalCount = await _commonService.CountAsync<Lesson>(s => s.SubjectId == subjectId && s.Date >= fromDate && s.Date <= toDate);
 
             lessonsToView.ForEach(s =>
             {
@@ -149,7 +151,7 @@ namespace URLS.Application.Services.Implementations
                     s.IsSubstitute = true;
             });
 
-            return Result<List<LessonViewModel>>.SuccessWithData(lessonsToView);
+            return Result<List<LessonViewModel>>.SuccessList(lessonsToView, Meta.FromMeta(totalCount, 0, lessons.Count));
         }
 
         public async Task<Result<bool>> RemoveLessonAsync(long id)

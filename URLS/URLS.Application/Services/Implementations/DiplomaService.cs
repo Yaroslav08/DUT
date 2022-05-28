@@ -5,6 +5,7 @@ using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Diploma;
+using URLS.Constants.APIResponse;
 using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
@@ -28,13 +29,19 @@ namespace URLS.Application.Services.Implementations
         public async Task<Result<List<DiplomaViewModel>>> GetDiplomaTemplatesAsync()
         {
             var userDiplomas = await _db.Diplomas.AsNoTracking().Where(x => x.IsTemplate).ToListAsync();
-            return Result<List<DiplomaViewModel>>.SuccessWithData(_mapper.Map<List<DiplomaViewModel>>(userDiplomas));
+
+            var totalCount = await _db.Diplomas.CountAsync();
+
+            return Result<List<DiplomaViewModel>>.SuccessList(_mapper.Map<List<DiplomaViewModel>>(userDiplomas), Meta.FromMeta(totalCount, 0, 0));
         }
 
         public async Task<Result<List<DiplomaViewModel>>> GetUserDiplomasAsync(int userId)
         {
             var userDiplomas = await _db.Diplomas.AsNoTracking().Where(x => x.UserId == userId).ToListAsync();
-            return Result<List<DiplomaViewModel>>.SuccessWithData(_mapper.Map<List<DiplomaViewModel>>(userDiplomas));
+
+            var totalCount = await _db.Diplomas.CountAsync(x => x.UserId == userId);
+
+            return Result<List<DiplomaViewModel>>.SuccessList(_mapper.Map<List<DiplomaViewModel>>(userDiplomas), Meta.FromMeta(totalCount, 0,0));
         }
 
         public async Task<Result<bool>> CreateTemplatesAutomaticallyAsync()
@@ -71,7 +78,7 @@ namespace URLS.Application.Services.Implementations
             }
             await _db.Diplomas.AddRangeAsync(diplomas);
             await _db.SaveChangesAsync();
-            return Result<bool>.Success();
+            return Result<bool>.Created();
         }
 
         public async Task<Result<DiplomaViewModel>> CreateDiplomaTemplateAsync(DiplomaTemplateCreateModel model)
@@ -94,7 +101,7 @@ namespace URLS.Application.Services.Implementations
             templateDiploma.PrepareToCreate(_identityService);
             await _db.Diplomas.AddAsync(templateDiploma);
             await _db.SaveChangesAsync();
-            return Result<DiplomaViewModel>.SuccessWithData(_mapper.Map<DiplomaViewModel>(templateDiploma));
+            return Result<DiplomaViewModel>.Created(_mapper.Map<DiplomaViewModel>(templateDiploma));
         }
 
         public async Task<Result<DiplomaViewModel>> UpdateDiplomaTemplateAsync(DiplomaTemplateEditModel model)
@@ -164,7 +171,7 @@ namespace URLS.Application.Services.Implementations
             await _db.Diplomas.AddAsync(studentDiploma);
             await _db.SaveChangesAsync();
 
-            return Result<DiplomaViewModel>.SuccessWithData(_mapper.Map<DiplomaViewModel>(studentDiploma));
+            return Result<DiplomaViewModel>.Created(_mapper.Map<DiplomaViewModel>(studentDiploma));
         }
 
         public async Task<Result<DiplomaViewModel>> GetDiplomaByIdAsync(string id)

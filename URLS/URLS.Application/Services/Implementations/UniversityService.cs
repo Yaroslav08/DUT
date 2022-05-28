@@ -40,7 +40,7 @@ namespace URLS.Application.Services.Implementations
 
             await _db.Universities.AddAsync(newUniversity);
             await _db.SaveChangesAsync();
-            return Result<UniversityViewModel>.SuccessWithData(_mapper.Map<UniversityViewModel>(newUniversity));
+            return Result<UniversityViewModel>.Created(_mapper.Map<UniversityViewModel>(newUniversity));
         }
 
         public async Task<Result<UniversityViewModel>> GetUniversityAsync()

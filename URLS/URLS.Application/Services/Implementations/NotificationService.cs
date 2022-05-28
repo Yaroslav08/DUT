@@ -4,6 +4,7 @@ using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Notification;
+using URLS.Constants.APIResponse;
 using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
@@ -14,11 +15,13 @@ namespace URLS.Application.Services.Implementations
         private readonly URLSDbContext _db;
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
-        public NotificationService(URLSDbContext db, IMapper mapper, IIdentityService identityService)
+        private readonly ICommonService _commonService;
+        public NotificationService(URLSDbContext db, IMapper mapper, IIdentityService identityService, ICommonService commonService)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
+            _commonService = commonService;
         }
 
         public async Task<Result<NotificationViewModel>> GetNotificationByIdAsync(long notifyId)
@@ -47,7 +50,11 @@ namespace URLS.Application.Services.Implementations
                 .Skip(offset).Take(count)
                 .ToListAsync();
 
-            return Result<List<NotificationViewModel>>.SuccessWithData(_mapper.Map<List<NotificationViewModel>>(notifications));
+            var notificationViewModels = _mapper.Map<List<NotificationViewModel>>(notifications);
+
+            var totalCount = await _commonService.CountAsync<Notification>(x => x.UserId == userId);
+
+            return Result<List<NotificationViewModel>>.SuccessList(notificationViewModels, Meta.FromMeta(totalCount, offset, count));
         }
 
         public async Task<Result<NotificationViewModel>> ReadNotificationAsync(long notifyId)

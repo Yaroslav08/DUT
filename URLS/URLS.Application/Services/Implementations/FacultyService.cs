@@ -4,6 +4,7 @@ using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Faculty;
+using URLS.Constants.APIResponse;
 using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
@@ -36,7 +37,7 @@ namespace URLS.Application.Services.Implementations
             faculty.PrepareToCreate(_identityService);
             await _db.Faculties.AddAsync(faculty);
             await _db.SaveChangesAsync();
-            return Result<FacultyViewModel>.SuccessWithData(_mapper.Map<FacultyViewModel>(faculty));
+            return Result<FacultyViewModel>.Created(_mapper.Map<FacultyViewModel>(faculty));
         }
 
         public async Task<Result<FacultyViewModel>> UpdateFacultyAsync(FacultyEditModel model)
@@ -53,12 +54,16 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<List<FacultyViewModel>>> GetAllFacultiesAsync()
         {
-            return Result<List<FacultyViewModel>>.SuccessWithData(await _db.Faculties.AsNoTracking().Select(x => new FacultyViewModel
+            var faculties = await _db.Faculties.AsNoTracking().Select(x => new FacultyViewModel
             {
                 Id = x.Id,
                 CreatedAt = x.CreatedAt,
                 Name = x.Name
-            }).ToListAsync());
+            }).ToListAsync();
+
+            var totalCount = await _db.Faculties.CountAsync();
+
+            return Result<List<FacultyViewModel>>.SuccessList(faculties, Meta.FromMeta(totalCount, 0, 0));
         }
 
         public async Task<Result<FacultyViewModel>> GetFacultyByIdAsync(int id)
@@ -76,12 +81,16 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<List<FacultyViewModel>>> GetFacultiesByUniversityIdAsync(int id)
         {
-            return Result<List<FacultyViewModel>>.SuccessWithData(await _db.Faculties.AsNoTracking().Where(s => s.UniversityId == id).Select(x => new FacultyViewModel
+            var faculties = await _db.Faculties.AsNoTracking().Where(s => s.UniversityId == id).Select(x => new FacultyViewModel
             {
                 Id = x.Id,
                 CreatedAt = x.CreatedAt,
                 Name = x.Name
-            }).ToListAsync());
+            }).ToListAsync();
+
+            var totalCount = await _db.Faculties.CountAsync(s => s.UniversityId == id);
+
+            return Result<List<FacultyViewModel>>.SuccessList(faculties, Meta.FromMeta(totalCount, 0, 0));
         }
     }
 }

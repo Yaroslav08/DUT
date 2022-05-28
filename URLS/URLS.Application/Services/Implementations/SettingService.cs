@@ -41,7 +41,7 @@ namespace URLS.Application.Services.Implementations
             await _db.Settings.AddAsync(newSetting);
             await _db.SaveChangesAsync();
 
-            return Result<SettingViewModel>.SuccessWithData(_mapper.Map<SettingViewModel>(newSetting));
+            return Result<SettingViewModel>.Created(_mapper.Map<SettingViewModel>(newSetting));
         }
 
         public async Task<Result<Setting>> GetRootSettingAsync()

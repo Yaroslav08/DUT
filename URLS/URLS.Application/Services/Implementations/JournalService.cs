@@ -28,14 +28,14 @@ namespace URLS.Application.Services.Implementations
         {
             var lesson = await _db.Lessons.AsNoTracking().FirstOrDefaultAsync(s => s.Id == lessonId);
             if (lesson == null)
-                return Result<LessonViewModel>.NotFound("Lesson not found");
+                return Result<LessonViewModel>.NotFound(typeof(Lesson).NotFoundMessage(lessonId));
 
             if (lesson.SubjectId != subjectId)
                 return Result<LessonViewModel>.Error("Lesson not in this subject");
 
             var subject = await _db.Subjects.AsNoTracking().FirstOrDefaultAsync(s => s.Id == subjectId);
             if (subject == null)
-                return Result<LessonViewModel>.NotFound("Subject not found");
+                return Result<LessonViewModel>.NotFound(typeof(Subject).NotFoundMessage(subjectId));
 
             await FillJournalAsync(lesson, subject.GroupId.Value);
 
@@ -46,7 +46,7 @@ namespace URLS.Application.Services.Implementations
 
             var lessonToView = _mapper.Map<LessonViewModel>(lesson);
 
-            return Result<LessonViewModel>.SuccessWithData(lessonToView);
+            return Result<LessonViewModel>.Created(lessonToView);
         }
 
         public async Task<Result<LessonViewModel>> SynchronizeJournalAsync(int subjectId, long lessonId)

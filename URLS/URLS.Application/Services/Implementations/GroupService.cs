@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Options;
 using URLS.Application.Services.Interfaces;
@@ -7,10 +8,11 @@ using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Group;
 using URLS.Application.ViewModels.Group.GroupMember;
 using URLS.Constants;
+using URLS.Constants.APIResponse;
 using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
+
 namespace URLS.Application.Services.Implementations
 {
     public class GroupService : IGroupService
@@ -111,7 +113,7 @@ namespace URLS.Application.Services.Implementations
                 IsActive = s.IsActive
             }).ToListAsync();
 
-            return Result<GroupViewModel>.SuccessWithData(groupToView);
+            return Result<GroupViewModel>.Created(groupToView);
         }
 
         public async Task<Result<List<GroupViewModel>>> GetAllGroupsAsync(int offset = 0, int limit = 20)
@@ -123,8 +125,11 @@ namespace URLS.Application.Services.Implementations
                 .ToListAsync();
             if (groups == null || groups.Count == 0)
                 return Result<List<GroupViewModel>>.Success();
+
+            var totalCount = await _db.Groups.CountAsync();
             var groupsToView = _mapper.Map<List<GroupViewModel>>(groups);
-            return Result<List<GroupViewModel>>.SuccessWithData(groupsToView);
+
+            return Result<List<GroupViewModel>>.SuccessList(groupsToView, Meta.FromMeta(totalCount, offset, limit));
         }
 
         public async Task<Result<GroupViewModel>> GetGroupByIdAsync(int id)
@@ -145,7 +150,12 @@ namespace URLS.Application.Services.Implementations
                 .Where(s => s.SpecialtyId == specialtyId)
                 .OrderBy(s => s.Name).ThenBy(s => s.Course)
                 .ToListAsync();
-            return Result<List<GroupViewModel>>.SuccessWithData(_mapper.Map<List<GroupViewModel>>(groups));
+
+            var totalCount = await _commonService.CountAsync<Group>(s => s.SpecialtyId == specialtyId);
+
+            var groupsViewModels = _mapper.Map<List<GroupViewModel>>(groups);
+
+            return Result<List<GroupViewModel>>.SuccessList(groupsViewModels, Meta.FromMeta(totalCount, 0, 0));
         }
 
         public async Task<Result<List<GroupShortViewModel>>> GetUserGroupsAsync(int userId)
@@ -159,7 +169,9 @@ namespace URLS.Application.Services.Implementations
                 .ToListAsync();
             var groups = _mapper.Map<List<GroupShortViewModel>>(userGroups);
 
-            return Result<List<GroupShortViewModel>>.SuccessWithData(groups);
+            var totalCount = await _commonService.CountAsync<UserGroup>(s => s.UserId == userId);
+
+            return Result<List<GroupShortViewModel>>.SuccessList(groups, Meta.FromMeta(totalCount, 0, 0));
         }
 
         public async Task<Result<GroupViewModel>> IncreaseCourseOfGroupAsync(int groupId)
@@ -211,6 +223,7 @@ namespace URLS.Application.Services.Implementations
             var groups = await query.ToListAsync();
 
             var groupsToView = _mapper.Map<List<GroupViewModel>>(groups);
+
             return Result<List<GroupViewModel>>.SuccessWithData(groupsToView);
         }
 

@@ -34,8 +34,8 @@ namespace URLS.Application.Services.Implementations
             {
                 return Result<RoleViewModel>.Error("Same role already exist");
             }
-            var isAllClaimsExist = await CheckClaimsAsync(model.ClaimsIds);
-            if (!isAllClaimsExist)
+
+            if (!await CheckClaimsAsync(model.ClaimsIds))
             {
                 return Result<RoleViewModel>.Error("Not all claims exist");
             }
@@ -66,7 +66,7 @@ namespace URLS.Application.Services.Implementations
             await _db.RoleClaims.AddRangeAsync(roleClaims);
             await _db.SaveChangesAsync();
 
-            return Result<RoleViewModel>.SuccessWithData(_mapper.Map<RoleViewModel>(newRole));
+            return Result<RoleViewModel>.Created(_mapper.Map<RoleViewModel>(newRole));
         }
 
         public async Task<Result<List<RoleViewModel>>> GetAllRolesAsync()
@@ -75,7 +75,7 @@ namespace URLS.Application.Services.Implementations
 
             var rolesToView = _mapper.Map<List<RoleViewModel>>(roles);
 
-            return Result<List<RoleViewModel>>.SuccessWithData(rolesToView);
+            return Result<List<RoleViewModel>>.SuccessList(rolesToView);
         }
 
         public async Task<Result<RoleViewModel>> GetRoleByIdAsync(int id, bool withClaims)

@@ -5,6 +5,7 @@ using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Report;
+using URLS.Constants.APIResponse;
 using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
@@ -58,7 +59,7 @@ namespace URLS.Application.Services.Implementations
 
             var reportToView = _mapper.Map<ReportViewModel>(newReport);
 
-            return Result<ReportViewModel>.SuccessWithData(reportToView);
+            return Result<ReportViewModel>.Created(reportToView);
         }
 
         public async Task<Result<ReportViewModel>> GetReportIdAsync(int subjectId, int id)
@@ -74,7 +75,7 @@ namespace URLS.Application.Services.Implementations
             return Result<ReportViewModel>.SuccessWithData(reportToView);
         }
 
-        public async Task<Result<List<ReportViewModel>>> GetReportsBySubjectIdAsync(int subjectId)
+        public async Task<Result<List<ReportViewModel>>> GetReportsBySubjectIdAsync(int subjectId, int offset = 0, int limit = 20)
         {
             var reports = await _db.Reports
                 .AsNoTracking()
@@ -82,7 +83,10 @@ namespace URLS.Application.Services.Implementations
                 .OrderByDescending(s => s.CreatedAt)
                 .ToListAsync();
             var reportsToView = _mapper.Map<List<ReportViewModel>>(reports);
-            return Result<List<ReportViewModel>>.SuccessWithData(reportsToView);
+
+            var totalCount = await _commonService.CountAsync<Report>(s => s.SubjectId == subjectId);
+
+            return Result<List<ReportViewModel>>.SuccessList(reportsToView, Meta.FromMeta(totalCount, offset, limit));
         }
 
         public async Task<Result<bool>> RemoveReportAsync(int subjectId, int id)

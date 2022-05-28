@@ -4,6 +4,7 @@ using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Group.GroupRole;
+using URLS.Constants.APIResponse;
 using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
@@ -46,13 +47,16 @@ namespace URLS.Application.Services.Implementations
             await _db.UserGroupRoles.AddAsync(newUserGroupRole);
             await _db.SaveChangesAsync();
 
-            return Result<UserGroupRoleViewModel>.SuccessWithData(_mapper.Map<UserGroupRoleViewModel>(newUserGroupRole));
+            return Result<UserGroupRoleViewModel>.Created(_mapper.Map<UserGroupRoleViewModel>(newUserGroupRole));
         }
 
         public async Task<Result<List<UserGroupRoleViewModel>>> GetAllGroupRolesAsync()
         {
-            return Result<List<UserGroupRoleViewModel>>.SuccessWithData(
-                _mapper.Map<List<UserGroupRoleViewModel>>(await _db.UserGroupRoles.AsNoTracking().ToListAsync()));
+            var allGroupRoles = await _db.UserGroupRoles.AsNoTracking().ToListAsync();
+
+            var groupRolesViewModels = _mapper.Map<List<UserGroupRoleViewModel>>(allGroupRoles);
+
+            return Result<List<UserGroupRoleViewModel>>.SuccessList(groupRolesViewModels, Meta.FromMeta(allGroupRoles.Count, 0, 0));
         }
 
         public async Task<Result<UserGroupRoleViewModel>> GetGroupRoleByIdAsync(int id)

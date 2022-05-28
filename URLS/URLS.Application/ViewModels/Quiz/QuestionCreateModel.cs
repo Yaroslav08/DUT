@@ -10,6 +10,6 @@ namespace URLS.Application.ViewModels.Quiz
         public int Index { get; set; }
         [Required]
         public bool IsMultipleAnswers { get; set; }
-        public List<AnswerCreateModel> Answers { get; set; }
+        public List<AnswerEditModel> Answers { get; set; }
     }
 }

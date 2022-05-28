@@ -5,6 +5,7 @@ using URLS.Application.Helpers;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Post;
+using URLS.Constants.APIResponse;
 using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
@@ -18,13 +19,15 @@ namespace URLS.Application.Services.Implementations
         private readonly IIdentityService _identityService;
         private readonly IPermissionPostService _permissionPostService;
         private readonly IReactionService _reactionService;
-        public PostService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IPermissionPostService permissionPostService, IReactionService reactionService)
+        private readonly ICommonService _commonService;
+        public PostService(URLSDbContext db, IMapper mapper, IIdentityService identityService, IPermissionPostService permissionPostService, IReactionService reactionService, ICommonService commonService)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
             _permissionPostService = permissionPostService;
             _reactionService = reactionService;
+            _commonService = commonService;
         }
 
         public async Task<Result<PostViewModel>> CreatePostAsync(PostCreateModel model)
@@ -57,7 +60,7 @@ namespace URLS.Application.Services.Implementations
             newPost.PrepareToCreate(_identityService);
             await _db.Posts.AddAsync(newPost);
             await _db.SaveChangesAsync();
-            return Result<PostViewModel>.SuccessWithData(_mapper.Map<PostViewModel>(newPost));
+            return Result<PostViewModel>.Created(_mapper.Map<PostViewModel>(newPost));
         }
 
         public async Task<Result<List<PostViewModel>>> GetPostsByGroupIdAsync(int groupId, int skip = 0, int count = 20)
@@ -82,7 +85,9 @@ namespace URLS.Application.Services.Implementations
                 post.Statistics = request.IsSuccess ? request.Data : null;
             });
 
-            return Result<List<PostViewModel>>.SuccessWithData(postsToView);
+            var totalCount = await _commonService.CountAsync<Post>(g => g.GroupId == groupId);
+
+            return Result<List<PostViewModel>>.SuccessList(postsToView, Meta.FromMeta(totalCount, skip, count));
         }
 
         public async Task<Result<PostViewModel>> GetPostByIdAsync(int postId, int groupId)

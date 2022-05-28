@@ -29,7 +29,7 @@ namespace URLS.Web.Middlewares
             var requestId = httpContext.TraceIdentifier;
             httpContext.Response.ContentType = "application/json";
             httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            await httpContext.Response.WriteAsJsonAsync(new APIResponse(false, "Internal server error", exception.Message, requestId));
+            await httpContext.Response.WriteAsJsonAsync(new APIResponse(false, "Internal server error", exception.Message, requestId, null));
         }
     }
 

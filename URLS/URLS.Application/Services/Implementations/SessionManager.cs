@@ -62,8 +62,7 @@ namespace URLS.Application.Services.Implementations
         public bool IsActiveSession(string token)
         {
             var tokenModel = _tokens.FirstOrDefault(x => x.Token == token);
-            var now = DateTime.Now;
-            if (tokenModel != null && tokenModel.ExpiredAt > now)
+            if (tokenModel != null && tokenModel.ExpiredAt > DateTime.Now)
                 return true;
             return false;
         }

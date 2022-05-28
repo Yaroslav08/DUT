@@ -71,9 +71,9 @@ namespace URLS.Web.Controllers.V1
         #region Reports
 
         [HttpGet("{subjectId}/reports")]
-        public async Task<IActionResult> GetAllReports(int subjectId)
+        public async Task<IActionResult> GetAllReports(int subjectId, int offset = 0, int limit = 20)
         {
-            return JsonResult(await _reportService.GetReportsBySubjectIdAsync(subjectId));
+            return JsonResult(await _reportService.GetReportsBySubjectIdAsync(subjectId, offset, limit));
         }
 
         [HttpGet("{subjectId}/reports/{id}")]

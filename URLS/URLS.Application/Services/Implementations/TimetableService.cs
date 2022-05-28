@@ -7,6 +7,8 @@ using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using URLS.Constants.APIResponse;
+
 namespace URLS.Application.Services.Implementations
 {
     public class TimetableService : ITimetableService
@@ -60,7 +62,7 @@ namespace URLS.Application.Services.Implementations
             await _db.Timetables.AddAsync(newTimetable);
             await _db.SaveChangesAsync();
 
-            return Result<TimetableViewModel>.SuccessWithData(_mapper.Map<TimetableViewModel>(newTimetable));
+            return Result<TimetableViewModel>.Created(_mapper.Map<TimetableViewModel>(newTimetable));
         }
 
         public async Task<Result<List<TimetableViewModel>>> GetTimetableBetweenDatesAsync(int groupId, DateTime startDate, DateTime endDate)
@@ -80,7 +82,7 @@ namespace URLS.Application.Services.Implementations
 
             var timetableToView = _mapper.Map<List<TimetableViewModel>>(timetable);
 
-            return Result<List<TimetableViewModel>>.SuccessWithData(timetableToView);
+            return Result<List<TimetableViewModel>>.SuccessList(timetableToView, Meta.FromMeta(timetable.Count, 0, timetable.Count));
         }
 
         public async Task<Result<bool>> RemoveTimetableAsync(long[] ids)

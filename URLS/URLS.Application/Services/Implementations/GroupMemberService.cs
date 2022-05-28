@@ -4,6 +4,7 @@ using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Group.GroupMember;
 using URLS.Application.ViewModels.User;
+using URLS.Constants.APIResponse;
 using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
@@ -148,8 +149,10 @@ namespace URLS.Application.Services.Implementations
             if (groupMembers == null)
                 return Result<List<GroupMemberViewModel>>.Success();
 
+            var totalCount = await _db.UserGroups.CountAsync(x => x.GroupId == groupId);
+
             var groupMembersToView = groupMembers.MapToViews(false);
-            return Result<List<GroupMemberViewModel>>.SuccessWithData(groupMembersToView);
+            return Result<List<GroupMemberViewModel>>.SuccessList(groupMembersToView, Meta.FromMeta(totalCount, offset, count));
         }
 
         public async Task<Result<GroupMemberViewModel>> UpdateGroupMemberAsync(GroupMemberEditModel model)

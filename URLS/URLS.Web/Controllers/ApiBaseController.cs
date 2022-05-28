@@ -13,8 +13,10 @@ namespace URLS.Web.Controllers
         [NonAction]
         public IActionResult JsonResult<T>(Result<T> result)
         {
+            if (result.IsCreated)
+                return CreatedResult(result.Data);
             if (result.IsSuccess)
-                return Ok(APIResponse.OkResponse(result.Data));
+                return Ok(APIResponse.OkResponse(result.Data, result.Meta));
             if (result.IsNotFound)
                 return NotFound(APIResponse.NotFoundResponse(result.ErrorMessage));
             if (result.IsError)
@@ -22,6 +24,13 @@ namespace URLS.Web.Controllers
             if (result.IsForbid)
                 return JsonForbiddenResult();
             return JsonInternalServerErrorResult();
+        }
+
+        [NonAction]
+        public IActionResult CreatedResult(object data, Meta meta = null)
+        {
+            HttpContext.Response.StatusCode = 201;
+            return Json(APIResponse.OkResponse(data, meta));
         }
 
         [NonAction]
@@ -36,13 +45,6 @@ namespace URLS.Web.Controllers
         {
             HttpContext.Response.StatusCode = 500;
             return Json(APIResponse.InternalServerError(HttpContext.TraceIdentifier));
-        }
-
-        [NonAction]
-        public IActionResult CreatedResult(object data)
-        {
-            HttpContext.Response.StatusCode = 201;
-            return Json(APIResponse.OkResponse(data));
         }
     }
 }

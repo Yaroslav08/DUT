@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using Force.DeepCloner;
 using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.Validations;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Quiz;
+using URLS.Constants.APIResponse;
 using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
@@ -40,7 +42,7 @@ namespace URLS.Application.Services.Implementations
 
             var viewModel = _mapper.Map<QuizViewModel>(newQuiz);
 
-            return Result<QuizViewModel>.SuccessWithData(viewModel);
+            return Result<QuizViewModel>.Created(viewModel);
         }
 
         public async Task<Result<QuizResultViewModel>> FinishQuizAsync(int quizResultId, QuizAnswerCreateModel model)
@@ -139,7 +141,10 @@ namespace URLS.Application.Services.Implementations
                 .Skip(offset).Take(count)
                 .ToListAsync();
             var quizzesViewModel = _mapper.Map<List<QuizViewModel>>(quizzes);
-            return Result<List<QuizViewModel>>.SuccessWithData(quizzesViewModel);
+
+            var totalCount = await _commonService.CountAsync<Quiz>(s => s.SubjectId == subjectId);
+
+            return Result<List<QuizViewModel>>.SuccessList(quizzesViewModel, Meta.FromMeta(totalCount, offset, count));
         }
 
         public async Task<Result<List<QuizResultViewModel>>> GetResultsAsync(Guid quizId, int offset = 0, int count = 10)
@@ -173,7 +178,9 @@ namespace URLS.Application.Services.Implementations
                 result.Result = null;
             });
 
-            return Result<List<QuizResultViewModel>>.SuccessWithData(resultsViewModel);
+            var totalCount = await _commonService.CountAsync<QuizResult>(s => s.QuizId == quizId);
+
+            return Result<List<QuizResultViewModel>>.SuccessList(resultsViewModel, Meta.FromMeta(totalCount, offset, count));
         }
 
         public async Task<Result<List<QuizResultViewModel>>> GetUserResultsAsync(int userId, int offset = 0, int count = 10)
@@ -186,7 +193,10 @@ namespace URLS.Application.Services.Implementations
                 .Skip(offset).Take(count)
                 .ToListAsync();
             var resultsViewModel = _mapper.Map<List<QuizResultViewModel>>(results);
-            return Result<List<QuizResultViewModel>>.SuccessWithData(resultsViewModel);
+
+            var totalCount = await _commonService.CountAsync<QuizResult>(s => s.UserId == userId);
+
+            return Result<List<QuizResultViewModel>>.SuccessList(resultsViewModel, Meta.FromMeta(totalCount, offset, count));
         }
 
         public async Task<Result<QuizStartedViewModel>> StartQuizAsync(Guid quizId)
@@ -251,23 +261,34 @@ namespace URLS.Application.Services.Implementations
             return Result<bool>.Success();
         }
 
-        public async Task<Result<QuizViewModel>> UpdateAsync(QuizEditModel quiz)
+        public async Task<Result<QuizViewModel>> UpdateAsync(QuizEditModel quizEditModel)
         {
-            var quizToUpdate = await _db.Quizzes.AsNoTracking().FirstOrDefaultAsync(s => s.Id == quiz.Id);
+            var quizToUpdate = await _db.Quizzes.AsNoTracking().Include(s => s.Questions).ThenInclude(s => s.Answers).FirstOrDefaultAsync(s => s.Id == quizEditModel.Id);
             if (quizToUpdate == null)
-                return Result<QuizViewModel>.NotFound(typeof(Quiz).NotFoundMessage(quiz.Id));
+                return Result<QuizViewModel>.NotFound(typeof(Quiz).NotFoundMessage(quizEditModel.Id));
 
             if (!_identityService.IsAdministrator())
                 if (quizToUpdate.CreatedByUserId != _identityService.GetUserId())
                     return Result<QuizViewModel>.Forbiden();
 
-            quizToUpdate.Author = quiz.Author;
-            quizToUpdate.Config = quiz.Config;
-            quizToUpdate.IsAvalible = quiz.IsAvalible;
-            quizToUpdate.From = quiz.From;
-            quizToUpdate.To = quiz.To;
-            quizToUpdate.IsTemplate = quiz.IsTemplate;
-            quizToUpdate.Name = quiz.Name;
+            quizToUpdate.Name = quizEditModel.Name;
+            quizToUpdate.Description = quizEditModel.Description;
+            quizToUpdate.Author = quizEditModel.Author;
+            quizToUpdate.Config = quizEditModel.Config;
+            quizToUpdate.IsAvalible = quizEditModel.IsAvalible;
+            quizToUpdate.From = quizEditModel.From;
+            quizToUpdate.To = quizEditModel.To;
+            quizToUpdate.IsTemplate = quizEditModel.IsTemplate;
+
+            if (!TryRemoveQuestionsAndAnswers(quizToUpdate, quizEditModel, out var removeError))
+            {
+                return Result<QuizViewModel>.Error(removeError);
+            }
+            if (!TryAddQuestionsAndAnswers(quizToUpdate, quizEditModel, out var addError))
+            {
+                return Result<QuizViewModel>.Error(addError);
+            }
+
             quizToUpdate.PrepareToUpdate(_identityService);
             _db.Quizzes.Update(quizToUpdate);
             await _db.SaveChangesAsync();
@@ -275,137 +296,24 @@ namespace URLS.Application.Services.Implementations
             return Result<QuizViewModel>.SuccessWithData(_mapper.Map<QuizViewModel>(quizToUpdate));
         }
 
-        public async Task<Result<bool>> DeleteQuestionAsync(Guid id, int questionId)
-        {
-            var questionForDelete = await _db.Questions.AsNoTracking().FirstOrDefaultAsync(s => s.Id == questionId);
-            if (questionForDelete == null)
-                return Result<bool>.NotFound(typeof(Question).NotFoundMessage(questionId));
-
-            if (questionForDelete.QuizId != id)
-                return Result<bool>.Forbiden();
-
-            if (!_identityService.IsAdministrator())
-                if (questionForDelete.CreatedByUserId != _identityService.GetUserId())
-                    return Result<bool>.Forbiden();
-
-            _db.Questions.Remove(questionForDelete);
-            await _db.SaveChangesAsync();
-            return Result<bool>.Success();
-        }
-
-        public async Task<Result<bool>> DeleteAnswerAsync(Guid id, int questionId, long answerId)
-        {
-            var answerForDelete = await _db.Answers.AsNoTracking().FirstOrDefaultAsync(s => s.Id == answerId);
-            if (answerForDelete == null)
-                return Result<bool>.NotFound(typeof(Answer).NotFoundMessage(answerId));
-
-            if (answerForDelete.QuestionId != questionId)
-                return Result<bool>.Forbiden();
-
-            if (!_identityService.IsAdministrator())
-                if (answerForDelete.CreatedByUserId != _identityService.GetUserId())
-                    return Result<bool>.Forbiden();
-
-            _db.Answers.Remove(answerForDelete);
-            await _db.SaveChangesAsync();
-            return Result<bool>.Success();
-        }
-
-        public async Task<Result<List<QuestionViewModel>>> UpdateQuestionsAsync(Guid quizId, List<QuestionEditModel> questions)
-        {
-            var updatedIds = questions.Select(q => q.Id);
-            var questionsToUpdate = await _db.Questions
-                .AsNoTracking()
-                .Where(s => s.QuizId == quizId && updatedIds.Contains(s.Id))
-                .ToListAsync();
-
-            if (questionsToUpdate == null || questionsToUpdate.Count == 0)
-                return Result<List<QuestionViewModel>>.NotFound($"Questions with IDs ({string.Join(',', updatedIds)}) not found");
-
-            if (questionsToUpdate.Count < updatedIds.Count())
-                return Result<List<QuestionViewModel>>.NotFound();
-
-            if (!questionsToUpdate.All(s => s.QuizId == quizId))
-                return Result<List<QuestionViewModel>>.Error("Not all questions in current quiz");
-
-            if (!_identityService.IsAdministrator())
-                if (!questionsToUpdate.All(s => s.CreatedByUserId == _identityService.GetUserId()))
-                    return Result<List<QuestionViewModel>>.Forbiden();
-
-            var diff = updatedIds.Except(questionsToUpdate.Select(s => s.Id));
-
-            if (diff != null || diff.Count() > 0)
-                return Result<List<QuestionViewModel>>.Error($"Questions with IDs ({string.Join(',', diff)}) not found");
-
-            foreach (var question in questionsToUpdate)
-            {
-                var questionViewModel = questions.First(s => s.Id == question.Id);
-
-                question.Index = questionViewModel.Index;
-                question.QuestionText = questionViewModel.QuestionText;
-                question.IsMultipleAnswers = questionViewModel.IsMultipleAnswers;
-                question.PrepareToUpdate(_identityService);
-            }
-
-            _db.Questions.UpdateRange(questionsToUpdate);
-            await _db.SaveChangesAsync();
-
-            return Result<List<QuestionViewModel>>.SuccessWithData(_mapper.Map<List<QuestionViewModel>>(questionsToUpdate));
-        }
-
-        public async Task<Result<List<AnswerViewModel>>> UpdateAnswersAsync(Guid quizId, int questionId, List<AnswerEditModel> answers)
-        {
-            var updatedIds = answers.Select(q => q.Id);
-            var answersToUpdate = await _db.Answers
-                .AsNoTracking()
-                .Where(s => s.QuestionId == questionId && updatedIds.Contains(s.Id))
-                .ToListAsync();
-
-            if (answersToUpdate == null || answersToUpdate.Count == 0)
-                return Result<List<AnswerViewModel>>.NotFound($"Answers with IDs ({string.Join(',', updatedIds)}) not found");
-
-            if (answersToUpdate.Count < updatedIds.Count())
-                return Result<List<AnswerViewModel>>.NotFound();
-
-            if (!answersToUpdate.All(s => s.QuestionId == questionId))
-                return Result<List<AnswerViewModel>>.Error("Not all answers in current quiz");
-
-            if (!_identityService.IsAdministrator())
-                if (!answersToUpdate.All(s => s.CreatedByUserId == _identityService.GetUserId()))
-                    return Result<List<AnswerViewModel>>.Forbiden();
-
-            var diff = updatedIds.Except(answersToUpdate.Select(s => s.Id));
-
-            if (diff != null || diff.Count() > 0)
-                return Result<List<AnswerViewModel>>.Error($"Answers with IDs ({string.Join(',', diff)}) not found");
-
-            foreach (var answer in answersToUpdate)
-            {
-                var answerViewModel = answers.First(s => s.Id == answer.Id);
-
-                answer.Response = answerViewModel.Response;
-                answer.IsCorrect = answerViewModel.IsCorrect;
-                answer.PrepareToUpdate(_identityService);
-            }
-
-            _db.Answers.UpdateRange(answersToUpdate);
-            await _db.SaveChangesAsync();
-
-            return Result<List<AnswerViewModel>>.SuccessWithData(_mapper.Map<List<AnswerViewModel>>(answersToUpdate));
-        }
-
         public async Task<Result<List<QuizViewModel>>> GetAllAsync(int offset = 0, int count = 20)
         {
+            int totalCount = 0;
             var query = _db.Quizzes.AsNoTracking();
 
             if (!_identityService.IsAdministrator())
+            {
                 query = query.Where(s => s.CreatedByUserId == _identityService.GetUserId());
+                totalCount = await _db.Quizzes.CountAsync(s => s.CreatedByUserId == _identityService.GetUserId());
+            }
+            else
+                totalCount = await _db.Quizzes.CountAsync();
 
             query = query.OrderByDescending(s => s.CreatedAt);
             query = query.Skip(offset).Take(count);
             var quizes = await query.ToListAsync();
 
-            return Result<List<QuizViewModel>>.SuccessWithData(_mapper.Map<List<QuizViewModel>>(quizes));
+            return Result<List<QuizViewModel>>.SuccessList(_mapper.Map<List<QuizViewModel>>(quizes), Meta.FromMeta(totalCount, offset, count));
         }
 
         public async Task<Result<QuizResultViewModel>> GetResultAsync(Guid quizId, int quizResultId)
@@ -510,6 +418,20 @@ namespace URLS.Application.Services.Implementations
             if (!quiz.IsAvalible && quiz.CreatedByUserId != _identityService.GetUserId())
                 return false;
             return false;
+        }
+
+        private bool TryRemoveQuestionsAndAnswers(Quiz quiz, QuizEditModel quizEditModel, out string error)
+        {
+            //ToDo
+            error = null;
+            return true;
+        }
+
+        private bool TryAddQuestionsAndAnswers(Quiz quiz, QuizEditModel quizEditModel, out string error)
+        {
+            //ToDo
+            error = null;
+            return true;
         }
 
         private bool TryCheckQuestions(List<Question> questions, List<QuizAnswerResponse> quizResponse, out string error)

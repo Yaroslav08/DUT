@@ -42,12 +42,12 @@ namespace URLS.Application.Services.Implementations
             await _db.Specialties.AddAsync(newSpecialty);
             await _db.SaveChangesAsync();
 
-            return Result<SpecialtyViewModel>.SuccessWithData(_mapper.Map<SpecialtyViewModel>(newSpecialty));
+            return Result<SpecialtyViewModel>.Created(_mapper.Map<SpecialtyViewModel>(newSpecialty));
         }
 
         public async Task<Result<List<SpecialtyViewModel>>> GetAllSpecialtiesAsync()
         {
-            return Result<List<SpecialtyViewModel>>.SuccessWithData(await _db.Specialties.AsNoTracking().Select(x => new SpecialtyViewModel
+            return Result<List<SpecialtyViewModel>>.SuccessList(await _db.Specialties.AsNoTracking().Select(x => new SpecialtyViewModel
             {
                 Id = x.Id,
                 CreatedAt = x.CreatedAt,
@@ -58,7 +58,7 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<List<SpecialtyViewModel>>> GetSpecialtiesByFacultyIdAsync(int facultyId)
         {
-            return Result<List<SpecialtyViewModel>>.SuccessWithData(await _db.Specialties.AsNoTracking().Where(x => x.FacultyId == facultyId).Select(x => new SpecialtyViewModel
+            return Result<List<SpecialtyViewModel>>.SuccessList(await _db.Specialties.AsNoTracking().Where(x => x.FacultyId == facultyId).Select(x => new SpecialtyViewModel
             {
                 Id = x.Id,
                 CreatedAt = x.CreatedAt,

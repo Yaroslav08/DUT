@@ -12,6 +12,7 @@ using URLS.Application.ViewModels.Session;
 using URLS.Application.ViewModels.User;
 using URLS.Application.ViewModels.User.UserInfo;
 using URLS.Constants;
+using URLS.Constants.APIResponse;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
 namespace URLS.Application.Services.Implementations
@@ -74,7 +75,7 @@ namespace URLS.Application.Services.Implementations
             await _db.Notifications.AddAsync(notify);
             await _db.SaveChangesAsync();
 
-            return Result<UserViewModel>.SuccessWithData(_mapper.Map<UserViewModel>(newUser)); ;
+            return Result<UserViewModel>.Created(_mapper.Map<UserViewModel>(newUser)); ;
         }
 
         public async Task<Result<UserFullViewModel>> GetFullInfoUserByIdAsync(int id)
@@ -131,7 +132,7 @@ namespace URLS.Application.Services.Implementations
         public async Task<Result<List<UserShortViewModel>>> GetTeachersAsync(int offset = 0, int count = 20)
         {
             var teachers = await _db.UserRoles
-                .Where(s => s.RoleId == 1)
+                .Where(s => s.RoleId == 4)
                 .Include(s => s.User)
                 .OrderBy(s => s.UserId)
                 .Skip(offset).Take(count)
@@ -145,7 +146,10 @@ namespace URLS.Application.Services.Implementations
                     JoinAt = s.User.JoinAt
                 })
                 .ToListAsync();
-            return Result<List<UserShortViewModel>>.SuccessWithData(teachers);
+
+            var totalCount = await _db.UserRoles.CountAsync(s => s.RoleId == 4);
+
+            return Result<List<UserShortViewModel>>.SuccessList(teachers, Meta.FromMeta(totalCount, offset, count));
         }
 
         public async Task<Result<UserViewModel>> GetUserByIdAsync(int id)

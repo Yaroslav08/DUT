@@ -4,6 +4,7 @@ using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Post.Comment;
+using URLS.Constants.APIResponse;
 using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
@@ -47,7 +48,7 @@ namespace URLS.Application.Services.Implementations
             newComment.PrepareToCreate(_identityService);
             await _db.Comments.AddAsync(newComment);
             await _db.SaveChangesAsync();
-            return Result<CommentViewModel>.SuccessWithData(_mapper.Map<CommentViewModel>(newComment));
+            return Result<CommentViewModel>.Created(_mapper.Map<CommentViewModel>(newComment));
         }
 
         public async Task<Result<List<CommentViewModel>>> GetCommentsByPostIdAsync(int groupId, int postId, int skip = 0, int count = 20)
@@ -67,7 +68,9 @@ namespace URLS.Application.Services.Implementations
                 .Skip(skip).Take(count)
                 .ToListAsync();
 
-            return Result<List<CommentViewModel>>.SuccessWithData(_mapper.Map<List<CommentViewModel>>(comments));
+            var totalCount = await _db.Comments.CountAsync(x => x.PostId == postId);
+
+            return Result<List<CommentViewModel>>.SuccessList(_mapper.Map<List<CommentViewModel>>(comments), Meta.FromMeta(totalCount, skip, count));
         }
 
         public async Task<Result<bool>> RemoveCommentAsync(int groupId, int postId, long commentId)

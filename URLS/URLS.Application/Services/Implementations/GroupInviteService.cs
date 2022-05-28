@@ -5,6 +5,7 @@ using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Group;
 using URLS.Constants;
+using URLS.Constants.APIResponse;
 using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
@@ -48,7 +49,7 @@ namespace URLS.Application.Services.Implementations
             newGroupInvite.PrepareToCreate(_identityService);
             await _db.GroupInvites.AddAsync(newGroupInvite);
             await _db.SaveChangesAsync();
-            return Result<GroupInviteViewModel>.SuccessWithData(_mapper.Map<GroupInviteViewModel>(newGroupInvite));
+            return Result<GroupInviteViewModel>.Created(_mapper.Map<GroupInviteViewModel>(newGroupInvite));
         }
 
         public async Task<Result<List<GroupInviteViewModel>>> GetGroupInvitesByGroupIdAsync(int groupId)
@@ -64,7 +65,9 @@ namespace URLS.Application.Services.Implementations
 
             var groupInvitesToViews = _mapper.Map<List<GroupInviteViewModel>>(groupInvitesFromDb);
 
-            return Result<List<GroupInviteViewModel>>.SuccessWithData(groupInvitesToViews);
+            var totalCount = await _db.GroupInvites.CountAsync(x => x.GroupId == groupId);
+
+            return Result<List<GroupInviteViewModel>>.SuccessList(groupInvitesToViews, Meta.FromMeta(totalCount, 0, 0));
         }
 
         public async Task<Result<bool>> RemoveGroupInviteAsync(int groupId, Guid groupInviteId)

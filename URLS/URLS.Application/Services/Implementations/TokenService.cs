@@ -24,7 +24,7 @@ namespace URLS.Application.Services.Implementations
             return await GetUserTokenAsync(user, sessionId, authType);
         }
 
-        public async Task<JwtToken> GetUserTokenAsync(URLS.Domain.Models.User user, Guid sessionId, string authType)
+        public async Task<JwtToken> GetUserTokenAsync(User user, Guid sessionId, string authType)
         {
             if (user == null)
                 return null;

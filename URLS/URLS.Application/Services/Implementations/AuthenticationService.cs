@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Extensions.DeviceDetector;
 using Extensions.Password;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
 using URLS.Application.Helpers;
@@ -333,7 +332,7 @@ namespace URLS.Application.Services.Implementations
             await _db.UserGroups.AddAsync(groupStudent);
             await _db.SaveChangesAsync();
 
-            return Result<AuthenticationInfo>.Success();
+            return Result<AuthenticationInfo>.Created();
         }
     }
 }

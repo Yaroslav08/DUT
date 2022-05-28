@@ -7,6 +7,7 @@ using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using URLS.Constants.Extensions;
+using URLS.Constants.APIResponse;
 
 namespace URLS.Application.Services.Implementations
 {
@@ -28,7 +29,9 @@ namespace URLS.Application.Services.Implementations
 
             var rolesToView = _mapper.Map<List<ClaimViewModel>>(roles);
 
-            return Result<List<ClaimViewModel>>.SuccessWithData(rolesToView);
+            var count = await _db.Claims.CountAsync();
+
+            return Result<List<ClaimViewModel>>.SuccessList(rolesToView, Meta.FromMeta(count, offset, limit));
         }
 
         public async Task<Result<List<ClaimViewModel>>> GetClaimsByRoleIdAsync(int roleId)
@@ -37,7 +40,9 @@ namespace URLS.Application.Services.Implementations
 
             var rolesToView = _mapper.Map<List<ClaimViewModel>>(roles.Select(s => s.Claim));
 
-            return Result<List<ClaimViewModel>>.SuccessWithData(rolesToView);
+            var count = await _db.RoleClaims.CountAsync(s => s.RoleId == roleId);
+
+            return Result<List<ClaimViewModel>>.SuccessList(rolesToView, Meta.FromMeta(count, 0,0));
         }
 
         public async Task<Result<ClaimViewModel>> UpdateClaimAsync(ClaimEditModel model)

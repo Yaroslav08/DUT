@@ -50,7 +50,7 @@ namespace URLS.Application.Services.Implementations
             newSubject.PrepareToCreate(_identityService);
             await _db.Subjects.AddAsync(newSubject);
             await _db.SaveChangesAsync();
-            return Result<SubjectViewModel>.SuccessWithData(_mapper.Map<SubjectViewModel>(newSubject));
+            return Result<SubjectViewModel>.Created(_mapper.Map<SubjectViewModel>(newSubject));
         }
 
         public async Task<Result<List<SubjectViewModel>>> SearchSubjectsAsync(SearchSubjectOptions options)
@@ -84,7 +84,7 @@ namespace URLS.Application.Services.Implementations
 
             var subjects = await query.ToListAsync();
             var subjectsToView = _mapper.Map<List<SubjectViewModel>>(subjects);
-            return Result<List<SubjectViewModel>>.SuccessWithData(subjectsToView);
+            return Result<List<SubjectViewModel>>.SuccessList(subjectsToView);
         }
 
         public async Task<Result<SubjectViewModel>> GetSubjectByIdAsync(int subjectId)

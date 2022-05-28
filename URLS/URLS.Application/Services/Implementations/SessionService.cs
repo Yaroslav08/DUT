@@ -5,6 +5,7 @@ using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Session;
 using URLS.Constants;
+using URLS.Constants.APIResponse;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
 namespace URLS.Application.Services.Implementations
@@ -15,12 +16,14 @@ namespace URLS.Application.Services.Implementations
         private readonly IMapper _mapper;
         private readonly IIdentityService _identityService;
         private readonly ISessionManager _sessionManager;
-        public SessionService(URLSDbContext db, IMapper mapper, IIdentityService identityService, ISessionManager sessionManager)
+        private readonly ICommonService _commonService;
+        public SessionService(URLSDbContext db, IMapper mapper, IIdentityService identityService, ISessionManager sessionManager, ICommonService commonService)
         {
             _db = db;
             _mapper = mapper;
             _identityService = identityService;
             _sessionManager = sessionManager;
+            _commonService = commonService;
         }
 
         public async Task<Result<SessionViewModel>> GetSessionByIdAsync(Guid sessionId)
@@ -59,7 +62,10 @@ namespace URLS.Application.Services.Implementations
 
             var sessionsToView = SortSessions(sessions);
 
-            return Result<List<SessionViewModel>>.SuccessWithData(sessionsToView);
+            var totalCount = await _commonService
+                .CountAsync<Session>(x => x.UserId == userId && q == 0 ? x.IsActive : !x.IsActive);
+
+            return Result<List<SessionViewModel>>.SuccessList(sessionsToView, Meta.FromMeta(totalCount, offset, limit));
         }
 
         private List<SessionViewModel> SortSessions(List<Session> sessions)

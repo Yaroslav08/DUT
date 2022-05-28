@@ -5,6 +5,7 @@ using URLS.Application.Helpers;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Reaction;
+using URLS.Constants.APIResponse;
 using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
@@ -65,7 +66,7 @@ namespace URLS.Application.Services.Implementations
 
                 var viewModel = _mapper.Map<ReactionViewModel>(newReaction);
 
-                return Result<ReactionViewModel>.SuccessWithData(viewModel);
+                return Result<ReactionViewModel>.Created(viewModel);
             }
         }
 
@@ -97,12 +98,14 @@ namespace URLS.Application.Services.Implementations
 
             var reactionsToView = _mapper.Map<List<ReactionViewModel>>(reactions);
 
-            return Result<List<ReactionViewModel>>.SuccessWithData(reactionsToView);
+            var totalCount = await _commonService.CountAsync<Reaction>(s => s.PostId == postId);
+
+            return Result<List<ReactionViewModel>>.SuccessList(reactionsToView, Meta.FromMeta(totalCount, offset, count));
         }
 
         public Result<Dictionary<int, string>> GetAllReactions()
         {
-            return Result<Dictionary<int, string>>.SuccessWithData(ReactionData.GetAllReactions());
+            return Result<Dictionary<int, string>>.SuccessList(ReactionData.GetAllReactions());
         }
 
         public async Task<Result<ReactionStatistics>> GetAllReactionsByPostIdAsync(int postId)
