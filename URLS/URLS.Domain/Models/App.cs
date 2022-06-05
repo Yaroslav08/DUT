@@ -22,6 +22,8 @@ namespace URLS.Domain.Models
         public DateTime ActiveFrom { get; set; }
         [Required]
         public DateTime ActiveTo { get; set; }
+        [StringLength(150)]
+        public string Scheme { get; set; }
         public int? UserId { get; set; }
         public User User { get; set; }
 

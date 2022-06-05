@@ -10,6 +10,7 @@ namespace URLS.Domain.Models
         public Location Location { get; set; }
         [Required]
         public bool IsActive { get; set; }
+        public string Type { get; set; }
         public DateTime? DeactivatedAt { get; set; }
         public Guid? DeactivatedBySessionId { get; set; }
         [StringLength(5000, MinimumLength = 5)]

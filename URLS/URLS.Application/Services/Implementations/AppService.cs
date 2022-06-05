@@ -113,6 +113,14 @@ namespace URLS.Application.Services.Implementations
             return Result<AppViewModel>.SuccessWithData(appToView);
         }
 
+        public async Task<Result<App>> GetAppBySchemeAsync(string scheme)
+        {
+            var app = await _db.Apps.AsNoTracking().FirstOrDefaultAsync(s => s.Scheme == scheme);
+            if (app == null)
+                return Result<App>.NotFound(typeof(App).NotFoundMessage(scheme));
+            return Result<App>.SuccessWithData(app);
+        }
+
         public async Task<Result<AppDetail>> GetAppDetailsAsync(int id)
         {
             var app = await _db.Apps.AsNoTracking().FirstOrDefaultAsync(app => app.Id == id);

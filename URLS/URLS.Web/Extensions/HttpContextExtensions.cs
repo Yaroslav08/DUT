@@ -7,6 +7,8 @@ namespace URLS.Web.Extensions
         public static bool IsAuthenticationRequired(this HttpContext httpContext)
         {
             var endpoint = httpContext.GetEndpoint();
+            if (endpoint == null)
+                return false;
             var metadata = endpoint.Metadata;
 
             var existAuthAttrbt = metadata.Any(s => s is AuthorizeAttribute);

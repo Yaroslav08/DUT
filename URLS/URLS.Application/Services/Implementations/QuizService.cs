@@ -284,10 +284,13 @@ namespace URLS.Application.Services.Implementations
             {
                 return Result<QuizViewModel>.Error(removeError);
             }
+
             if (!TryAddQuestionsAndAnswers(quizToUpdate, quizEditModel, out var addError))
             {
                 return Result<QuizViewModel>.Error(addError);
             }
+
+            SortQuestions(quizToUpdate, true);
 
             quizToUpdate.PrepareToUpdate(_identityService);
             _db.Quizzes.Update(quizToUpdate);
@@ -420,18 +423,117 @@ namespace URLS.Application.Services.Implementations
             return false;
         }
 
-        private bool TryRemoveQuestionsAndAnswers(Quiz quiz, QuizEditModel quizEditModel, out string error)
+        private bool TryRemoveQuestionsAndAnswers(Quiz currentQuiz, QuizEditModel quizEditModel, out string error)
         {
-            //ToDo
+            var questionIds = new List<int>();
+            var answerIds = new List<long>();
+            foreach (var question in currentQuiz.Questions)
+            {
+                var questionUpdateModel = quizEditModel.Questions.FirstOrDefault(x => x.Id == question.Id);
+                if (questionUpdateModel != null)
+                {
+                    question.Index = questionUpdateModel.Index;
+                    question.IsMultipleAnswers = questionUpdateModel.IsMultipleAnswers;
+                    question.QuestionText = questionUpdateModel.QuestionText;
+                    question.PrepareToUpdate(_identityService);
+
+                    foreach (var answer in question.Answers)
+                    {
+                        var answerUpdateModel = questionUpdateModel.Answers.FirstOrDefault(s => s.Id == answer.Id);
+                        if (answerUpdateModel != null)
+                        {
+                            answer.IsCorrect = answerUpdateModel.IsCorrect;
+                            answer.Response = answerUpdateModel.Response;
+                            answer.PrepareToUpdate(_identityService);
+                        }
+                        else
+                        {
+                            _db.Answers.Remove(answer);
+                            answerIds.Add(answer.Id);
+                        }
+                    }
+                }
+                else
+                {
+                    _db.Questions.Remove(question);
+                    questionIds.Add(question.Id);
+                }
+            }
+
+            SyncData(quizEditModel, questionIds, answerIds);
+
             error = null;
             return true;
         }
 
-        private bool TryAddQuestionsAndAnswers(Quiz quiz, QuizEditModel quizEditModel, out string error)
+        private bool TryAddQuestionsAndAnswers(Quiz currentQuiz, QuizEditModel quizEditModel, out string error)
         {
-            //ToDo
+            if (quizEditModel.Questions.GroupBy(x => x.Index).Any(g => g.Count() > 1))
+            {
+                error = "Indexes can`t be repeating";
+                return false;
+            }
+
+            var userId = _identityService.GetUserId();
+
+            foreach (var question in quizEditModel.Questions.Where(s => !s.Id.HasValue))
+            {
+                var newQuestion = new Question
+                {
+                    QuestionText = question.QuestionText,
+                    IsMultipleAnswers = question.IsMultipleAnswers,
+                    Index = question.Index,
+                    CreatedByUserId = userId,
+                    Answers = new List<Answer>()
+                };
+
+                foreach (var answer in question.Answers.Where(s => !s.Id.HasValue))
+                {
+                    var newAnswer = new Answer
+                    {
+                        IsCorrect = answer.IsCorrect,
+                        Response = answer.Response
+                    };
+                    newAnswer.PrepareToCreate(_identityService);
+                    newQuestion.Answers.Add(newAnswer);
+                }
+
+                newQuestion.PrepareToCreate(_identityService);
+                currentQuiz.Questions.Add(newQuestion);
+            }
+
             error = null;
             return true;
+        }
+
+        private void SortQuestions(Quiz currentQuiz, bool fixIndex = false)
+        {
+            var copyQuestions = currentQuiz.Questions.DeepClone();
+
+            currentQuiz.Questions.Clear();
+
+            if (fixIndex)
+            {
+                var index = 1;
+                foreach (var question in copyQuestions.OrderBy(s => s.Index))
+                {
+                    question.Index = index++;
+                    currentQuiz.Questions.Add(question);
+                }
+            }
+            else
+            {
+                currentQuiz.Questions = copyQuestions.OrderBy(s => s.Index).ToList();
+            }
+        }
+
+        private void SyncData(QuizEditModel quiz, List<int> questionIds, List<long> answerIds)
+        {
+            foreach (var question in quiz.Questions)
+            {
+                question.Answers.Where(s => s.Id.HasValue).ToList().RemoveAll(s => answerIds.Contains(s.Id.Value));
+            }
+            quiz.Questions.Where(s => s.Id.HasValue).ToList().RemoveAll(s => questionIds.Contains(s.Id.Value));
         }
 
         private bool TryCheckQuestions(List<Question> questions, List<QuizAnswerResponse> quizResponse, out string error)

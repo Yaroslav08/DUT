@@ -216,7 +216,8 @@ namespace URLS.Application.Seeder
                 ActiveTo = DateTime.Now.AddYears(10),
                 Description = "Веб застосунок для роботи з системою УСДН",
                 IsActive = true,
-                Image = ""
+                Image = "",
+                Scheme = null
             };
             app1.PrepareToCreate();
             listApps.Add(app1);
@@ -231,7 +232,8 @@ namespace URLS.Application.Seeder
                 ActiveTo = DateTime.Now.AddYears(10),
                 Description = "Android застосунок для роботи з системою УСДН",
                 IsActive = true,
-                Image = ""
+                Image = "",
+                Scheme = null
             };
             app2.PrepareToCreate();
             listApps.Add(app2);
@@ -246,7 +248,8 @@ namespace URLS.Application.Seeder
                 ActiveTo = DateTime.Now.AddYears(10),
                 Description = "IOS застосунок для роботи з системою УСДН",
                 IsActive = true,
-                Image = ""
+                Image = "",
+                Scheme = null
             };
             app3.PrepareToCreate();
             listApps.Add(app3);
@@ -261,7 +264,8 @@ namespace URLS.Application.Seeder
                 ActiveTo = DateTime.Now.AddYears(10),
                 Description = "Desktop застосунок для роботи з системою УСДН",
                 IsActive = true,
-                Image = ""
+                Image = "",
+                Scheme = null
             };
             app4.PrepareToCreate();
             listApps.Add(app4);

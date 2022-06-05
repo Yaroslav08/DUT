@@ -94,5 +94,10 @@ namespace URLS.Application.ViewModels
         public Meta Meta { get; set; }
 
         #endregion
+
+        public Result<U> MapToNew<U>(U data, Meta meta = null)
+        {
+            return new Result<U>(IsSuccess, IsCreated, IsNotFound, IsForbid, ErrorMessage, ExceptionType, data, meta);
+        }
     }
 }

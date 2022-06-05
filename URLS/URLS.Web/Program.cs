@@ -1,14 +1,12 @@
-using URLS.Application;
-using URLS.Application.Seeder;
-using URLS.Constants;
-using URLS.Infrastructure.Data.Context;
-using URLS.Infrastructure.IoC;
-using URLS.Web.Filters;
-using URLS.Web.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using URLS.Application.Seeder;
+using URLS.Constants;
+using URLS.Infrastructure.IoC;
+using URLS.Web.Filters;
+using URLS.Web.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +20,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 builder.Services.AddApiVersioning(options =>
 {
     options.AssumeDefaultVersionWhenUnspecified = true;
-    options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
+    options.DefaultApiVersion = new ApiVersion(1, 0);
     options.ReportApiVersions = true;
 });
 
@@ -31,10 +29,11 @@ builder.Services.AddResponseCompression(options => options.EnableForHttps = true
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+    .AddJwtBearer(jwt =>
     {
-        options.RequireHttpsMetadata = false;
-        options.TokenValidationParameters = new TokenValidationParameters
+        jwt.RequireHttpsMetadata = false;
+        jwt.SaveToken = true;
+        jwt.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidIssuer = TokenOptions.Issuer,
@@ -44,6 +43,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = TokenOptions.GetSymmetricSecurityKey(),
             ValidateIssuerSigningKey = true,
         };
+    })
+    .AddGoogle(google =>
+    {
+        google.ClientId = builder.Configuration["Credentials:Google:Id"];
+        google.ClientSecret = builder.Configuration["Credentials:Google:Secret"];
+        google.SaveTokens = true;
     });
 
 builder.Services.AddLogging(x =>

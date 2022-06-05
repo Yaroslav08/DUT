@@ -6,6 +6,7 @@ using URLS.Application.ViewModels.Diploma;
 using URLS.Application.ViewModels.Faculty;
 using URLS.Application.ViewModels.Group;
 using URLS.Application.ViewModels.Group.GroupRole;
+using URLS.Application.ViewModels.Identity;
 using URLS.Application.ViewModels.Lesson;
 using URLS.Application.ViewModels.Notification;
 using URLS.Application.ViewModels.Post;
@@ -95,6 +96,10 @@ namespace URLS.Application.ViewModels
             CreateMap<Domain.Models.Reaction, ReactionViewModel>()
                 .ForMember(s => s.Reaction, s => s.MapFrom(s => ReactionHelper.GetReactionFromId(s.ReactionTypeId)))
                 .ReverseMap();
+
+            CreateMap<Domain.Models.UserLogin, SocialViewModel>()
+                .ForMember(s => s.LinkedAt, s => s.MapFrom(s => s.CreatedAt))
+                .ForMember(s => s.Provider, s => s.MapFrom(s => s.ExternalProvider));
         }
 
         private string BuildFullName(Domain.Models.User user)
