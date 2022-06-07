@@ -11,6 +11,9 @@ using URLS.Application.ViewModels.Reaction;
 using URLS.Application.ViewModels.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using ClosedXML.Excel;
+using ClosedXML.Extensions;
+using DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace URLS.Web.Controllers.V1
 {
@@ -101,6 +104,15 @@ namespace URLS.Web.Controllers.V1
         public async Task<IActionResult> GetGroupMembers(int groupId, int offset = 0, int count = 20, int status = 0)
         {
             return JsonResult(await _groupMemberService.GetGroupMembersAsync(groupId, offset, count, status));
+        }
+
+        [HttpGet("{groupId}/members/export")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ExportGroupMembers(int groupId)
+        {
+            var res = await _groupMemberService.ExportGroupMemberAsync(groupId);
+
+            return File(res.Data.Stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", res.Data.FileName);
         }
 
         [HttpPost("{groupId}/members/accept-all")]
