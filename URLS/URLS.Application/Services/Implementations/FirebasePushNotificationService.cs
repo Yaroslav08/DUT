@@ -93,7 +93,7 @@ namespace URLS.Application.Services.Implementations
                     newUser.Devices.Add(FirebaseDevice.AsAndroid(model.Token));
                 if (model.Type == 2)
                     newUser.Devices.Add(FirebaseDevice.AsIOS(model.Token));
-                else
+                if (model.Type == 3)
                     newUser.Devices.Add(FirebaseDevice.AsWeb(model.Token));
 
                 _subscribedUsers.Add(newUser);
@@ -102,8 +102,10 @@ namespace URLS.Application.Services.Implementations
             {
                 if (model.Type == 1)
                     user.Devices.Add(FirebaseDevice.AsAndroid(model.Token));
-                else
+                if (model.Type == 2)
                     user.Devices.Add(FirebaseDevice.AsIOS(model.Token));
+                if (model.Type == 3)
+                    user.Devices.Add(FirebaseDevice.AsWeb(model.Token));
             }
         }
 

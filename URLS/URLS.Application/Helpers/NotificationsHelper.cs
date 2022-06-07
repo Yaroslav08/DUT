@@ -45,13 +45,30 @@ namespace URLS.Application.Helpers
             };
         }
 
-        public static Notification GetLoginNotification(Session session)
+        public static Notification GetLoginByPasswordNotification(Session session)
         {
             return new Notification
             {
                 Title = "Новий вхід",
-                Content = $"Увага! Щойно було виконано вхід на ваш акаунт з присторію {GetDeviceInfo(session.Client)} з {session.Location.Country}, {session.Location.City} [{session.Location.IP}]",
+                Content = $"Увага! Щойно було виконано вхід на ваш акаунт з присторою {GetDeviceInfo(session.Client)} в {session.Location.Country}, {session.Location.City} [{session.Location.IP}]",
                 ImageUrl = "https://cdn-icons-png.flaticon.com/512/152/152533.png",
+                CreatedAt = DateTime.Now,
+                CreatedBy = Defaults.CreatedBy,
+                CreatedFromIP = "::1",
+                Type = NotificationType.NewLogin,
+                IsImportant = true,
+                IsRead = false,
+                ReadAt = null
+            };
+        }
+
+        public static Notification GetLoginBySocialNotification(Session session)
+        {
+            return new Notification
+            {
+                Title = "Новий вхід",
+                Content = $"Увага! Щойно було виконано вхід на ваш акаунт через {session.Type} з присторою {GetDeviceInfo(session.Client)} в {session.Location.Country}, {session.Location.City} [{session.Location.IP}]",
+                ImageUrl = "",
                 CreatedAt = DateTime.Now,
                 CreatedBy = Defaults.CreatedBy,
                 CreatedFromIP = "::1",

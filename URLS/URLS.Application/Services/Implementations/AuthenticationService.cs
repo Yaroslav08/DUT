@@ -227,7 +227,7 @@ namespace URLS.Application.Services.Implementations
 
             session.PrepareToCreate();
 
-            var loginNotify = NotificationsHelper.GetLoginNotification(session);
+            var loginNotify = NotificationsHelper.GetLoginByPasswordNotification(session);
             loginNotify.UserId = user.Id;
 
             await _db.Notifications.AddAsync(loginNotify);
@@ -299,6 +299,26 @@ namespace URLS.Application.Services.Implementations
                 UserId = user.Id
             };
 
+            var jwtToken = await _tokenService.GetUserTokenAsync(user.Id, sessionId, scheme);
+
+            session.Token = jwtToken.Token;
+            session.ExpiredAt = jwtToken.ExpiredAt;
+            session.Type = scheme;
+
+            session.PrepareToCreate();
+
+            var loginNotify = NotificationsHelper.GetLoginBySocialNotification(session);
+            loginNotify.UserId = user.Id;
+
+            await _db.Notifications.AddAsync(loginNotify);
+
+            await _db.Sessions.AddAsync(session);
+
+            await _db.SaveChangesAsync();
+
+            _sessionManager.AddSession(new TokenModel(jwtToken.Token, jwtToken.ExpiredAt));
+
+            return Result<JwtToken>.SuccessWithData(jwtToken);
         }
 
         public async Task<Result<bool>> LogoutAllAsync(int userId)
