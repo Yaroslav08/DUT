@@ -18,7 +18,7 @@ namespace URLS.Application.Services.Implementations
         {
             _pendingRequests = new List<PendingRequest>();
             _subscribedUsers = new List<SubscribeUser>();
-            _firebaseMessaging = GetFirebaseMessaging();
+            //_firebaseMessaging = GetFirebaseMessaging();  //temporary commented
             _serviceProvider = serviceProvider;
         }
 

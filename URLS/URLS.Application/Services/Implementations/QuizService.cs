@@ -388,9 +388,10 @@ namespace URLS.Application.Services.Implementations
                         Id = answer.Id,
                         Response = answer.Response,
                         IsCorrect = answersToQuiz.Quiz.Config.ShowCorrectAnswers ? answer.IsCorrect : null,
-                        IsChoice = resposneModel != null ? resposneModel.AnswerIds?.Contains(answer.Id) : null
+                        IsChoice = resposneModel?.AnswerIds?.Contains(answer.Id)
                     };
 
+                    answerModel.ChoiceAt = answerModel.IsChoice == true ? resposneModel?.ChoiceAt : null;
                     if (answerModel.IsCorrectAnswer())
                         if (question.IsMultipleAnswers)
                         {

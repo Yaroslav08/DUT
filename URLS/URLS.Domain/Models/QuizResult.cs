@@ -28,6 +28,8 @@
         public string Response { get; set; }
         public bool? IsCorrect { get; set; }
         public bool? IsChoice { get; set; }
+        
+        public DateTime? ChoiceAt { get; set; }
 
         public bool IsCorrectAnswer()
         {
