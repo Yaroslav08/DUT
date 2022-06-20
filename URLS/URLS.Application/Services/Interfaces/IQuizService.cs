@@ -9,6 +9,7 @@ namespace URLS.Application.Services.Interfaces
         Task<Result<QuizViewModel>> GetByIdAsync(Guid id, bool fullTest = false);
         Task<Result<List<QuizResultViewModel>>> GetResultsAsync(Guid quizId, int offset = 0, int count = 10);
         Task<Result<QuizResultViewModel>> GetResultAsync(Guid quizId, int quizResultId);
+        Task<Result<QuizStatisticsViewModel>> GetQuizStatisticsAsync(Guid quizId);
         Task<Result<List<QuizResultViewModel>>> GetUserResultsAsync(int userId, int offset = 0, int count = 10);
         Task<Result<QuizViewModel>> CreateAsync(QuizCreateModel quiz);
         Task<Result<QuizViewModel>> UpdateAsync(QuizEditModel quiz);

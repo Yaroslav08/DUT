@@ -347,6 +347,29 @@ namespace URLS.Application.Services.Implementations
             return Result<QuizResultViewModel>.SuccessWithData(quizResultViewModel);
         }
 
+        public async Task<Result<QuizStatisticsViewModel>> GetQuizStatisticsAsync(Guid quizId)
+        {
+            var quizResponse = await _commonService.IsExistWithResultsAsync<Quiz>(s => s.Id == quizId);
+            if (!quizResponse.IsExist)
+                return Result<QuizStatisticsViewModel>.NotFound(typeof(Quiz).NotFoundMessage(quizId));
+
+
+            var quizResults = await _db.QuizResults.AsNoTracking().Where(s => s.QuizId == quizId).ToListAsync();
+
+            if (quizResults == null || quizResults.Count == 0)
+                return Result<QuizStatisticsViewModel>.Success();
+
+            var statistics = new QuizStatisticsViewModel
+            {
+                First = quizResults.MinBy(s => s.EndAt).EndAt,
+                Last = quizResults.MaxBy(s => s.EndAt).EndAt,
+                TotalCount = quizResults.Count,
+                AverageTimeInSeconds = quizResults.GetAverageTimeInSeconds()
+            };
+
+            return Result<QuizStatisticsViewModel>.SuccessWithData(statistics);
+        }
+
         #region Private
         private bool TryMapUserAnswersToQuiz(MapAnswersToQuiz answersToQuiz, out string error)//List<Question> questions, List<QuizAnswerResponse> quizResponse, QuizResult result, bool showCorrectAnswer, out string error)
         {

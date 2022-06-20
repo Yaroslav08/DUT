@@ -37,6 +37,7 @@ namespace URLS.Application.Services.Implementations
             var allNewGroupMembers = await _db.UserGroups
                 .AsNoTracking()
                 .Where(s => s.Status == UserGroupStatus.New && s.GroupId == groupId)
+                .Include(s => s.User)
                 .ToListAsync();
 
             if (allNewGroupMembers == null || allNewGroupMembers.Count == 0)
@@ -46,6 +47,7 @@ namespace URLS.Application.Services.Implementations
             {
                 gm.Status = UserGroupStatus.Member;
                 gm.PrepareToUpdate(_identityService);
+                gm.User.IsActivateAccount = true;
             });
 
             _db.UserGroups.UpdateRange(allNewGroupMembers);

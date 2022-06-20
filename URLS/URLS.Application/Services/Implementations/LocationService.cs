@@ -10,6 +10,8 @@ namespace URLS.Application.Services.Implementations
     {
         public async Task<Location> GetIpInfoAsync(string ip)
         {
+            if (ip == "127.0.1" || ip == "127.0.0.1")
+                ip = "localhost";
             var location = new Location
             {
                 IP = ip
@@ -34,6 +36,7 @@ namespace URLS.Application.Services.Implementations
                     return null;
                 var content = await resultFromApi.Content.ReadAsStringAsync();
                 var res = JsonSerializer.Deserialize<IPGeo>(content);
+                location.IP = res.Query;
                 location.Country = res.Country;
                 location.City = res.City;
                 location.Region = res.RegionName;

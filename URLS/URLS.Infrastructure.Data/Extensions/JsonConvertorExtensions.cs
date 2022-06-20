@@ -8,7 +8,8 @@ namespace URLS.Infrastructure.Data.Extensions
         private static readonly JsonSerializerOptions _options = new JsonSerializerOptions
         {
             Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
-            WriteIndented = true
+            WriteIndented = true,
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
         };
         public static string ToJson(this object data)
         {
