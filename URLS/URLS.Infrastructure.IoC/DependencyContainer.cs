@@ -28,7 +28,7 @@ namespace URLS.Infrastructure.IoC
 
             services.AddSingleton(new MapperConfiguration(mc =>
             {
-                mc.AddProfile<Application.ViewModels.Mapper>();
+                mc.AddProfile(new Application.ViewModels.Mapper());
             }).CreateMapper());
 
             #endregion

@@ -1,10 +1,10 @@
-﻿using URLS.Constants;
+﻿using Extensions.Password;
+using Microsoft.EntityFrameworkCore;
+using URLS.Application.Extensions;
+using URLS.Application.Helpers;
+using URLS.Constants;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Extensions.Password;
-using URLS.Application.Extensions;
-using Microsoft.EntityFrameworkCore;
-using URLS.Application.Helpers;
 
 namespace URLS.Application.Seeder
 {
@@ -216,7 +216,7 @@ namespace URLS.Application.Seeder
                 ActiveTo = DateTime.Now.AddYears(10),
                 Description = "Веб застосунок для роботи з системою УСДН",
                 IsActive = true,
-                Image = "",
+                Image = "/files/Web.png",
                 Scheme = null
             };
             app1.PrepareToCreate();
@@ -232,7 +232,7 @@ namespace URLS.Application.Seeder
                 ActiveTo = DateTime.Now.AddYears(10),
                 Description = "Android застосунок для роботи з системою УСДН",
                 IsActive = true,
-                Image = "",
+                Image = "/files/Android.png",
                 Scheme = null
             };
             app2.PrepareToCreate();
@@ -248,7 +248,7 @@ namespace URLS.Application.Seeder
                 ActiveTo = DateTime.Now.AddYears(10),
                 Description = "IOS застосунок для роботи з системою УСДН",
                 IsActive = true,
-                Image = "",
+                Image = "/files/Apple.png",
                 Scheme = null
             };
             app3.PrepareToCreate();
@@ -264,11 +264,27 @@ namespace URLS.Application.Seeder
                 ActiveTo = DateTime.Now.AddYears(10),
                 Description = "Desktop застосунок для роботи з системою УСДН",
                 IsActive = true,
-                Image = "",
+                Image = "/files/Windows.png",
                 Scheme = null
             };
             app4.PrepareToCreate();
             listApps.Add(app4);
+
+            var app5 = new App
+            {
+                Name = "Окремий застосунок",
+                ShortName = "Other",
+                AppId = "T2KU-RJUB-lV0u-BHpB",
+                AppSecret = "cc8Qa7fILdAmmxiZszfaxzMUrJSPZKGagVxOqvhmyWwxznGHKyNpGLBOzpOBxdoGHyxcRY",
+                ActiveFrom = DateTime.Now,
+                ActiveTo = DateTime.Now.AddYears(10),
+                Description = "Окремий застосунок для роботи з системою УСДН",
+                IsActive = true,
+                Image = "/files/Other.png",
+                Scheme = null
+            };
+            app5.PrepareToCreate();
+            listApps.Add(app5);
 
             return listApps;
         }

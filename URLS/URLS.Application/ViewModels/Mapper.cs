@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using System.Text;
 using URLS.Application.Helpers;
 using URLS.Application.ViewModels.Apps;
@@ -114,6 +115,11 @@ namespace URLS.Application.ViewModels
                 sb.Append(user.MiddleName);
             }
             return sb.ToString();
+        }
+
+        private string GetUrl()
+        {
+            
         }
     }
 }

@@ -7,6 +7,7 @@ using URLS.Constants;
 using URLS.Infrastructure.IoC;
 using URLS.Web.Filters;
 using URLS.Web.Middlewares;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,8 @@ builder.Services.AddApiVersioning(options =>
     options.DefaultApiVersion = new ApiVersion(1, 0);
     options.ReportApiVersions = true;
 });
+
+builder.Services.AddDirectoryBrowser();
 
 builder.Services.AddResponseCompression(options => options.EnableForHttps = true);
 
@@ -124,6 +127,14 @@ app.UseApiVersioning();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+app.UseFileServer(new FileServerOptions
+{
+    FileProvider = new PhysicalFileProvider(
+           Path.Combine(builder.Environment.ContentRootPath, "wwwroot/Images")),
+    RequestPath = "/files",
+    EnableDirectoryBrowsing = true
+});
 
 app.UseRouting();
 
