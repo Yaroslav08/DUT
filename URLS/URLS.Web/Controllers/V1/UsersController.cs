@@ -29,16 +29,7 @@ namespace URLS.Web.Controllers.V1
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
-            if (id == _identityService.GetUserId())
-                return await GetMe();
             return JsonResult(await _userService.GetUserByIdAsync(id));
-        }
-
-        [HttpGet("me")]
-        public async Task<IActionResult> GetMe()
-        {
-            var user = await _userService.GetFullInfoUserByIdAsync(_identityService.GetUserId());
-            return JsonResult(user);
         }
 
         [HttpGet("teachers")]

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using URLS.Application.Services.Implementations;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.Identity;
 using URLS.Application.ViewModels.User;
@@ -15,13 +16,16 @@ namespace URLS.Web.Controllers.V1
         private readonly Application.Services.Interfaces.IAuthenticationService _authenticationService;
         private readonly ISessionService _sessionService;
         private readonly IIdentityService _identityService;
+        private readonly IUserService _userService;
         public AccountController(Application.Services.Interfaces.IAuthenticationService authenticationService,
             ISessionService sessionService,
-            IIdentityService identityService)
+            IIdentityService identityService,
+            IUserService userService)
         {
             _authenticationService = authenticationService;
             _sessionService = sessionService;
             _identityService = identityService;
+            _userService = userService;
         }
 
         #region Identity
@@ -115,6 +119,13 @@ namespace URLS.Web.Controllers.V1
         public async Task<IActionResult> ConfigUser([FromBody] BlockUserModel model)
         {
             return JsonResult(await _authenticationService.BlockUserConfigAsync(model));
+        }
+
+        [HttpGet("me")]
+        public async Task<IActionResult> GetMe()
+        {
+            var user = await _userService.GetFullInfoUserByIdAsync(_identityService.GetUserId());
+            return JsonResult(user);
         }
 
         #endregion
