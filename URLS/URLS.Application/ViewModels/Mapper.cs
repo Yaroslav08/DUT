@@ -116,10 +116,5 @@ namespace URLS.Application.ViewModels
             }
             return sb.ToString();
         }
-
-        private string GetUrl()
-        {
-            
-        }
     }
 }
