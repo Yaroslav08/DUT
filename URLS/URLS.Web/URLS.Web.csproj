@@ -8,6 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\Resources\SharedResource.en.json" />
+    <Content Remove="wwwroot\Resources\SharedResource.uk.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.95.4" />
     <PackageReference Include="ClosedXML.Extensions.WebApi" Version="0.2.1" />
     <PackageReference Include="Extensions.DeviceDetector" Version="1.0.0" />
@@ -56,6 +61,15 @@
     <Content Update="wwwroot\Images\Windows.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\Resources\SharedResource.en.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\Resources\SharedResource.uk.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

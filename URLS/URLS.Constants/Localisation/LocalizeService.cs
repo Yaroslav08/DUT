@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.Reflection;
 using System.Text.Json;
 using URLS.Constants.Extensions;
 
@@ -34,8 +32,7 @@ namespace URLS.Constants.Localisation
         {
             foreach (var language in _languages)
             {
-                //var path = Path.Combine(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location), $@"Resources\SharedResource.{language}.json");
-                var path = Path.Combine(@"D:\Projects\URLS\URLS\URLS.Constants\Localisation", $@"Resources\SharedResource.{language}.json");
+                var path = Path.Combine(@".\wwwroot\", $@"Resources\SharedResource.{language}.json");
 
                 var json = new StreamReader(path).ReadToEnd();
                 var translate = JsonSerializer.Deserialize<ResourceList>(json);
