@@ -42,6 +42,7 @@ namespace URLS.Application.Services.Implementations
             claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.UserName, user.UserName));
             claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.FullName, $"{user.LastName} {user.FirstName}"));
             claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.AuthenticationMethod, authType));
+            claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.Language, "uk"));
 
             foreach (var role in currentUserRoles)
             {

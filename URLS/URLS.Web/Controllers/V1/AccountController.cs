@@ -121,6 +121,12 @@ namespace URLS.Web.Controllers.V1
             return JsonResult(await _authenticationService.BlockUserConfigAsync(model));
         }
 
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] PasswordCreateModel createModel)
+        {
+            return JsonResult(await _authenticationService.ChangePasswordAsync(createModel));
+        }
+
         [HttpGet("me")]
         public async Task<IActionResult> GetMe()
         {

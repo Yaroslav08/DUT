@@ -12,6 +12,7 @@ using URLS.Application.ViewModels.Session;
 using URLS.Application.ViewModels.User;
 using URLS.Constants;
 using URLS.Constants.Extensions;
+using URLS.Constants.Localisation;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
 
@@ -28,8 +29,9 @@ namespace URLS.Application.Services.Implementations
         private readonly ITokenService _tokenService;
         private readonly IDetector _detector;
         private readonly ICommonService _commonService;
+        private readonly ILocalizeService _localizeService;
 
-        public AuthenticationService(URLSDbContext db, IIdentityService identityService, ISessionManager sessionManager, ILocationService locationService, ITokenService tokenService, IDetector detector, IMapper mapper, ICommonService commonService, IAppService appService)
+        public AuthenticationService(URLSDbContext db, IIdentityService identityService, ISessionManager sessionManager, ILocationService locationService, ITokenService tokenService, IDetector detector, IMapper mapper, ICommonService commonService, IAppService appService, ILocalizeService localizeService)
         {
             _db = db;
             _identityService = identityService;
@@ -40,6 +42,7 @@ namespace URLS.Application.Services.Implementations
             _mapper = mapper;
             _commonService = commonService;
             _appService = appService;
+            _localizeService = localizeService;
         }
 
         public async Task<Result<UserViewModel>> BlockUserConfigAsync(BlockUserModel model)
@@ -72,8 +75,8 @@ namespace URLS.Application.Services.Implementations
             if (user == null)
                 return Result<AuthenticationInfo>.NotFound(typeof(User).NotFoundMessage(_identityService.GetUserId()));
 
-            if (model.OldPassword.VerifyPasswordHash(user.PasswordHash))
-                return Result<AuthenticationInfo>.Error("Old password not comparer");
+            if (!model.OldPassword.VerifyPasswordHash(user.PasswordHash))
+                return Result<AuthenticationInfo>.Error(_localizeService.Get("passwordnotcomparer"));
 
             if (model.OldPassword == model.NewPassword)
                 return Result<AuthenticationInfo>.Error("This passwords are match");

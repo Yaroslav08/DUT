@@ -12,5 +12,6 @@ namespace URLS.Constants
         public const string Login = "Login";
         public const string AuthenticationMethod = ClaimTypes.AuthenticationMethod;
         public const string Role = ClaimTypes.Role;
+        public const string Language = "Language";
     }
 }

@@ -1,0 +1,13 @@
+﻿{
+  "Language": "Українська",
+  "Resources": [
+    {
+      "Key": "welcome",
+      "Value": "Ласкаво просимо!"
+    },
+    {
+      "Key": "passwordnotcomparer",
+      "Value": "Старий пароль не співпадає"
+    }
+  ]
+}

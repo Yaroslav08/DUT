@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Extensions.DeviceDetector;
 using URLS.Application.Seeder;
+using URLS.Constants.Localisation;
 
 namespace URLS.Infrastructure.IoC
 {
@@ -71,6 +72,8 @@ namespace URLS.Infrastructure.IoC
             services.AddScoped<ICommonService, CommonService>();
             services.AddScoped<IReactionService, ReactionService>();
             services.AddSingleton<IPushNotificationService, FirebasePushNotificationService>();
+
+            services.AddScoped<ILocalizeService, LocalizeService>();
 
             #endregion
 

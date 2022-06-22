@@ -1,0 +1,13 @@
+﻿{
+  "Language": "English",
+  "Resources": [
+    {
+      "Key": "welcome",
+      "Value": "Welcome!"
+    },
+    {
+      "Key": "passwordnotcomparer",
+      "Value": "Old password not comparer"
+    }
+  ]
+}
