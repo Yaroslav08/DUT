@@ -1,13 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 namespace URLS.Application.ViewModels.User
 {
     public class RegisterViewModel
     {
-        [Display(Name = "Ім'я:")]
+        [Required, StringLength(100, MinimumLength = 1)]
         public string FirstName { get; set; }
-        [Display(Name = "Прізвище:")]
+        [StringLength(100, MinimumLength = 1)]
+        public string MiddleName { get; set; }
+        [Required, StringLength(100, MinimumLength = 1)]
         public string LastName { get; set; }
-        [Display(Name = "Пошта:")]
+        [Required, EmailAddress, StringLength(200, MinimumLength = 5)]
         public string Login { get; set; }
         [Display(Name = "Пароль:")]
         [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$^+=!*()@%&]).{8,}$")]

@@ -8,7 +8,7 @@ namespace URLS.Web.Filters
         public void OnResourceExecuting(ResourceExecutingContext context)
         {
             var env = context.HttpContext.RequestServices.GetService<IWebHostEnvironment>();
-            if (!env.IsDevelopment())
+            if (!env.IsProduction())
             {
                 context.Result = new NotFoundResult();
             }
