@@ -101,14 +101,15 @@ namespace URLS.Application.Services.Implementations
             sortedSessions.AddRange(unActiveSessions);
 
             var currentToken = _identityService.GetBearerToken();
-            var currentSessionId = sessions.FirstOrDefault(s => s.Token == currentToken).Id;
+            var currentSessionId = sessions.FirstOrDefault(s => s.Token == currentToken)?.Id;
 
             for (int i = 0; i < sortedSessions.Count; i++)
             {
-                if (sortedSessions[i].Id == currentSessionId)
-                {
-                    sortedSessions[i].IsCurrent = true;
-                }
+                if (currentSessionId != null)
+                    if (sortedSessions[i].Id == currentSessionId)
+                    {
+                        sortedSessions[i].IsCurrent = true;
+                    }
             }
             var currentSession = sortedSessions.FirstOrDefault(x => x.IsCurrent);
             sortedSessions.Remove(currentSession);
@@ -186,7 +187,7 @@ namespace URLS.Application.Services.Implementations
             {
                 x.IsActive = false;
                 x.DeactivatedAt = now;
-                x.DeactivatedBySessionId = null;
+                x.DeactivatedBySessionId = _identityService != null ? _identityService.GetCurrentSessionId() : null;
                 x.PrepareToUpdate(_identityService);
             });
 

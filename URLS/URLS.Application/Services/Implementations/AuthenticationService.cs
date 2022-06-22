@@ -30,8 +30,9 @@ namespace URLS.Application.Services.Implementations
         private readonly IDetector _detector;
         private readonly ICommonService _commonService;
         private readonly ILocalizeService _localizeService;
+        private readonly ISessionService _sessionService;
 
-        public AuthenticationService(URLSDbContext db, IIdentityService identityService, ISessionManager sessionManager, ILocationService locationService, ITokenService tokenService, IDetector detector, IMapper mapper, ICommonService commonService, IAppService appService, ILocalizeService localizeService)
+        public AuthenticationService(URLSDbContext db, IIdentityService identityService, ISessionManager sessionManager, ILocationService locationService, ITokenService tokenService, IDetector detector, IMapper mapper, ICommonService commonService, IAppService appService, ILocalizeService localizeService, ISessionService sessionService)
         {
             _db = db;
             _identityService = identityService;
@@ -43,6 +44,7 @@ namespace URLS.Application.Services.Implementations
             _commonService = commonService;
             _appService = appService;
             _localizeService = localizeService;
+            _sessionService = sessionService;
         }
 
         public async Task<Result<UserViewModel>> BlockUserConfigAsync(BlockUserModel model)
@@ -91,9 +93,17 @@ namespace URLS.Application.Services.Implementations
             notification.UserId = user.Id;
             await _db.Notifications.AddAsync(notification);
             await _db.SaveChangesAsync();
+
+            if (model.LogoutEverywhere)
+            {
+                var res = await _sessionService.CloseAllSessionsAsync(_identityService.GetUserId());
+                if (!res.IsSuccess)
+                    return res.MapToNew<AuthenticationInfo>(null);
+            }
+
             return Result<AuthenticationInfo>.SuccessWithData(new AuthenticationInfo
             {
-                User = user,
+                User = _mapper.Map<UserViewModel>(user),
             });
         }
 

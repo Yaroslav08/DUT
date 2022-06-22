@@ -1,8 +1,9 @@
-﻿namespace URLS.Application.ViewModels.Identity
+﻿using URLS.Application.ViewModels.User;
+
+namespace URLS.Application.ViewModels.Identity
 {
     public class AuthenticationInfo
     {
-        public Domain.Models.User User { get; set; }
-        public Domain.Models.Session Session { get; set; }
+        public UserViewModel User { get; set; }
     }
 }
