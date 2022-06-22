@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using URLS.Application.Extensions;
 using URLS.Application.Options;
 using URLS.Application.Services.Interfaces;
@@ -6,8 +8,6 @@ using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Subject;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace URLS.Application.Services.Implementations
 {

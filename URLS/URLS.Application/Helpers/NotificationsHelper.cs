@@ -1,9 +1,9 @@
-﻿using URLS.Application.ViewModels.Identity;
-using URLS.Constants;
-using URLS.Domain.Models;
-using Extensions.Converters;
+﻿using Extensions.Converters;
 using Extensions.DeviceDetector.Models;
 using System.Text;
+using URLS.Application.ViewModels.Identity;
+using URLS.Constants;
+using URLS.Domain.Models;
 
 namespace URLS.Application.Helpers
 {

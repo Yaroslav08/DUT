@@ -1,12 +1,12 @@
-﻿using URLS.Application.Services.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.Identity;
 using URLS.Constants;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace URLS.Application.Services.Implementations
 {

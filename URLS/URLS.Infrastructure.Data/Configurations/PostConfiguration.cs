@@ -1,6 +1,6 @@
-﻿using URLS.Domain.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Extensions;
 
 namespace URLS.Infrastructure.Data.Configurations

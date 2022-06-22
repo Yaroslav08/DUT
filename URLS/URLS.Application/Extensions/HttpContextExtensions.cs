@@ -1,6 +1,6 @@
-﻿using URLS.Application.ViewModels.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using URLS.Application.ViewModels.Identity;
 using URLS.Constants;
-using Microsoft.AspNetCore.Http;
 namespace URLS.Application.Extensions
 {
     public static class HttpContextExtensions

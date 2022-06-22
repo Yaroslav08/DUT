@@ -1,12 +1,12 @@
-﻿using URLS.Application.Services.Interfaces;
+﻿using Extensions.Password;
+using Microsoft.EntityFrameworkCore;
+using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Identity;
 using URLS.Application.ViewModels.User;
 using URLS.Constants;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Extensions.Password;
-using Microsoft.EntityFrameworkCore;
 
 namespace URLS.Application.Services.Implementations
 {

@@ -1,7 +1,7 @@
-﻿using URLS.Application.Services.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using URLS.Application.Services.Interfaces;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
 
 namespace URLS.Application.Services.Implementations
 {

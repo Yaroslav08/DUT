@@ -1,8 +1,8 @@
-﻿using URLS.Domain.Models;
-using URLS.Infrastructure.Data.Extensions;
-using Extensions.DeviceDetector.Models;
+﻿using Extensions.DeviceDetector.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using URLS.Domain.Models;
+using URLS.Infrastructure.Data.Extensions;
 
 namespace URLS.Infrastructure.Data.Configurations
 {

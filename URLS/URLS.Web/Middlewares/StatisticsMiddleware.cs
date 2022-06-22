@@ -1,6 +1,4 @@
 ﻿using URLS.Application.Extensions;
-using URLS.Application.Services.Interfaces;
-using URLS.Web.Extensions;
 
 namespace URLS.Web.Middlewares
 {

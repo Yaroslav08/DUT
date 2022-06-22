@@ -1,12 +1,12 @@
-﻿using URLS.Application.Extensions;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Audit;
 using URLS.Constants.Extensions;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
 
 namespace URLS.Application.Services.Implementations
 {

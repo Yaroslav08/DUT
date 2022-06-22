@@ -1,11 +1,11 @@
-﻿using URLS.Application.Options;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using URLS.Application.Options;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.Lesson;
 using URLS.Application.ViewModels.Report;
 using URLS.Application.ViewModels.Subject;
 using URLS.Domain.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 
 namespace URLS.Web.Controllers.V1
 {

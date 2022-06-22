@@ -1,5 +1,5 @@
-﻿using URLS.Constants.APIResponse;
-using System.Net;
+﻿using System.Net;
+using URLS.Constants.APIResponse;
 
 namespace URLS.Web.Middlewares
 {

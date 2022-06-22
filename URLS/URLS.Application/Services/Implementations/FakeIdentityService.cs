@@ -1,7 +1,7 @@
-﻿using URLS.Application.Services.Interfaces;
+﻿using System.Security.Claims;
+using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.Identity;
 using URLS.Constants;
-using System.Security.Claims;
 
 namespace URLS.Application.Services.Implementations
 {

@@ -1,8 +1,8 @@
-﻿using URLS.Application.Extensions;
+﻿using Microsoft.AspNetCore.Http;
+using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.Identity;
 using URLS.Constants;
-using Microsoft.AspNetCore.Http;
 
 namespace URLS.Application.Services.Implementations
 {

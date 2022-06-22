@@ -1,7 +1,6 @@
-﻿using URLS.Application.Services.Interfaces;
+﻿using Microsoft.AspNetCore.Mvc;
+using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.Faculty;
-using URLS.Constants;
-using Microsoft.AspNetCore.Mvc;
 namespace URLS.Web.Controllers.V1
 {
     [ApiVersion("1.0")]

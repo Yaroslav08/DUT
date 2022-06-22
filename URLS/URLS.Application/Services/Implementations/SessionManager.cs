@@ -1,8 +1,8 @@
-﻿using URLS.Application.Services.Interfaces;
+﻿using Microsoft.Extensions.DependencyInjection;
+using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.Session;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
-using Microsoft.Extensions.DependencyInjection;
 namespace URLS.Application.Services.Implementations
 {
     public class SessionManager : ISessionManager

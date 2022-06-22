@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
-using URLS.Application.Services.Implementations;
-using URLS.Application.Services.Interfaces;
-using URLS.Infrastructure.Data.Context;
+using Extensions.DeviceDetector;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Extensions.DeviceDetector;
 using URLS.Application.Seeder;
+using URLS.Application.Services.Implementations;
+using URLS.Application.Services.Interfaces;
 using URLS.Constants.Localisation;
+using URLS.Infrastructure.Data.Context;
 
 namespace URLS.Infrastructure.IoC
 {

@@ -1,19 +1,16 @@
-﻿using URLS.Application.Options;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.ComponentModel.DataAnnotations;
+using URLS.Application.Options;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.Group;
 using URLS.Application.ViewModels.Group.GroupMember;
+using URLS.Application.ViewModels.Group.GroupRole;
 using URLS.Application.ViewModels.Post;
 using URLS.Application.ViewModels.Post.Comment;
-using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
-using URLS.Application.ViewModels.Group.GroupRole;
 using URLS.Application.ViewModels.Reaction;
 using URLS.Application.ViewModels.User;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using ClosedXML.Excel;
-using ClosedXML.Extensions;
-using DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace URLS.Web.Controllers.V1
 {

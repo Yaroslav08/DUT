@@ -1,8 +1,8 @@
-﻿using URLS.Application.Services.Interfaces;
+﻿using System.Diagnostics;
+using System.Text.Json;
+using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.Location;
 using URLS.Domain.Models;
-using System.Diagnostics;
-using System.Text.Json;
 
 namespace URLS.Application.Services.Implementations
 {

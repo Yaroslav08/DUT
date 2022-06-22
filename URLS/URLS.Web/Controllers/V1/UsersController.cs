@@ -1,9 +1,8 @@
-﻿using URLS.Application.Options;
+﻿using Microsoft.AspNetCore.Mvc;
+using URLS.Application.Options;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.User;
-using URLS.Constants;
 using URLS.Domain.Models;
-using Microsoft.AspNetCore.Mvc;
 
 namespace URLS.Web.Controllers.V1
 {

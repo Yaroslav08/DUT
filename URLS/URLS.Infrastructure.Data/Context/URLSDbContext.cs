@@ -1,6 +1,6 @@
-﻿using URLS.Domain.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Configurations;
-using Microsoft.EntityFrameworkCore;
 
 namespace URLS.Infrastructure.Data.Context
 {

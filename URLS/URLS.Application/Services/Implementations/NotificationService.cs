@@ -6,7 +6,6 @@ using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Notification;
 using URLS.Constants.APIResponse;
 using URLS.Constants.Extensions;
-using URLS.Constants.Localisation;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
 namespace URLS.Application.Services.Implementations

@@ -1,6 +1,6 @@
-﻿using URLS.Application.Services.Interfaces;
+﻿using Microsoft.AspNetCore.Mvc;
+using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.Diploma;
-using Microsoft.AspNetCore.Mvc;
 
 namespace URLS.Web.Controllers.V1
 {

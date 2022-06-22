@@ -15,7 +15,6 @@
             meta.Count = limit;
             meta.TotalPages = (int)Math.Ceiling(totalCount / (double)limit);
             meta.Page = (int)Math.Ceiling((offset / (double)limit)) + 1;
-            //meta.Page = offset == 0 ? 1 : (int)Math.Ceiling((offset / (double)count)) + 1;
             return meta;
         }
     }

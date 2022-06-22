@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using URLS.Application.Seeder;
@@ -7,7 +8,6 @@ using URLS.Constants;
 using URLS.Infrastructure.IoC;
 using URLS.Web.Filters;
 using URLS.Web.Middlewares;
-using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 

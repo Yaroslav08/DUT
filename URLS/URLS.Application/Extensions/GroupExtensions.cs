@@ -1,5 +1,5 @@
-﻿using URLS.Domain.Models;
-using System.Text;
+﻿using System.Text;
+using URLS.Domain.Models;
 
 namespace URLS.Application.Extensions
 {

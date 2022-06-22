@@ -1,10 +1,7 @@
-﻿using Extensions.DeviceDetector;
-using Extensions.DeviceDetector.Models;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using URLS.Application.Services.Implementations;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.Identity;
 using URLS.Application.ViewModels.User;

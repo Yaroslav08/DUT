@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using URLS.Application.Extensions;
+﻿using URLS.Application.Extensions;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.Quiz;
 using URLS.Domain.Models;

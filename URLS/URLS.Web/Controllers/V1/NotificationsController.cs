@@ -1,7 +1,6 @@
-﻿using URLS.Application.Services.Interfaces;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.Firebase;
-using URLS.Application.ViewModels;
 using URLS.Constants.APIResponse;
 
 namespace URLS.Web.Controllers.V1

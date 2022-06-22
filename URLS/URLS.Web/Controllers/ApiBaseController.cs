@@ -1,7 +1,7 @@
-﻿using URLS.Application.ViewModels;
-using URLS.Constants.APIResponse;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using URLS.Application.ViewModels;
+using URLS.Constants.APIResponse;
 
 namespace URLS.Web.Controllers
 {

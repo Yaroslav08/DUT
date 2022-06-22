@@ -1,7 +1,7 @@
-﻿using URLS.Application.Services.Interfaces;
+﻿using Microsoft.AspNetCore.Authentication;
+using URLS.Application.Services.Interfaces;
 using URLS.Constants.APIResponse;
 using URLS.Web.Extensions;
-using Microsoft.AspNetCore.Authentication;
 
 namespace URLS.Web.Middlewares
 {
