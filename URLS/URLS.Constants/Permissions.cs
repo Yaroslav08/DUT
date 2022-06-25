@@ -7,8 +7,10 @@
         public static readonly string CanRemove = "Remove";
         public static readonly string CanView = "View";
         public static readonly string CanViewAll = "View all";
+        public static readonly string CanViewAllGroups = "View all groups";
         public static readonly string Search = "Search";
         public static readonly string All = "All";
+        public static readonly string Logout = "Logout";
 
         public static IEnumerable<string> GetBasic()
         {

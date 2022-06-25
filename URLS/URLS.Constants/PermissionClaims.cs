@@ -2,16 +2,19 @@
 {
     public class PermissionClaims
     {
-        public static readonly string University = "University";
-        public static readonly string Faculties = "Faculties";
-        public static readonly string Specialties = "Specialties";
-        public static readonly string Groups = "Groups";
-        public static readonly string Users = "Users";
-        public static readonly string Notifications = "Notifications";
-        public static readonly string Sessions = "Sessions";
-        public static readonly string Apps = "Apps";
-        public static readonly string Permissions = "Permissions";
-        public static readonly string Settings = "Settings";
-        public static readonly string Timetable = "Timetable";
+        public const string Account = "Account";
+        public const string Apps = "Apps";
+        public const string Diplomas = "Diplomas";
+        public const string Faculties = "Faculties";
+        public const string Groups = "Groups";
+        public const string Identity = "Identity";
+        public const string Notifications = "Notifications";
+        public const string Quizzes = "Quizzes";
+        public const string Settings = "Settings";
+        public const string Specialties = "Specialties";
+        public const string Subjects = "Subjects";
+        public const string Timetable = "Timetable";
+        public const string University = "University";
+        public const string Users = "Users";
     }
 }

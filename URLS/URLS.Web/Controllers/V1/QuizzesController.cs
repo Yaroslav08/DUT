@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.Quiz;
+
 namespace URLS.Web.Controllers.V1
 {
     [ApiVersion("1.0")]

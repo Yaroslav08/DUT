@@ -47,6 +47,20 @@ namespace URLS.Application.Seeder
                 await _db.SaveChangesAsync();
             }
 
+            if (!await _db.Claims.AnyAsync())
+            {
+                var claims = GetClaims();
+                await _db.Claims.AddRangeAsync(claims);
+                await _db.SaveChangesAsync();
+            }
+
+            if (!await _db.RoleClaims.AnyAsync())
+            {
+                var roleClaims = GetRelationsRoleClaim();
+                await _db.RoleClaims.AddRangeAsync(roleClaims);
+                await _db.SaveChangesAsync();
+            }
+
             if (!await _db.Users.AnyAsync())
             {
                 var admin = GetAdmin();
@@ -77,6 +91,331 @@ namespace URLS.Application.Seeder
             return admin;
         }
 
+        private List<Claim> GetClaims()
+        {
+            var claims = new List<Claim>();
+
+            #region Apps
+
+            claims.Add(new Claim
+            {
+                Type = PermissionClaims.Apps,
+                Value = Permissions.CanViewAll,
+                DisplayName = "Перегляд усіх застосунків (створених користувачем)"
+            });
+            claims.Add(new Claim
+            {
+                Type = PermissionClaims.Apps,
+                Value = Permissions.CanView,
+                DisplayName = "Перегляд застосунку"
+            });
+            claims.Add(new Claim
+            {
+                Type = PermissionClaims.Apps,
+                Value = Permissions.CanView,
+                DisplayName = "Перегляд секретних даних застосунку"
+            });
+            claims.Add(new Claim
+            {
+                Type = PermissionClaims.Apps,
+                Value = Permissions.CanCreate,
+                DisplayName = "Створення застосунку"
+            });
+            claims.Add(new Claim
+            {
+                Type = PermissionClaims.Apps,
+                Value = Permissions.CanEdit,
+                DisplayName = "Оновлення застосунку"
+            });
+            claims.Add(new Claim
+            {
+                Type = PermissionClaims.Apps,
+                Value = Permissions.CanEdit,
+                DisplayName = "Оновлення секретних даних застосунку"
+            });
+            claims.Add(new Claim
+            {
+                Type = PermissionClaims.Apps,
+                Value = Permissions.CanRemove,
+                DisplayName = "Видалення застосунку"
+            });
+
+            #endregion
+
+            #region Diplomas
+
+            claims.Add(new Claim
+            {
+                DisplayName = "Перегляд диплому",
+                Type = PermissionClaims.Diplomas,
+                Value = Permissions.CanView
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Перегляд дипломів користувача",
+                Type = PermissionClaims.Diplomas,
+                Value = Permissions.CanViewAll
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Перегляд усіх шаблонів дипломів",
+                Type = PermissionClaims.Diplomas,
+                Value = Permissions.CanViewAll
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Перегляд шаблону",
+                Type = PermissionClaims.Diplomas,
+                Value = Permissions.CanView
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Створення шаблону",
+                Type = PermissionClaims.Diplomas,
+                Value = Permissions.CanCreate
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Створення диплому студенту на базі шаблону",
+                Type = PermissionClaims.Diplomas,
+                Value = Permissions.CanCreate
+            });
+
+            #endregion
+
+            #region Faculties
+
+            claims.Add(new Claim
+            {
+                DisplayName = "Перегляд усіх факультетів (інститутів)",
+                Type = PermissionClaims.Faculties,
+                Value = Permissions.CanViewAll
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Перегляд факультету (інституту)",
+                Type = PermissionClaims.Faculties,
+                Value = Permissions.CanView
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Перегляд усіх спеціальностей прив'язаних до факультету (інституту)",
+                Type = PermissionClaims.Faculties,
+                Value = Permissions.CanView
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Створення факультету (інституту)",
+                Type = PermissionClaims.Faculties,
+                Value = Permissions.CanCreate
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Оновлення факультету (інституту)",
+                Type = PermissionClaims.Faculties,
+                Value = Permissions.CanEdit
+            });
+
+            #endregion
+
+            #region Identity
+
+            claims.Add(new Claim
+            {
+                DisplayName = "Створення, перегляд, редагування, видалення, ролей та дозволів",
+                Type = PermissionClaims.Identity,
+                Value = Permissions.All,
+            });
+
+            #endregion
+
+            #region Settings
+
+            claims.Add(new Claim
+            {
+                DisplayName = "Перегляд налаштувань застосунку",
+                Type = PermissionClaims.Settings,
+                Value = Permissions.CanView
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Створення налаштувань застосунку",
+                Type = PermissionClaims.Settings,
+                Value = Permissions.CanCreate
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Оновлення налаштувань застосунку",
+                Type = PermissionClaims.Settings,
+                Value = Permissions.CanEdit
+            });
+
+            #endregion
+
+            #region Specialties
+
+            claims.Add(new Claim
+            {
+                DisplayName = "Перегляд усіх спеціальностей",
+                Type = PermissionClaims.Specialties,
+                Value = Permissions.CanViewAll
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Перегляд спеціальності",
+                Type = PermissionClaims.Specialties,
+                Value = Permissions.CanView
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Перегляд усіх груп",
+                Type = PermissionClaims.Specialties,
+                Value = Permissions.CanViewAllGroups
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Створення спеціальності",
+                Type = PermissionClaims.Specialties,
+                Value = Permissions.CanCreate
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Оновлення спеціальності",
+                Type = PermissionClaims.Specialties,
+                Value = Permissions.CanEdit
+            });
+
+            #endregion
+
+            #region Timetable
+
+            claims.Add(new Claim
+            {
+                DisplayName = "Перегляд розкладу",
+                Type = PermissionClaims.Timetable,
+                Value = Permissions.CanView
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Створення розкладу",
+                Type = PermissionClaims.Timetable,
+                Value = Permissions.CanCreate
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Оновлення розкладу",
+                Type = PermissionClaims.Timetable,
+                Value = Permissions.CanEdit
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Видалення розкладу",
+                Type = PermissionClaims.Timetable,
+                Value = Permissions.CanRemove
+            });
+
+            #endregion
+
+            #region Universities
+
+            claims.Add(new Claim
+            {
+                DisplayName = "Перегляд університету",
+                Type = PermissionClaims.University,
+                Value = Permissions.CanView
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Перегляд факультетів унівреситету",
+                Type = PermissionClaims.University,
+                Value = Permissions.CanViewAll
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Створення унівреситету",
+                Type = PermissionClaims.University,
+                Value = Permissions.CanCreate
+            });
+            claims.Add(new Claim
+            {
+                DisplayName = "Оновлення унівреситету",
+                Type = PermissionClaims.University,
+                Value = Permissions.CanEdit
+            });
+
+            #endregion
+
+            claims.ForEach(item =>
+            {
+                item.PrepareToCreate();
+            });
+            return claims;
+        }
+
+        public List<RoleClaim> GetRelationsRoleClaim()
+        {
+            var roleClaims = new List<RoleClaim>();
+
+            var roles = GetRoles();
+
+            var claims = GetClaims();
+
+            foreach (var role in roles)
+            {
+                if (role.Name == Roles.Admin)
+                {
+                    claims.ForEach(claim =>
+                    {
+                        roleClaims.Add(new RoleClaim
+                        {
+                            ClaimId = claim.Id,
+                            RoleId = role.Id
+                        });
+                    });
+
+                }
+                if (role.Name == Roles.Moderator)
+                {
+                    foreach (var claim in claims.Where(s => s.Type == PermissionClaims.Faculties || s.Type == PermissionClaims.Settings || s.Type == PermissionClaims.Specialties || s.Type == PermissionClaims.University || s.Type == PermissionClaims.Timetable))
+                    {
+                        roleClaims.Add(new RoleClaim
+                        {
+                            ClaimId = claim.Id,
+                            RoleId = role.Id
+                        });
+                    }
+                }
+                if (role.Name == Roles.Developer)
+                {
+                    foreach (var claim in claims.Where(s => s.Type == PermissionClaims.Apps))
+                    {
+                        roleClaims.Add(new RoleClaim
+                        {
+                            ClaimId = claim.Id,
+                            RoleId = role.Id
+                        });
+                    }
+                }
+                if (role.Name == Roles.Teacher)
+                {
+
+                }
+                if (role.Name == Roles.Student)
+                {
+                    foreach(var claim in claims.Where(s => s.Type == PermissionClaims.Users))
+                    {
+
+                    }
+                }
+            }
+
+            roleClaims.ForEach(item =>
+            {
+                item.PrepareToCreate();
+            });
+            return roleClaims;
+        }
+
         private List<Role> GetRoles()
         {
             var listRoles = new List<Role>();
@@ -85,37 +424,36 @@ namespace URLS.Application.Seeder
             role1.Label = Roles.AdminUa;
             role1.Color = Roles.AdminColor;
             role1.CanDelete = false;
-            role1.PrepareToCreate();
             listRoles.Add(role1);
 
             var role2 = new Role(Roles.Moderator);
             role2.Label = Roles.ModeratorUa;
             role2.Color = Roles.ModeratorColor;
             role2.CanDelete = false;
-            role2.PrepareToCreate();
             listRoles.Add(role2);
 
             var role3 = new Role(Roles.Developer);
             role3.Label = Roles.DeveloperUa;
             role3.Color = Roles.DeveloperColor;
             role3.CanDelete = false;
-            role3.PrepareToCreate();
             listRoles.Add(role3);
 
             var role4 = new Role(Roles.Teacher);
             role4.Label = Roles.TeacherUa;
             role4.Color = Roles.TeacherColor;
             role4.CanDelete = false;
-            role4.PrepareToCreate();
             listRoles.Add(role4);
 
             var role5 = new Role(Roles.Student);
             role5.Label = Roles.StudentUa;
             role5.Color = Roles.StudentColor;
             role5.CanDelete = false;
-            role5.PrepareToCreate();
             listRoles.Add(role5);
 
+            listRoles.ForEach(item =>
+            {
+                item.PrepareToCreate();
+            });
             return listRoles;
         }
 
@@ -219,7 +557,6 @@ namespace URLS.Application.Seeder
                 Image = "/files/Web.png",
                 Scheme = null
             };
-            app1.PrepareToCreate();
             listApps.Add(app1);
 
             var app2 = new App
@@ -235,7 +572,6 @@ namespace URLS.Application.Seeder
                 Image = "/files/Android.png",
                 Scheme = null
             };
-            app2.PrepareToCreate();
             listApps.Add(app2);
 
             var app3 = new App
@@ -251,7 +587,6 @@ namespace URLS.Application.Seeder
                 Image = "/files/Apple.png",
                 Scheme = null
             };
-            app3.PrepareToCreate();
             listApps.Add(app3);
 
             var app4 = new App
@@ -267,7 +602,6 @@ namespace URLS.Application.Seeder
                 Image = "/files/Windows.png",
                 Scheme = null
             };
-            app4.PrepareToCreate();
             listApps.Add(app4);
 
             var app5 = new App
@@ -283,9 +617,12 @@ namespace URLS.Application.Seeder
                 Image = "/files/Other.png",
                 Scheme = null
             };
-            app5.PrepareToCreate();
             listApps.Add(app5);
 
+            listApps.ForEach(item =>
+            {
+                item.PrepareToCreate();
+            });
             return listApps;
         }
 
@@ -321,7 +658,6 @@ namespace URLS.Application.Seeder
                 CanEdit = false,
                 UniqId = UserGroupRoles.UniqIds.ClassTeacher
             };
-            groupRole1.PrepareToCreate();
             listUserGroupRole.Add(groupRole1);
 
             var groupRole2 = new UserGroupRole
@@ -352,7 +688,6 @@ namespace URLS.Application.Seeder
                 CanEdit = false,
                 UniqId = UserGroupRoles.UniqIds.Headmaster
             };
-            groupRole2.PrepareToCreate();
             listUserGroupRole.Add(groupRole2);
 
             var groupRole3 = new UserGroupRole
@@ -383,9 +718,12 @@ namespace URLS.Application.Seeder
                 CanEdit = false,
                 UniqId = UserGroupRoles.UniqIds.Student
             };
-            groupRole3.PrepareToCreate();
             listUserGroupRole.Add(groupRole3);
 
+            listUserGroupRole.ForEach(item =>
+            {
+                item.PrepareToCreate();
+            });
             return listUserGroupRole;
         }
 

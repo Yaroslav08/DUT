@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace URLS.Web.Extensions
 {
@@ -21,6 +22,16 @@ namespace URLS.Web.Extensions
                 return true;
             }
             return false;
+        }
+
+        public static bool IsPresentPermission(this ClaimsPrincipal user, string type, string value)
+        {
+            if (!user.Identity.IsAuthenticated)
+                return false;
+
+            var claims = user.Claims;
+
+            return claims.Any(s => s.Type == type && s.Value == value);
         }
     }
 }
