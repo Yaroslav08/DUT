@@ -11,12 +11,10 @@ namespace URLS.Web.Controllers.V1
     {
         private readonly IUserService _userService;
         private readonly IIdentityService _identityService;
-        private readonly IPermissionService _permissionService;
-        public UsersController(IUserService userService, IIdentityService identityService, IPermissionService permissionService)
+        public UsersController(IUserService userService, IIdentityService identityService)
         {
             _userService = userService;
             _identityService = identityService;
-            _permissionService = permissionService;
         }
 
         [HttpGet]

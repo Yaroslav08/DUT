@@ -11,11 +11,9 @@ namespace URLS.Web.Controllers.V1
     {
         private readonly IUniversityService _universityService;
         private readonly IFacultyService _faultyService;
-        private readonly IPermissionService _permissionService;
-        public UniversitiesController(IUniversityService universityService, IPermissionService permissionService, IFacultyService faultyService)
+        public UniversitiesController(IUniversityService universityService, IFacultyService faultyService)
         {
             _universityService = universityService;
-            _permissionService = permissionService;
             _faultyService = faultyService;
         }
 

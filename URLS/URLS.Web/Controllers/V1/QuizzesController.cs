@@ -8,11 +8,9 @@ namespace URLS.Web.Controllers.V1
     public class QuizzesController : ApiBaseController
     {
         private readonly IQuizService _quizService;
-        private readonly IPermissionService _permissionService;
-        public QuizzesController(IQuizService quizService, IPermissionService permissionService)
+        public QuizzesController(IQuizService quizService)
         {
             _quizService = quizService;
-            _permissionService = permissionService;
         }
 
         [HttpPost]

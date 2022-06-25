@@ -9,11 +9,9 @@ namespace URLS.Web.Controllers.V1
     [ApiVersion("1.0")]
     public class SettingsController : ApiBaseController
     {
-        private readonly IPermissionService _permissionService;
         private readonly ISettingService _settingService;
-        public SettingsController(IPermissionService permissionService, ISettingService settingService)
+        public SettingsController(ISettingService settingService)
         {
-            _permissionService = permissionService;
             _settingService = settingService;
         }
 

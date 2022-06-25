@@ -11,11 +11,9 @@ namespace URLS.Web.Controllers.V1
     {
         private readonly ISpecialtyService _specialtyService;
         private readonly IGroupService _groupService;
-        private readonly IPermissionService _permissionService;
-        public SpecialtiesController(ISpecialtyService specialtyService, IPermissionService permissionService, IGroupService groupService)
+        public SpecialtiesController(ISpecialtyService specialtyService, IGroupService groupService)
         {
             _specialtyService = specialtyService;
-            _permissionService = permissionService;
             _groupService = groupService;
         }
 

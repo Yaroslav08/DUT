@@ -44,7 +44,6 @@ namespace URLS.Infrastructure.IoC
             services.AddScoped<IAppService, AppService>();
             services.AddScoped<IGroupService, GroupService>();
             services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IPermissionService, PermissionService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<ILocationService, LocationService>();

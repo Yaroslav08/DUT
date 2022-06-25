@@ -10,11 +10,9 @@ namespace URLS.Web.Controllers.V1
     public class AppsController : ApiBaseController
     {
         private readonly IAppService _appService;
-        private readonly IPermissionService _permissionService;
-        public AppsController(IAppService appService, IPermissionService permissionService)
+        public AppsController(IAppService appService)
         {
             _appService = appService;
-            _permissionService = permissionService;
         }
 
         [HttpGet]

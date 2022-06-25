@@ -10,16 +10,12 @@ namespace URLS.Web.Controllers.V1
     [PermissionFilter(PermissionClaims.Identity, Permissions.All)]
     public class IdentityController : ApiBaseController
     {
-        private readonly IIdentityService _identityService;
         private readonly IRoleService _roleService;
         private readonly IClaimService _claimService;
-        private readonly IPermissionService _permissionService;
-        public IdentityController(IIdentityService identityService, IRoleService roleService, IClaimService claimService, IPermissionService permissionService)
+        public IdentityController(IRoleService roleService, IClaimService claimService)
         {
-            _identityService = identityService;
             _roleService = roleService;
             _claimService = claimService;
-            _permissionService = permissionService;
         }
 
         #region Roles

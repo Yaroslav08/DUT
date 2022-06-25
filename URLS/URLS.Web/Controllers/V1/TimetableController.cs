@@ -9,11 +9,9 @@ namespace URLS.Web.Controllers.V1
     [ApiVersion("1.0")]
     public class TimetableController : ApiBaseController
     {
-        private readonly IPermissionService _permissionService;
         private readonly ITimetableService _timetableService;
-        public TimetableController(IPermissionService permissionService, ITimetableService timetableService)
+        public TimetableController(ITimetableService timetableService)
         {
-            _permissionService = permissionService;
             _timetableService = timetableService;
         }
 
