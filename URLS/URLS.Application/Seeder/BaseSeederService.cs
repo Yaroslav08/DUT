@@ -1,5 +1,6 @@
 ﻿using Extensions.Password;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using URLS.Application.Extensions;
 using URLS.Application.Helpers;
 using URLS.Constants;
@@ -11,7 +12,8 @@ namespace URLS.Application.Seeder
     public abstract class BaseSeederService : ISeederService
     {
         protected readonly URLSDbContext _db;
-
+        private List<Role> InsertedRoles = null;
+        private List<Claim> InsertedClaims = null;
         public BaseSeederService(URLSDbContext db)
         {
             _db = db;
@@ -21,52 +23,47 @@ namespace URLS.Application.Seeder
         {
             if (!await _db.Apps.AnyAsync())
             {
-                var apps = GetApps();
-                await _db.Apps.AddRangeAsync(apps);
+                await _db.Apps.AddRangeAsync(GetApps());
                 await _db.SaveChangesAsync();
             }
 
             if (!await _db.Settings.AnyAsync())
             {
-                var setting = GetSetting();
-                await _db.Settings.AddAsync(setting);
+                await _db.Settings.AddAsync(GetSetting());
                 await _db.SaveChangesAsync();
             }
 
             if (!await _db.UserGroupRoles.AnyAsync())
             {
-                var userGroupRoles = GetUserGroupRoles();
-                await _db.UserGroupRoles.AddRangeAsync(userGroupRoles);
+                await _db.UserGroupRoles.AddRangeAsync(GetUserGroupRoles());
                 await _db.SaveChangesAsync();
             }
 
             if (!await _db.Roles.AnyAsync())
             {
-                var roles = GetRoles();
-                await _db.Roles.AddRangeAsync(roles);
+                await _db.Roles.AddRangeAsync(GetRoles());
                 await _db.SaveChangesAsync();
+                InsertedRoles = _db.Roles.Local.ToList();
             }
 
             if (!await _db.Claims.AnyAsync())
             {
-                var claims = GetClaims();
-                await _db.Claims.AddRangeAsync(claims);
+                await _db.Claims.AddRangeAsync(GetClaims());
                 await _db.SaveChangesAsync();
+                InsertedClaims = _db.Claims.Local.ToList();
             }
 
             if (!await _db.RoleClaims.AnyAsync())
             {
-                var roleClaims = GetRelationsRoleClaim();
-                await _db.RoleClaims.AddRangeAsync(roleClaims);
+                await _db.RoleClaims.AddRangeAsync(GetRelationsRoleClaim());
                 await _db.SaveChangesAsync();
             }
 
             if (!await _db.Users.AnyAsync())
             {
-                var admin = GetAdmin();
-                await _db.Users.AddAsync(admin);
+                await _db.Users.AddAsync(GetAdmin());
                 await _db.SaveChangesAsync();
-                await SetupUserRole(admin);
+                await SetupUserRole(_db.Users.Local.FirstOrDefault());
             }
         }
 
@@ -112,12 +109,6 @@ namespace URLS.Application.Seeder
             claims.Add(new Claim
             {
                 Type = PermissionClaims.Apps,
-                Value = Permissions.CanView,
-                DisplayName = "Перегляд секретних даних застосунку"
-            });
-            claims.Add(new Claim
-            {
-                Type = PermissionClaims.Apps,
                 Value = Permissions.CanCreate,
                 DisplayName = "Створення застосунку"
             });
@@ -126,12 +117,6 @@ namespace URLS.Application.Seeder
                 Type = PermissionClaims.Apps,
                 Value = Permissions.CanEdit,
                 DisplayName = "Оновлення застосунку"
-            });
-            claims.Add(new Claim
-            {
-                Type = PermissionClaims.Apps,
-                Value = Permissions.CanEdit,
-                DisplayName = "Оновлення секретних даних застосунку"
             });
             claims.Add(new Claim
             {
@@ -152,31 +137,13 @@ namespace URLS.Application.Seeder
             });
             claims.Add(new Claim
             {
-                DisplayName = "Перегляд дипломів користувача",
+                DisplayName = "Перегляд усіх дипломів",
                 Type = PermissionClaims.Diplomas,
                 Value = Permissions.CanViewAll
             });
             claims.Add(new Claim
             {
-                DisplayName = "Перегляд усіх шаблонів дипломів",
-                Type = PermissionClaims.Diplomas,
-                Value = Permissions.CanViewAll
-            });
-            claims.Add(new Claim
-            {
-                DisplayName = "Перегляд шаблону",
-                Type = PermissionClaims.Diplomas,
-                Value = Permissions.CanView
-            });
-            claims.Add(new Claim
-            {
-                DisplayName = "Створення шаблону",
-                Type = PermissionClaims.Diplomas,
-                Value = Permissions.CanCreate
-            });
-            claims.Add(new Claim
-            {
-                DisplayName = "Створення диплому студенту на базі шаблону",
+                DisplayName = "Створення диплому",
                 Type = PermissionClaims.Diplomas,
                 Value = Permissions.CanCreate
             });
@@ -201,7 +168,7 @@ namespace URLS.Application.Seeder
             {
                 DisplayName = "Перегляд усіх спеціальностей прив'язаних до факультету (інституту)",
                 Type = PermissionClaims.Faculties,
-                Value = Permissions.CanView
+                Value = Permissions.CanViewAllSpecialties
             });
             claims.Add(new Claim
             {
@@ -354,11 +321,26 @@ namespace URLS.Application.Seeder
 
         public List<RoleClaim> GetRelationsRoleClaim()
         {
+            #region ConditionalForWhere
+
+            Func<Claim, bool> _getConditionalForModerator = (Claim s) =>
+                s.Type == PermissionClaims.Faculties || s.Type == PermissionClaims.Settings || s.Type == PermissionClaims.Specialties || s.Type == PermissionClaims.University || s.Type == PermissionClaims.Timetable; ;
+            
+            Func<Claim, bool> _getConditionalForDeveloper = (Claim s) =>
+                s.Type == PermissionClaims.Apps;
+            
+            Func<Claim, bool> _getConditionalForTeacher = (Claim s) =>
+                s.Type == PermissionClaims.Timetable;
+            
+            Func<Claim, bool> _getConditionalForStudent = (Claim s) =>
+                s.Type == PermissionClaims.University;
+
+            #endregion
+
+
             var roleClaims = new List<RoleClaim>();
-
-            var roles = GetRoles();
-
-            var claims = GetClaims();
+            var roles = InsertedRoles;
+            var claims = InsertedClaims;
 
             foreach (var role in roles)
             {
@@ -376,7 +358,7 @@ namespace URLS.Application.Seeder
                 }
                 if (role.Name == Roles.Moderator)
                 {
-                    foreach (var claim in claims.Where(s => s.Type == PermissionClaims.Faculties || s.Type == PermissionClaims.Settings || s.Type == PermissionClaims.Specialties || s.Type == PermissionClaims.University || s.Type == PermissionClaims.Timetable))
+                    foreach (var claim in claims.Where(_getConditionalForModerator))
                     {
                         roleClaims.Add(new RoleClaim
                         {
@@ -387,7 +369,7 @@ namespace URLS.Application.Seeder
                 }
                 if (role.Name == Roles.Developer)
                 {
-                    foreach (var claim in claims.Where(s => s.Type == PermissionClaims.Apps))
+                    foreach (var claim in claims.Where(_getConditionalForDeveloper))
                     {
                         roleClaims.Add(new RoleClaim
                         {
@@ -398,13 +380,24 @@ namespace URLS.Application.Seeder
                 }
                 if (role.Name == Roles.Teacher)
                 {
-
+                    foreach (var claim in claims.Where(_getConditionalForTeacher))
+                    {
+                        roleClaims.Add(new RoleClaim
+                        {
+                            ClaimId = claim.Id,
+                            RoleId = role.Id
+                        });
+                    }
                 }
                 if (role.Name == Roles.Student)
                 {
-                    foreach(var claim in claims.Where(s => s.Type == PermissionClaims.Users))
+                    foreach(var claim in claims.Where(_getConditionalForStudent))
                     {
-
+                        roleClaims.Add(new RoleClaim
+                        {
+                            ClaimId = claim.Id,
+                            RoleId = role.Id
+                        });
                     }
                 }
             }

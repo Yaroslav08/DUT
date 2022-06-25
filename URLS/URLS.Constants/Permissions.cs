@@ -2,15 +2,16 @@
 {
     public class Permissions
     {
-        public static readonly string CanCreate = "Create";
-        public static readonly string CanEdit = "Edit";
-        public static readonly string CanRemove = "Remove";
-        public static readonly string CanView = "View";
-        public static readonly string CanViewAll = "View all";
-        public static readonly string CanViewAllGroups = "View all groups";
-        public static readonly string Search = "Search";
-        public static readonly string All = "All";
-        public static readonly string Logout = "Logout";
+        public const string CanCreate = "Create";
+        public const string CanEdit = "Edit";
+        public const string CanRemove = "Remove";
+        public const string CanView = "View";
+        public const string CanViewAll = "View all";
+        public const string CanViewAllGroups = "View all groups";
+        public const string CanViewAllSpecialties = "View all specialties";
+        public const string Search = "Search";
+        public const string All = "All";
+        public const string Logout = "Logout";
 
         public static IEnumerable<string> GetBasic()
         {

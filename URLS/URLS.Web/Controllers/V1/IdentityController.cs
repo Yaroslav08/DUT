@@ -1,9 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.RoleClaim;
+using URLS.Constants;
+using URLS.Web.Filters;
+
 namespace URLS.Web.Controllers.V1
 {
     [ApiVersion("1.0")]
+    [PermissionFilter(PermissionClaims.Identity, Permissions.All)]
     public class IdentityController : ApiBaseController
     {
         private readonly IIdentityService _identityService;

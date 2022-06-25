@@ -6,12 +6,12 @@ using URLS.Web.Extensions;
 namespace URLS.Web.Filters
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-    public class PermissionFilter : Attribute, IAsyncAuthorizationFilter
+    public class PermissionFilterAttribute : Attribute, IAsyncAuthorizationFilter
     {
         private readonly string _type;
         private readonly string _value;
 
-        public PermissionFilter(string type, string value)
+        public PermissionFilterAttribute(string type, string value)
         {
             _type = type;
             _value = value;

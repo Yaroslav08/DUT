@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.Timetable;
+using URLS.Constants;
+using URLS.Web.Filters;
+
 namespace URLS.Web.Controllers.V1
 {
     [ApiVersion("1.0")]
@@ -15,6 +18,7 @@ namespace URLS.Web.Controllers.V1
         }
 
         [HttpGet]
+        [PermissionFilter(PermissionClaims.Timetable, Permissions.CanView)]
         public async Task<IActionResult> GetGroupTimetable(int groupId, DateTime? from, DateTime? to)
         {
             if (from == null)
@@ -30,18 +34,21 @@ namespace URLS.Web.Controllers.V1
         }
 
         [HttpPost]
+        [PermissionFilter(PermissionClaims.Timetable, Permissions.CanCreate)]
         public async Task<IActionResult> CreateTimetable([FromBody] TimetableCreateModel timetable)
         {
             return JsonResult(await _timetableService.CreateTimetableAsync(timetable));
         }
 
         [HttpPut]
+        [PermissionFilter(PermissionClaims.Timetable, Permissions.CanEdit)]
         public async Task<IActionResult> UpdateTimetable([FromBody] TimetableCreateModel timetable)
         {
             return JsonResult(await _timetableService.UpdateTimetableAsync(timetable));
         }
 
         [HttpDelete]
+        [PermissionFilter(PermissionClaims.Timetable, Permissions.CanRemove)]
         public async Task<IActionResult> DeleteTimetable(long[] ids)
         {
             return JsonResult(await _timetableService.RemoveTimetableAsync(ids));
