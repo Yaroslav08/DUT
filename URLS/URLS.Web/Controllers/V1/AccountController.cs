@@ -158,9 +158,9 @@ namespace URLS.Web.Controllers.V1
         }
 
         [HttpDelete("sessions/{id}")]
-        public async Task<IActionResult> CloseSessionById(Guid sessionId)
+        public async Task<IActionResult> CloseSessionById(Guid id)
         {
-            return JsonResult(await _sessionService.CloseSessionByIdAsync(sessionId));
+            return JsonResult(await _sessionService.CloseSessionByIdAsync(id));
         }
 
         #endregion

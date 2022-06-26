@@ -55,6 +55,9 @@
     <Content Update="wwwroot\Images\Other.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Update="wwwroot\Images\User.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Update="wwwroot\Images\Web.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
