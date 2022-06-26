@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using URLS.Application.ViewModels;
+using URLS.Application.ViewModels.Export;
 using URLS.Constants.APIResponse;
 
 namespace URLS.Web.Controllers
@@ -13,6 +14,12 @@ namespace URLS.Web.Controllers
         [NonAction]
         public IActionResult JsonResult<T>(Result<T> result)
         {
+            if (typeof(T) == typeof(ExportViewModel))
+            {
+                var res = result as Result<ExportViewModel>;
+                if(res.IsSuccess)
+                    return File(res.Data.Stream, "Application/msexcel", res.Data.FileName);
+            }
             if (result.IsCreated)
                 return CreatedResult(result.Data);
             if (result.IsSuccess)

@@ -26,7 +26,8 @@ namespace URLS.Web.Controllers.V1
         private readonly ISubjectService _subjectService;
         private readonly IIdentityService _identityService;
         private readonly IReactionService _reactionService;
-        public GroupsController(IGroupService groupService, IIdentityService identityService, ISubjectService subjectService, IGroupRoleService groupRoleService, IGroupMemberService groupMemberService, IGroupInviteService groupInviteService, IPostService postService, ICommentService commentService, IReactionService reactionService)
+        private readonly IExportService _exportService;
+        public GroupsController(IGroupService groupService, IIdentityService identityService, ISubjectService subjectService, IGroupRoleService groupRoleService, IGroupMemberService groupMemberService, IGroupInviteService groupInviteService, IPostService postService, ICommentService commentService, IReactionService reactionService, IExportService exportService)
         {
             _groupService = groupService;
             _identityService = identityService;
@@ -37,6 +38,7 @@ namespace URLS.Web.Controllers.V1
             _postService = postService;
             _commentService = commentService;
             _reactionService = reactionService;
+            _exportService = exportService;
         }
 
         #region Groups
@@ -107,9 +109,7 @@ namespace URLS.Web.Controllers.V1
         [AllowAnonymous]
         public async Task<IActionResult> ExportGroupMembers(int groupId)
         {
-            var res = await _groupMemberService.ExportGroupMemberAsync(groupId);
-
-            return File(res.Data.Stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", res.Data.FileName);
+            return JsonResult(await _exportService.GetGroupMemberExportAsync(groupId));
         }
 
         [HttpPost("{groupId}/members/accept-all")]

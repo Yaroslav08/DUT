@@ -71,6 +71,7 @@ namespace URLS.Infrastructure.IoC
             services.AddScoped<ICommonService, CommonService>();
             services.AddScoped<IReactionService, ReactionService>();
             services.AddSingleton<IPushNotificationService, FirebasePushNotificationService>();
+            services.AddScoped<IExportService, ExportService>();
 
             services.AddScoped<ILocalizeService, LocalizeService>();
 

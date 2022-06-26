@@ -93,30 +93,6 @@ namespace URLS.Application.Services.Implementations
             return Result<bool>.Success();
         }
 
-        public async Task<Result<ExportViewModel>> ExportGroupMemberAsync(int groupId)
-        {
-            //var groupResult = await _commonService.IsExistWithResultsAsync<Group>(s => s.Id == groupId);
-
-            //if (!groupResult.IsExist)
-            //    return Result<ExportViewModel>.NotFound(typeof(Group).NotFoundMessage(groupId));
-
-            //var groupMembers = await _db.UserGroups.Include(s => s.User).Include(s => s.UserGroupRole).AsNoTracking().Where(s => s.GroupId == groupId).ToListAsync();
-
-            using var workbook = new XLWorkbook();
-            var worksheet = workbook.Worksheets.Add("Sample Sheet");
-            worksheet.Cell("A1").Value = "Hello World!";
-            worksheet.Cell("A2").FormulaA1 = "=MID(A1, 7, 5)";
-
-            var exportModel = new ExportViewModel
-            {
-                FileName = DateTime.Now.ToString("HH:mm dd-MM-yyyy") + ".xlsx",
-                Stream = Stream.Null
-            };
-
-            workbook.SaveAs(exportModel.Stream);
-            return Result<ExportViewModel>.SuccessWithData(exportModel);
-        }
-
         public async Task<Result<GroupMemberViewModel>> GetGroupMemberByIdAsync(int groupId, int memberId)
         {
             if (!await _commonService.IsExistAsync<Group>(x => x.Id == groupId))
