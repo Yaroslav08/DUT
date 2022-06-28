@@ -424,7 +424,7 @@ namespace URLS.Application.Services.Implementations
             if (!groupInvite.IsActiveByTime())
                 return Result<AuthenticationInfo>.Error("Code is expired");
 
-            var newUser = new User(model.FirstName, null, model.LastName, model.Login, Generator.GetUsername());
+            var newUser = new User(model.FirstName, model.MiddleName, model.LastName, model.Login, Generator.GetUsername());
             newUser.PasswordHash = model.Password.GeneratePasswordHash();
             newUser.NotificationSettings = new NotificationSettings
             {

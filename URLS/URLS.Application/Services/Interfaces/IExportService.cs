@@ -5,6 +5,6 @@ namespace URLS.Application.Services.Interfaces
 {
     public interface IExportService
     {
-        Task<Result<ExportViewModel>> GetGroupMemberExportAsync(int groupId);
+        Task<Result<ExportViewModel>> GetGroupExportAsync(int groupId);
     }
 }

@@ -19,7 +19,7 @@ namespace URLS.Application.Services.Implementations
             _commonService = commonService;
         }
 
-        public async Task<Result<ExportViewModel>> GetGroupMemberExportAsync(int groupId)
+        public async Task<Result<ExportViewModel>> GetGroupExportAsync(int groupId)
         {
             var isExistGroup = await _commonService.IsExistWithResultsAsync<Domain.Models.Group>(s => s.Id == groupId);
 
@@ -34,7 +34,7 @@ namespace URLS.Application.Services.Implementations
                 .Include(s => s.UserGroupRole)
                 .ToListAsync();
 
-            var exportModel = ExportHelper.GetGroupMemberExportFile(group, groupMembers);
+            var exportModel = ExportHelper.GetGroupExportFile(group, groupMembers);
 
             return Result<ExportViewModel>.SuccessWithData(exportModel);
         }

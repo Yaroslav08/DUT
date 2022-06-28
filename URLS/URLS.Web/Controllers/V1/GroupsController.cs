@@ -55,6 +55,13 @@ namespace URLS.Web.Controllers.V1
             return JsonResult(await _groupService.GetGroupByIdAsync(id));
         }
 
+        [HttpGet("{groupId}/export")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ExportGroupMembers(int groupId)
+        {
+            return JsonResult(await _exportService.GetGroupExportAsync(groupId));
+        }
+
         [HttpGet("my")]
         public async Task<IActionResult> GetMyGroups()
         {
@@ -103,13 +110,6 @@ namespace URLS.Web.Controllers.V1
         public async Task<IActionResult> GetGroupMembers(int groupId, int offset = 0, int count = 20, int status = 0)
         {
             return JsonResult(await _groupMemberService.GetGroupMembersAsync(groupId, offset, count, status));
-        }
-
-        [HttpGet("{groupId}/members/export")]
-        [AllowAnonymous]
-        public async Task<IActionResult> ExportGroupMembers(int groupId)
-        {
-            return JsonResult(await _exportService.GetGroupMemberExportAsync(groupId));
         }
 
         [HttpPost("{groupId}/members/accept-all")]
