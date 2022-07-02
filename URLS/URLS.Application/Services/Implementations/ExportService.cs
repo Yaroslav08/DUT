@@ -84,11 +84,22 @@ namespace URLS.Application.Services.Implementations
                 .Include(s => s.Group)
                 .FirstOrDefaultAsync(s => s.Id == subjectId);
 
+            ValidateDates(subject, ref from, ref to);
+
             subject.Lessons = await _db.Lessons.Where(s => s.SubjectId == subjectId && (s.Date > from && s.Date < to)).ToListAsync();
 
             var exportModel = ExportHelper.ExportMarksFile(subject, from, to);
 
             return Result<ExportViewModel>.SuccessWithData(exportModel);
+        }
+
+        private void ValidateDates(Subject subject, ref DateTime from, ref DateTime to)
+        {
+            if (from < subject.From)
+                from = subject.From;
+
+            if (to > subject.To)
+                to = subject.To;
         }
     }
 }
