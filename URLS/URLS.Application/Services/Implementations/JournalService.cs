@@ -356,7 +356,7 @@ namespace URLS.Application.Services.Implementations
             };
             foreach (var lesson in lessons)
             {
-                foreach (var studentMark in lesson.Journal.Students)
+                foreach (var studentMark in lesson.Journal?.Students)
                 {
                     var reqId = studentId ?? studentMark.Id;
                     var student = fullJournal.Students.FirstOrDefault(s => s.Id == reqId);

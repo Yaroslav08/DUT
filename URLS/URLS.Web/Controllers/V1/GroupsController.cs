@@ -59,7 +59,7 @@ namespace URLS.Web.Controllers.V1
         [AllowAnonymous]
         public async Task<IActionResult> ExportGroupMembers(int groupId)
         {
-            return JsonResult(await _exportService.GetGroupExportAsync(groupId));
+            return JsonResult(await _exportService.ExportGroupAsync(groupId));
         }
 
         [HttpGet("my")]

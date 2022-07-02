@@ -5,6 +5,9 @@ namespace URLS.Application.Services.Interfaces
 {
     public interface IExportService
     {
-        Task<Result<ExportViewModel>> GetGroupExportAsync(int groupId);
+        Task<Result<ExportViewModel>> ExportGroupAsync(int groupId);
+        Task<Result<ExportViewModel>> ExportLessonMarkAsync(int subjectId, long lessonId);
+        Task<Result<ExportViewModel>> ExportMarksBySubjectIdAsync(int subjectId, DateTime from, DateTime to);
+        Task<Result<ExportViewModel>> ExportMarksBySubjectIdAsync(int subjectId);
     }
 }

@@ -16,12 +16,14 @@ namespace URLS.Web.Controllers.V1
         private readonly ILessonService _lessonService;
         private readonly IReportService _reportService;
         private readonly IJournalService _journalService;
-        public SubjectsController(ISubjectService subjectService, ILessonService lessonService, IReportService reportService, IJournalService journalService)
+        private readonly IExportService _exportService;
+        public SubjectsController(ISubjectService subjectService, ILessonService lessonService, IReportService reportService, IJournalService journalService, IExportService exportService)
         {
             _subjectService = subjectService;
             _lessonService = lessonService;
             _reportService = reportService;
             _journalService = journalService;
+            _exportService = exportService;
         }
 
         #region Subjects
@@ -107,15 +109,29 @@ namespace URLS.Web.Controllers.V1
         #region Lessons
 
         [HttpGet("{subjectId}/lessons")]
-        public async Task<IActionResult> GetSubjectLessons(int subjectId, DateTime? from = null, DateTime? to = null)
+        public async Task<IActionResult> GetSubjectLessons(int subjectId, string from = null, string to = null)
         {
-            return JsonResult(await _lessonService.GetLessonsBySubjectIdAsync(subjectId, from, to));
+            return JsonResult(await _lessonService.GetLessonsBySubjectIdAsync(subjectId, DateTime.Parse(from), DateTime.Parse(to)));
+        }
+
+        [HttpGet("{subjectId}/lessons/export")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ExportMarks(int subjectId)
+        {
+            return JsonResult(await _exportService.ExportMarksBySubjectIdAsync(subjectId));
         }
 
         [HttpGet("{subjectId}/lessons/{lessonId}")]
         public async Task<IActionResult> GetLessonById(int subjectId, long lessonId)
         {
             return JsonResult(await _lessonService.GetLessonByIdAsync(lessonId));
+        }
+
+        [HttpGet("{subjectId}/lessons/{lessonId}/export")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetExportLesson(int subjectId, long lessonId)
+        {
+            return JsonResult(await _exportService.ExportLessonMarkAsync(subjectId, lessonId));
         }
 
         [HttpPost("{subjectId}/lessons")]

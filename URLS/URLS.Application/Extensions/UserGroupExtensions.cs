@@ -66,5 +66,33 @@ namespace URLS.Application.Extensions
                 .OrderBy(s => s.User.LastName)
                 .ToList();
         }
+
+        public static string GetStatusName(this UserGroupStatus groupStatus)
+        {
+            if (groupStatus == UserGroupStatus.New)
+                return "Новачок";
+            if (groupStatus == UserGroupStatus.Member)
+                return "Учасник";
+            if (groupStatus == UserGroupStatus.Gona)
+                return "Пішов";
+            return "Невідомо";
+        }
+
+        public static string GetLessonType(this LessonType lessonType)
+        {
+            if (lessonType == LessonType.Lecture)
+                return "Лекція";
+            if (lessonType == LessonType.Laboratory)
+                return "Лабораторна";
+            if (lessonType == LessonType.Practical)
+                return "Практична";
+            if (lessonType == LessonType.Individual)
+                return "Самостійна";
+            if (lessonType == LessonType.Offset)
+                return "Практика";
+            if (lessonType == LessonType.Exam)
+                return "Екзамен";
+            return "Інший";
+        }
     }
 }
