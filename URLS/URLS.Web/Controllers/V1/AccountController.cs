@@ -106,6 +106,13 @@ namespace URLS.Web.Controllers.V1
             return JsonResult(await _authenticationService.RegisterAsync(model));
         }
 
+        [HttpPost("registration/teacher")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RegistrationTeacher([FromBody] RegisterViewModel model)
+        {
+            return JsonResult(await _authenticationService.RegisterTeacherAsync(model));
+        }
+
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {

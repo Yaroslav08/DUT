@@ -8,6 +8,7 @@ namespace URLS.Application.Services.Interfaces
     public interface IAuthenticationService
     {
         Task<Result<AuthenticationInfo>> RegisterAsync(RegisterViewModel model);
+        Task<Result<AuthenticationInfo>> RegisterTeacherAsync(RegisterViewModel model);
         Task<Result<JwtToken>> LoginByPasswordAsync(LoginCreateModel model);
         Task<Result<JwtToken>> LoginBySocialAsync(AuthenticateResult model, string scheme);
         Task<Result<bool>> LinkSocialAsync(SocialCreateModel model);

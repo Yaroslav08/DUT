@@ -476,6 +476,64 @@ namespace URLS.Application.Services.Implementations
             return Result<AuthenticationInfo>.Created();
         }
 
+        public async Task<Result<AuthenticationInfo>> RegisterTeacherAsync(RegisterViewModel model)
+        {
+            if (await _commonService.IsExistAsync<User>(s => s.Login == model.Login))
+                return Result<AuthenticationInfo>.Error("Login is busy");
+
+            var specialtyByInvite = await _db.Specialties.AsNoTracking().FirstOrDefaultAsync(s => s.Invite == model.Code);
+
+            if (specialtyByInvite == null)
+                return Result<AuthenticationInfo>.NotFound(typeof(Specialty).NotFoundMessage(model.Code));
+
+            var teacher = new User(model.FirstName, model.MiddleName, model.LastName, model.Login, Generator.GetUsername());
+
+            teacher.PasswordHash = model.Password.GeneratePasswordHash();
+            teacher.NotificationSettings = new NotificationSettings
+            {
+                AcceptedInGroup = true,
+                ChangePassword = true,
+                Logout = true,
+                NewLogin = true,
+                NewPost = true,
+                Welcome = true
+            };
+
+            teacher.IsActivateAccount = true;
+
+            teacher.PrepareToCreate();
+
+            await _db.Users.AddAsync(teacher);
+            await _db.SaveChangesAsync();
+
+
+            var role = await _db.Roles.AsNoTracking().FirstOrDefaultAsync(s => s.Name == Roles.Teacher);
+
+            var userRole = new UserRole
+            {
+                UserId = teacher.Id,
+                RoleId = role.Id
+            };
+            userRole.PrepareToCreate();
+
+            await _db.UserRoles.AddAsync(userRole);
+            await _db.SaveChangesAsync();
+
+            var specialtyTeacher = new UserSpecialty
+            {
+                UserId = teacher.Id,
+                SpecialtyId = specialtyByInvite.Id,
+                Title = "Викладач"
+            };
+
+            specialtyTeacher.PrepareToCreate();
+
+            await _db.UserSpecialties.AddAsync(specialtyTeacher);
+            await _db.SaveChangesAsync();
+
+            return Result<AuthenticationInfo>.Created();
+        }
+
         public async Task<Result<bool>> UnlinkSocialAsync(int socialId)
         {
             var userLoginToRemove = await _db.UserLogins.AsNoTracking().FirstOrDefaultAsync(s => s.Id == socialId);

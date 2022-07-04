@@ -101,6 +101,9 @@ namespace URLS.Application.ViewModels
             CreateMap<Domain.Models.UserLogin, SocialViewModel>()
                 .ForMember(s => s.LinkedAt, s => s.MapFrom(s => s.CreatedAt))
                 .ForMember(s => s.Provider, s => s.MapFrom(s => s.ExternalProvider));
+
+            CreateMap<Domain.Models.UserSpecialty, SpecialtyTeacherViewModel>()
+                .ForMember(s => s.Teacher, s => s.MapFrom(s => s.User));
         }
 
         private string BuildFullName(Domain.Models.User user)

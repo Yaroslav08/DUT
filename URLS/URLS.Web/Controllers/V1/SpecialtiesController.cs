@@ -31,11 +31,54 @@ namespace URLS.Web.Controllers.V1
             return JsonResult(await _specialtyService.GetSpecialtyByIdAsync(id));
         }
 
+        [HttpGet("{id}/invite")]
+        [PermissionFilter(PermissionClaims.Specialties, Permissions.CanEdit)]
+        public async Task<IActionResult> GetInvite(int id)
+        {
+            return JsonResult(await _specialtyService.GetInviteAsync(id));
+        }
+
+        [HttpPut("{id}/invite")]
+        [PermissionFilter(PermissionClaims.Specialties, Permissions.CanEdit)]
+        public async Task<IActionResult> UpdateInvite(int id)
+        {
+            return JsonResult(await _specialtyService.UpdateInviteAsync(id));
+        }
+
         [HttpGet("{id}/groups")]
         [PermissionFilter(PermissionClaims.Specialties, Permissions.CanViewAllGroups)]
         public async Task<IActionResult> GetSpecialtyGroups(int id)
         {
             return JsonResult(await _groupService.GetGroupsBySpecialtyIdAsync(id));
+        }
+
+        [HttpPost("teachers")]
+        [PermissionFilter(PermissionClaims.Specialties, Permissions.CanCreate)]
+        public async Task<IActionResult> CreateSpecialtyTeacher([FromBody] SpecialtyTeacherCreateModel model)
+        {
+            return JsonResult(await _specialtyService.CreateSpecialtyTeacherAsync(model));
+        }
+
+        [HttpPut("teachers/{id}")]
+        [PermissionFilter(PermissionClaims.Specialties, Permissions.CanEdit)]
+        public async Task<IActionResult> UpdateSpecialtyTeacher(int id, [FromBody] SpecialtyTeacherEditModel model)
+        {
+            model.Id = id;
+            return JsonResult(await _specialtyService.UpdateSpecialtyTeacherAsync(model));
+        }
+
+        [HttpDelete("teachers/{id}")]
+        [PermissionFilter(PermissionClaims.Specialties, Permissions.CanEdit)]
+        public async Task<IActionResult> DeleteSpecialtyTeacher(int id)
+        {
+            return JsonResult(await _specialtyService.RemoveSpecialtyTeacherAsync(id));
+        }
+
+        [HttpGet("{id}/teachers")]
+        [PermissionFilter(PermissionClaims.Specialties, Permissions.CanView)]
+        public async Task<IActionResult> GetSpecialtyTeachers(int id, int skip = 0, int count = 20)
+        {
+            return JsonResult(await _specialtyService.GetSpecialtyTeachersAsync(id, skip, count));
         }
 
         [HttpPost]

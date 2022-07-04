@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
+using URLS.Constants;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
 
@@ -96,17 +97,20 @@ namespace URLS.Application.Seeder
                 listSpecialties.Add(new Specialty
                 {
                     Name = "Інженерія програмного забезпечення",
-                    Code = "121"
+                    Code = "121",
+                    Invite = Generator.CreateGroupInviteCode()
                 });
                 listSpecialties.Add(new Specialty
                 {
                     Name = "Комп'ютерні науки",
-                    Code = "122"
+                    Code = "122",
+                    Invite = Generator.CreateGroupInviteCode()
                 });
                 listSpecialties.Add(new Specialty
                 {
                     Name = "Комп'ютерна інженерія",
-                    Code = "123"
+                    Code = "123",
+                    Invite = Generator.CreateGroupInviteCode()
                 });
 
                 var facultyInfoId = GetFacultyIdByName("Навчально-Науковий Інститут Інформаційних Технологій");
