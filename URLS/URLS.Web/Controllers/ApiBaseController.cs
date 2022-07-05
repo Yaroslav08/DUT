@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Export;
+using URLS.Application.ViewModels.Identity;
+using URLS.Constants;
 using URLS.Constants.APIResponse;
 
 namespace URLS.Web.Controllers
@@ -17,7 +19,7 @@ namespace URLS.Web.Controllers
             if (typeof(T) == typeof(ExportViewModel))
             {
                 var res = result as Result<ExportViewModel>;
-                if(res.IsSuccess)
+                if (res.IsSuccess)
                     return File(res.Data.Stream, "Application/msexcel", res.Data.FileName);
             }
             if (result.IsCreated)
@@ -27,7 +29,11 @@ namespace URLS.Web.Controllers
             if (result.IsNotFound)
                 return NotFound(APIResponse.NotFoundResponse(result.ErrorMessage));
             if (result.IsError)
+            {
+                if (result.ErrorMessage == Defaults.NeedMFA && result.Data is JwtToken)
+                    return BadRequest(APIResponse.BadRequestResponse(Defaults.NeedMFA, (result.Data as JwtToken).SessionId));
                 return BadRequest(APIResponse.BadRequestResponse(result.ErrorMessage));
+            }
             if (result.IsForbid)
                 return JsonForbiddenResult();
             return JsonInternalServerErrorResult();

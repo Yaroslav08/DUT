@@ -11,6 +11,8 @@
         public static DateTime GroupInviteActiveFrom = DateTime.Now;
         public static DateTime GroupInviteActiveTo = DateTime.Now.AddMonths(2);
 
-        public const string GroupRegex = @"\w{3}-\d{2}";
+        public const string GroupRegex = @"\w{3}-\d{2}"; //УБД-22
+
+        public const string NeedMFA = "Need MFA";
     }
 }

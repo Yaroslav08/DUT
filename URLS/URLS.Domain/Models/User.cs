@@ -16,6 +16,8 @@ namespace URLS.Domain.Models
         public string Login { get; set; }
         [Required, StringLength(1500, MinimumLength = 1)]
         public string PasswordHash { get; set; }
+        public bool MFA { get; set; }
+        public string MFASecretKey { get; set; }
         [StringLength(1000, MinimumLength = 1)]
         public string Image { get; set; }
         [EmailAddress, StringLength(150, MinimumLength = 3)]
@@ -44,6 +46,7 @@ namespace URLS.Domain.Models
         public List<App> Apps { get; set; }
         public List<QuizResult> QuizResults { get; set; }
         public List<Reaction> Reactions { get; set; }
+        public List<MFA> MFAs { get; set; }
 
         public User(string firstName, string middleName, string lastName, string login, string userName)
         {

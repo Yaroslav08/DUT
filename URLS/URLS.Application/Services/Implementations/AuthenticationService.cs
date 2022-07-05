@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Extensions.DeviceDetector;
 using Extensions.Password;
+using Google.Authenticator;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using URLS.Application.Extensions;
@@ -107,6 +108,131 @@ namespace URLS.Application.Services.Implementations
             });
         }
 
+        public async Task<Result<bool>> DisableMFAAsync(string code)
+        {
+            var userId = _identityService.GetUserId();
+
+            var userForDisableMFA = await _db.Users.AsNoTracking().FirstOrDefaultAsync(s => s.Id == userId);
+            if (userForDisableMFA == null)
+                return Result<bool>.NotFound(typeof(User).NotFoundMessage(userId));
+
+            if (!userForDisableMFA.MFA)
+                return Result<bool>.Error("MFA already diactivated");
+
+            var twoFactor = new TwoFactorAuthenticator();
+            var isValid = twoFactor.ValidateTwoFactorPIN(userForDisableMFA.MFASecretKey, code);
+
+            if (!isValid)
+                return Result<bool>.Error("Code is incorrect");
+
+            userForDisableMFA.MFA = false;
+            userForDisableMFA.MFASecretKey = null;
+            userForDisableMFA.PrepareToUpdate(_identityService);
+            _db.Users.Update(userForDisableMFA);
+            await _db.SaveChangesAsync();
+
+            var mfas = await _db.MFAs.Where(s => s.UserId == userId && s.IsActivated).ToListAsync();
+            if (mfas == null || mfas.Count == 0)
+                return Result<bool>.Success();
+
+            var now = DateTime.Now;
+            var sessionId = _identityService.GetCurrentSessionId();
+
+            mfas.ForEach(mfa =>
+            {
+                mfa.Diactived = now;
+                mfa.DiactivedBySessionId = sessionId;
+                mfa.PrepareToUpdate(_identityService);
+            });
+
+            _db.MFAs.UpdateRange(mfas);
+            await _db.SaveChangesAsync();
+
+            return Result<bool>.Success();
+        }
+
+        public async Task<Result<MFAViewModel>> EnableMFAAsync(string code = null)
+        {
+            var userId = _identityService.GetUserId();
+
+            var user = await _db.Users.FirstOrDefaultAsync(s => s.Id == userId);
+
+            if (user == null)
+                return Result<MFAViewModel>.NotFound(typeof(User).NotFoundMessage(userId));
+
+            if (user.MFA)
+                return Result<MFAViewModel>.Error("MFA already activated");
+
+            if (code == null)
+            {
+                var twoFactor = new TwoFactorAuthenticator();
+
+                var secretKey = Guid.NewGuid().ToString("N");
+
+                var setupInfo = twoFactor.GenerateSetupCode("URLS", user.Login, secretKey, false, 3);
+
+                user.MFASecretKey = secretKey;
+                user.PrepareToUpdate(_identityService);
+
+                _db.Users.Update(user);
+                await _db.SaveChangesAsync();
+
+                var mfa = new MFA
+                {
+                    Activated = DateTime.Now,
+                    ActivatedBySessionId = _identityService.GetCurrentSessionId(),
+                    IsActivated = false,
+                    Diactived = null,
+                    DiactivedBySessionId = null,
+                    EntryCode = setupInfo.ManualEntryKey,
+                    Secret = secretKey,
+                    QrCodeBase64 = setupInfo.QrCodeSetupImageUrl,
+                    UserId = userId
+                };
+
+                mfa.PrepareToCreate(_identityService);
+
+                await _db.MFAs.AddAsync(mfa);
+                await _db.SaveChangesAsync();
+
+                return Result<MFAViewModel>.SuccessWithData(new MFAViewModel
+                {
+                    QrCodeImage = setupInfo.QrCodeSetupImageUrl,
+                    ManualEntryKey = setupInfo.ManualEntryKey
+                });
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(user.MFASecretKey))
+                    return Result<MFAViewModel>.Error("Code is error");
+
+                var twoFactor = new TwoFactorAuthenticator();
+
+                var isValid = twoFactor.ValidateTwoFactorPIN(user.MFASecretKey, code);
+
+                if (!isValid)
+                    return Result<MFAViewModel>.Error("Code is incorrect");
+
+                user.MFA = true;
+                user.PrepareToUpdate(_identityService);
+
+                _db.Users.Update(user);
+                await _db.SaveChangesAsync();
+
+                var mfa = await _db.MFAs.FirstOrDefaultAsync(s => s.UserId == userId && !s.IsActivated);
+                if (mfa == null)
+                    return Result<MFAViewModel>.NotFound(typeof(MFA).NotFoundMessage("0"));
+                
+                mfa.IsActivated = true;
+                mfa.PrepareToUpdate(_identityService);
+
+                _db.MFAs.Update(mfa);
+                await _db.SaveChangesAsync();
+
+                return Result<MFAViewModel>.Success();
+            }
+        }
+
         public async Task<Result<List<SocialViewModel>>> GetUserLoginsAsync(int userId)
         {
             var userLogins = await _db.UserLogins.AsNoTracking().Where(s => s.UserId == userId).ToListAsync();
@@ -149,6 +275,31 @@ namespace URLS.Application.Services.Implementations
                 await _db.SaveChangesAsync();
                 return Result<bool>.Success();
             }
+        }
+
+        public async Task<Result<JwtToken>> LoginByMFAAsync(LoginMFAModel model)
+        {
+            var sessionId = Guid.Parse(model.SessionId);
+
+            var session = await _db.Sessions.AsNoTracking().Include(s => s.User).FirstOrDefaultAsync(s => s.Id == sessionId);
+
+            if (session == null)
+                return Result<JwtToken>.NotFound(typeof(Session).NotFoundMessage(model.SessionId));
+
+            var secretKey = session.User.MFASecretKey;
+
+            var twoFactor = new TwoFactorAuthenticator();
+
+            var result = twoFactor.ValidateTwoFactorPIN(secretKey, model.Code);
+            if (!result)
+                return Result<JwtToken>.Error("Code is incorrect");
+
+            return Result<JwtToken>.SuccessWithData(new JwtToken
+            {
+                Token = session.Token,
+                SessionId = model.SessionId,
+                ExpiredAt = session.ExpiredAt
+            });
         }
 
         public async Task<Result<JwtToken>> LoginByPasswordAsync(LoginCreateModel model)
@@ -237,6 +388,7 @@ namespace URLS.Application.Services.Implementations
             session.Token = jwtToken.Token;
             session.ExpiredAt = jwtToken.ExpiredAt;
             session.Type = AuthScheme.Password;
+            session.ViaMFA = user.MFA;
 
             session.PrepareToCreate();
 
@@ -250,6 +402,9 @@ namespace URLS.Application.Services.Implementations
             await _db.SaveChangesAsync();
 
             _sessionManager.AddSession(new TokenModel(jwtToken.Token, jwtToken.ExpiredAt));
+
+            if (user.MFA)
+                return Result<JwtToken>.MFA(sessionId.ToString());
 
             return Result<JwtToken>.SuccessWithData(jwtToken);
         }
@@ -436,7 +591,8 @@ namespace URLS.Application.Services.Implementations
                 Welcome = true
             };
             newUser.IsActivateAccount = false;
-
+            newUser.MFA = false;
+            newUser.MFASecretKey = null;
             newUser.PrepareToCreate();
 
             await _db.Users.AddAsync(newUser);
@@ -500,6 +656,8 @@ namespace URLS.Application.Services.Implementations
             };
 
             teacher.IsActivateAccount = true;
+            teacher.MFA = false;
+            teacher.MFASecretKey = null;
 
             teacher.PrepareToCreate();
 

@@ -9,6 +9,9 @@ namespace URLS.Application.Services.Interfaces
     {
         Task<Result<AuthenticationInfo>> RegisterAsync(RegisterViewModel model);
         Task<Result<AuthenticationInfo>> RegisterTeacherAsync(RegisterViewModel model);
+        Task<Result<MFAViewModel>> EnableMFAAsync(string code = null);
+        Task<Result<bool>> DisableMFAAsync(string code);
+        Task<Result<JwtToken>> LoginByMFAAsync(LoginMFAModel model);
         Task<Result<JwtToken>> LoginByPasswordAsync(LoginCreateModel model);
         Task<Result<JwtToken>> LoginBySocialAsync(AuthenticateResult model, string scheme);
         Task<Result<bool>> LinkSocialAsync(SocialCreateModel model);

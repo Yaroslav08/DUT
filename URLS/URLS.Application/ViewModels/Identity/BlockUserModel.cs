@@ -10,5 +10,6 @@ namespace URLS.Application.ViewModels.Identity
         public bool LockoutEnabled { get; set; }
         public DateTime? LockoutEnd { get; set; }
         public int UserId { get; set; }
+        public bool ResetMFA { get; set; }
     }
 }

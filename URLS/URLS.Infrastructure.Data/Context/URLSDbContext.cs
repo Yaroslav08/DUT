@@ -45,6 +45,7 @@ namespace URLS.Infrastructure.Data.Context
         public DbSet<Answer> Answers { get; set; }
         public DbSet<QuizResult> QuizResults { get; set; }
         public DbSet<Reaction> Reactions { get; set; }
+        public DbSet<MFA> MFAs { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)

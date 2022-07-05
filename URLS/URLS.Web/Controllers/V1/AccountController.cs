@@ -57,6 +57,25 @@ namespace URLS.Web.Controllers.V1
             return JsonResult(await _authenticationService.LoginByPasswordAsync(model));
         }
 
+        [HttpPost("login/mfa")]
+        [AllowAnonymous]
+        public async Task<IActionResult> LoginByMfa([FromBody] LoginMFAModel model)
+        {
+            return JsonResult(await _authenticationService.LoginByMFAAsync(model));
+        }
+
+        [HttpPost("mfa")]
+        public async Task<IActionResult> EnableMFA(string code = null)
+        {
+            return JsonResult(await _authenticationService.EnableMFAAsync(code));
+        }
+
+        [HttpDelete("mfa")]
+        public async Task<IActionResult> DisableMFA(string code = null)
+        {
+            return JsonResult(await _authenticationService.DisableMFAAsync(code));
+        }
+
         [HttpGet("social/{scheme}")]
         [AllowAnonymous]
         public async Task SocialAuth(string scheme)

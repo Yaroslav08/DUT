@@ -1,4 +1,6 @@
-﻿using URLS.Constants.APIResponse;
+﻿using URLS.Application.ViewModels.Identity;
+using URLS.Constants;
+using URLS.Constants.APIResponse;
 
 namespace URLS.Application.ViewModels
 {
@@ -77,6 +79,14 @@ namespace URLS.Application.ViewModels
         public static Result<T> Exception(Exception exception)
         {
             return new Result<T>(false, false, false, false, null, exception, default, null);
+        }
+
+        public static Result<JwtToken> MFA(string sessionId)
+        {
+            return new Result<JwtToken>(false, false, false, false, Defaults.NeedMFA, null, new JwtToken
+            {
+                SessionId = sessionId.ToString()
+            }, null);
         }
 
         #endregion

@@ -88,8 +88,7 @@ namespace URLS.Application.Services.Implementations
             {
                 Token = encodedJwt,
                 ExpiredAt = expiredAt,
-                Claims = jwt.Claims,
-                TokenId = jwt.Id
+                SessionId = sessionId.ToString()
             };
         }
     }

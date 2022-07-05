@@ -131,7 +131,6 @@ namespace URLS.Application.Seeder
             {
                 return facuties.FirstOrDefault(x => x.Name == name).Id;
             }
-
         }
     }
 }
