@@ -70,8 +70,8 @@ namespace URLS.Web.Controllers.V1
             return JsonResult(await _authenticationService.EnableMFAAsync(code));
         }
 
-        [HttpDelete("mfa")]
-        public async Task<IActionResult> DisableMFA(string code = null)
+        [HttpDelete("mfa/{code}")]
+        public async Task<IActionResult> DisableMFA(string code)
         {
             return JsonResult(await _authenticationService.DisableMFAAsync(code));
         }

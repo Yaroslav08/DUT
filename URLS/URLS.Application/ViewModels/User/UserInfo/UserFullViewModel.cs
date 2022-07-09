@@ -12,6 +12,7 @@
         public string Image { get; set; }
         public string ContactEmail { get; set; }
         public string ContactPhone { get; set; }
+        public bool MFA { get; set; }
         public RoleInfo Role { get; set; }
         public SessionInfo Session { get; set; }
         public GroupInfo Group { get; set; }
