@@ -181,6 +181,23 @@ namespace URLS.Application.Helpers
             };
         }
 
+        public static Notification GetChangeRoleNotification()
+        {
+            return new Notification
+            {
+                Title = "Зміна ролі",
+                Content = $"Увага! Через зміну ваших ролей подальша робота може бути некоректною. Будь-ласка за можливостю перезайдіть на всіх пристроях",
+                ImageUrl = "https://cdn-icons-png.flaticon.com/512/272/272354.png",
+                CreatedAt = DateTime.Now,
+                CreatedBy = Defaults.CreatedBy,
+                CreatedFromIP = "::1",
+                Type = NotificationType.RolesChanged,
+                IsImportant = true,
+                IsRead = false,
+                ReadAt = null,
+            };
+        }
+
         private static string GetDeviceInfo(ClientInfo clientInfo)
         {
             StringBuilder result = new StringBuilder();

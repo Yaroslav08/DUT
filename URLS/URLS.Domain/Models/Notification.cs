@@ -24,6 +24,7 @@
         Logout,
         NewPost,
         Locked,
-        PermissionChanged
+        PermissionChanged,
+        RolesChanged
     }
 }

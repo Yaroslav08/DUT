@@ -9,6 +9,7 @@ using URLS.Application.Helpers;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Identity;
+using URLS.Application.ViewModels.RoleClaim;
 using URLS.Application.ViewModels.Session;
 using URLS.Application.ViewModels.User;
 using URLS.Constants;
@@ -222,7 +223,7 @@ namespace URLS.Application.Services.Implementations
                 var mfa = await _db.MFAs.FirstOrDefaultAsync(s => s.UserId == userId && !s.IsActivated);
                 if (mfa == null)
                     return Result<MFAViewModel>.NotFound(typeof(MFA).NotFoundMessage("0"));
-                
+
                 mfa.IsActivated = true;
                 mfa.PrepareToUpdate(_identityService);
 
@@ -246,6 +247,19 @@ namespace URLS.Application.Services.Implementations
                     social.LastSigIn = lastSession.CreatedAt;
             }
             return Result<List<SocialViewModel>>.SuccessWithData(socials);
+        }
+
+        public async Task<Result<List<RoleViewModel>>> GetUserRolesAsync(int userId)
+        {
+            var roles = await _db.UserRoles
+                .AsNoTracking()
+                .Include(s => s.Role)
+                .Where(s => s.UserId == userId)
+                .Select(s => s.Role)
+                .ToListAsync();
+
+            var rolesToView = _mapper.Map<List<RoleViewModel>>(roles);
+            return Result<List<RoleViewModel>>.SuccessWithData(rolesToView);
         }
 
         public async Task<Result<bool>> LinkSocialAsync(SocialCreateModel model)
@@ -690,6 +704,60 @@ namespace URLS.Application.Services.Implementations
             await _db.SaveChangesAsync();
 
             return Result<AuthenticationInfo>.Created();
+        }
+
+        public async Task<Result<bool>> SetupUserRolesAsync(UserRoleSetupModel userRole)
+        {
+            if (!await _db.Roles.AnyAsync(s => userRole.RoleIds.Contains(s.Id)))
+                return Result<bool>.NotFound($"One from ({string.Join(",", userRole.RoleIds)}) ids not found");
+
+            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(s => s.Id == userRole.UserId);
+            if (user == null)
+                return Result<bool>.NotFound(typeof(User).NotFoundMessage(userRole.UserId));
+
+            var userRoles = await _db.UserRoles.AsNoTracking().Where(s => s.UserId == userRole.UserId).ToListAsync();
+
+            var res = userRole.RoleIds.SequenceEqual(userRoles.Select(s => s.RoleId));
+            if (res)
+                return Result<bool>.Success();
+
+            var roleIdsToAdd = userRole.RoleIds.Except(userRoles.Select(s => s.RoleId));
+
+            var newUserRoles = new List<UserRole>();
+
+            foreach (var newRoleId in roleIdsToAdd)
+            {
+                var newUserRole = new UserRole
+                {
+                    RoleId = newRoleId,
+                    UserId = user.Id
+                };
+                newUserRole.PrepareToCreate(_identityService);
+                newUserRoles.Add(newUserRole);
+            }
+
+            await _db.UserRoles.AddRangeAsync(newUserRoles);
+            await _db.SaveChangesAsync();
+
+            var roleIdsToRemove = userRoles.Select(s => s.RoleId).Except(userRole.RoleIds);
+
+            if (roleIdsToRemove != null || roleIdsToRemove.Count() > 0)
+            {
+                var oldUserRoles = await _db.UserRoles.Where(s => s.UserId == user.Id && roleIdsToRemove.Contains(s.RoleId)).ToListAsync();
+
+                _db.UserRoles.RemoveRange(oldUserRoles);
+                await _db.SaveChangesAsync();
+            }
+
+
+            var notification = NotificationsHelper.GetChangeRoleNotification();
+            notification.UserId = user.Id;
+
+            notification.PrepareToCreate(_identityService);
+            await _db.Notifications.AddAsync(notification);
+            await _db.SaveChangesAsync();
+
+            return Result<bool>.Success();
         }
 
         public async Task<Result<bool>> UnlinkSocialAsync(int socialId)

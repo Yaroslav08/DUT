@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Identity;
+using URLS.Application.ViewModels.RoleClaim;
 using URLS.Application.ViewModels.User;
 
 namespace URLS.Application.Services.Interfaces
@@ -19,6 +20,8 @@ namespace URLS.Application.Services.Interfaces
         Task<Result<List<SocialViewModel>>> GetUserLoginsAsync(int userId);
         Task<Result<AuthenticationInfo>> ChangePasswordAsync(PasswordCreateModel model);
         Task<Result<UserViewModel>> BlockUserConfigAsync(BlockUserModel model);
+        Task<Result<List<RoleViewModel>>> GetUserRolesAsync(int userId);
+        Task<Result<bool>> SetupUserRolesAsync(UserRoleSetupModel userRole);
         Task<Result<bool>> LogoutAsync();
         Task<Result<bool>> LogoutBySessionIdAsync(Guid id);
         Task<Result<bool>> LogoutAllAsync(int userId);

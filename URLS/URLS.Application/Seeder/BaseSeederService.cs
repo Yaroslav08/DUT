@@ -324,16 +324,51 @@ namespace URLS.Application.Seeder
             #region ConditionalForWhere
 
             Func<Claim, bool> _getConditionalForModerator = (Claim s) =>
-                s.Type == PermissionClaims.Faculties || s.Type == PermissionClaims.Settings || s.Type == PermissionClaims.Specialties || s.Type == PermissionClaims.University || s.Type == PermissionClaims.Timetable; ;
-            
+                s.Type == PermissionClaims.Apps
+                || s.Type == PermissionClaims.Diplomas
+                || s.Type == PermissionClaims.University
+                || s.Type == PermissionClaims.Faculties
+                || s.Type == PermissionClaims.Specialties
+                || s.Type == PermissionClaims.Timetable
+                || s.Type == PermissionClaims.Identity
+                || s.Type == PermissionClaims.Settings;
+
+
             Func<Claim, bool> _getConditionalForDeveloper = (Claim s) =>
-                s.Type == PermissionClaims.Apps;
+                s.Type == PermissionClaims.Apps
+                || s.Type == PermissionClaims.University && s.Value == Permissions.CanView
+                || s.Type == PermissionClaims.University && s.Value == Permissions.CanViewAll
+                || s.Type == PermissionClaims.Faculties && s.Value == Permissions.CanViewAll
+                || s.Type == PermissionClaims.Faculties && s.Value == Permissions.CanView
+                || s.Type == PermissionClaims.Faculties && s.Value == Permissions.CanViewAllSpecialties
+                || s.Type == PermissionClaims.Specialties && s.Value == Permissions.CanViewAll
+                || s.Type == PermissionClaims.Specialties && s.Value == Permissions.CanView
+                || s.Type == PermissionClaims.Specialties && s.Value == Permissions.CanViewAllGroups
+                || s.Type == PermissionClaims.Settings && s.Value == Permissions.CanView;
             
             Func<Claim, bool> _getConditionalForTeacher = (Claim s) =>
-                s.Type == PermissionClaims.Timetable;
-            
+                s.Type == PermissionClaims.Timetable
+                || s.Type == PermissionClaims.University && s.Value == Permissions.CanView
+                || s.Type == PermissionClaims.University && s.Value == Permissions.CanViewAll
+                || s.Type == PermissionClaims.Faculties && s.Value == Permissions.CanViewAll
+                || s.Type == PermissionClaims.Faculties && s.Value == Permissions.CanView
+                || s.Type == PermissionClaims.Faculties && s.Value == Permissions.CanViewAllSpecialties
+                || s.Type == PermissionClaims.Specialties && s.Value == Permissions.CanViewAll
+                || s.Type == PermissionClaims.Specialties && s.Value == Permissions.CanView
+                || s.Type == PermissionClaims.Specialties && s.Value == Permissions.CanViewAllGroups
+                || s.Type == PermissionClaims.Settings && s.Value == Permissions.CanView;
+
             Func<Claim, bool> _getConditionalForStudent = (Claim s) =>
-                s.Type == PermissionClaims.University;
+                s.Type == PermissionClaims.University && s.Value == Permissions.CanView
+                || s.Type == PermissionClaims.University && s.Value == Permissions.CanViewAll
+                || s.Type == PermissionClaims.Faculties && s.Value == Permissions.CanViewAll
+                || s.Type == PermissionClaims.Faculties && s.Value == Permissions.CanView
+                || s.Type == PermissionClaims.Faculties && s.Value == Permissions.CanViewAllSpecialties
+                || s.Type == PermissionClaims.Specialties && s.Value == Permissions.CanViewAll
+                || s.Type == PermissionClaims.Specialties && s.Value == Permissions.CanView
+                || s.Type == PermissionClaims.Specialties && s.Value == Permissions.CanViewAllGroups
+                || s.Type == PermissionClaims.Settings && s.Value == Permissions.CanView
+                || s.Type == PermissionClaims.Timetable && s.Value == Permissions.CanView;
 
             #endregion
 
