@@ -64,11 +64,13 @@ namespace URLS.Application.Services.Implementations
 
             var roleClaims = await _db.RoleClaims.Where(s => roleIds.Contains(s.RoleId)).Include(s => s.Claim).ToListAsync();
 
-            if (roleClaims != null && roleClaims.Count > 0)
+            var userRoleClaims = GetUniqClaims(roleClaims);
+
+            if (userRoleClaims != null && userRoleClaims.Count > 0)
             {
-                foreach (var roleClaim in roleClaims)
+                foreach (var roleClaim in userRoleClaims)
                 {
-                    claims.Add(new System.Security.Claims.Claim(roleClaim.Claim.Type, roleClaim.Claim.Value));
+                    claims.Add(new System.Security.Claims.Claim(roleClaim.Type, roleClaim.Value));
                 }
             }
 
@@ -90,6 +92,11 @@ namespace URLS.Application.Services.Implementations
                 ExpiredAt = expiredAt,
                 SessionId = sessionId.ToString()
             };
+        }
+
+        private List<Domain.Models.Claim> GetUniqClaims(List<RoleClaim> roleClaims)
+        {
+            return roleClaims.Select(s => new { Type = s.Claim.Type, Value = s.Claim.Value }).Distinct().Select(x => new Domain.Models.Claim { Type = x.Type, Value = x.Value }).ToList();
         }
     }
 }
