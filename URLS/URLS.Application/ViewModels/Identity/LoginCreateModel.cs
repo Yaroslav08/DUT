@@ -11,6 +11,7 @@ namespace URLS.Application.ViewModels.Identity
         [Required]
         [RegularExpression(RegexTemplate.Password.Regex, ErrorMessage = RegexTemplate.Password.ErrorMessage)]
         public string Password { get; set; }
+        [Required]
         public string Lang { get; set; }
         public ClientInfo Client { get; set; }
         public AppLoginCreateModel App { get; set; }

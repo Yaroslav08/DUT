@@ -397,7 +397,14 @@ namespace URLS.Application.Services.Implementations
                 UserId = user.Id
             };
 
-            var jwtToken = await _tokenService.GetUserTokenAsync(user.Id, sessionId, "pwd");
+            //var jwtToken = await _tokenService.GetUserTokenAsync(user.Id, sessionId, "pwd");
+            var jwtToken = await _tokenService.GetUserTokenAsync(new UserTokenModel
+            {
+                AuthType = "pwd",
+                UserId = user.Id,
+                Lang = model.Lang,
+                SessionId = sessionId
+            });
 
             session.Token = jwtToken.Token;
             session.ExpiredAt = jwtToken.ExpiredAt;
@@ -481,7 +488,14 @@ namespace URLS.Application.Services.Implementations
                 UserId = user.Id
             };
 
-            var jwtToken = await _tokenService.GetUserTokenAsync(user.Id, sessionId, scheme);
+            //var jwtToken = await _tokenService.GetUserTokenAsync(user.Id, sessionId, scheme);
+            var jwtToken = await _tokenService.GetUserTokenAsync(new UserTokenModel
+            {
+                AuthType = scheme,
+                SessionId = sessionId,
+                UserId = user.Id,
+                Lang = "uk"
+            });
 
             session.Token = jwtToken.Token;
             session.ExpiredAt = jwtToken.ExpiredAt;

@@ -18,14 +18,12 @@ namespace URLS.Application.Services.Implementations
             _db = db;
         }
 
-        public async Task<JwtToken> GetUserTokenAsync(int userId, Guid sessionId, string authType)
+        public async Task<JwtToken> GetUserTokenAsync(UserTokenModel userToken)
         {
-            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == userId);
-            return await GetUserTokenAsync(user, sessionId, authType);
-        }
+            userToken.Lang = userToken.Lang.ToLower();
 
-        public async Task<JwtToken> GetUserTokenAsync(User user, Guid sessionId, string authType)
-        {
+            var user = userToken.User ?? await _db.Users.AsNoTracking().FirstOrDefaultAsync(s => s.Id == userToken.UserId);
+
             if (user == null)
                 return null;
 
@@ -36,13 +34,13 @@ namespace URLS.Application.Services.Implementations
                 .ToListAsync();
 
             var claims = new List<System.Security.Claims.Claim>();
-            claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.CurrentSessionId, sessionId.ToString()));
+            claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.CurrentSessionId, userToken.SessionId.ToString()));
             claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.Login, user.Login));
             claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.UserId, user.Id.ToString()));
             claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.UserName, user.UserName));
             claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.FullName, $"{user.LastName} {user.FirstName}"));
-            claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.AuthenticationMethod, authType));
-            claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.Language, "uk"));
+            claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.AuthenticationMethod, userToken.AuthType));
+            claims.Add(new System.Security.Claims.Claim(CustomClaimTypes.Language, userToken.Lang));
 
             foreach (var role in currentUserRoles)
             {
@@ -90,7 +88,7 @@ namespace URLS.Application.Services.Implementations
             {
                 Token = encodedJwt,
                 ExpiredAt = expiredAt,
-                SessionId = sessionId.ToString()
+                SessionId = userToken.SessionId.ToString()
             };
         }
 
