@@ -36,7 +36,7 @@ namespace URLS.Application.Services.Implementations
                     return null;
                 var content = await resultFromApi.Content.ReadAsStringAsync();
                 var res = JsonSerializer.Deserialize<IPGeo>(content);
-                location.IP = res.Query;
+                location.Provider = res.Isp;
                 location.Country = res.Country;
                 location.City = res.City;
                 location.Region = res.RegionName;
