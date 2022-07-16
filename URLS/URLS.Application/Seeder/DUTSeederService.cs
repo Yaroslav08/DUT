@@ -1,5 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using URLS.Application.Extensions;
+using URLS.Application.Services.Interfaces;
+using URLS.Application.ViewModels;
+using URLS.Application.ViewModels.Identity;
 using URLS.Constants;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
@@ -8,12 +12,10 @@ namespace URLS.Application.Seeder
 {
     public class DUTSeederService : BaseSeederService
     {
-        public DUTSeederService(URLSDbContext db) : base(db) { }
+        public DUTSeederService(URLSDbContext db, IAuthenticationService authenticationService, IConfiguration configuration) : base(db, authenticationService, configuration) { }
 
-        public override async Task SeedSystemAsync()
+        public override async Task<Result<JwtToken>> SeedSystemAsync()
         {
-            await base.SeedSystemAsync();
-
             #region University
 
             int universityId = 0;
@@ -32,10 +34,10 @@ namespace URLS.Application.Seeder
                 await _db.Universities.AddAsync(newUniversity);
                 await _db.SaveChangesAsync();
                 universityId = newUniversity.Id;
+                _countOfInitEntities++;
             }
 
             #endregion
-
 
             #region Faculties
 
@@ -83,10 +85,10 @@ namespace URLS.Application.Seeder
                 await _db.Faculties.AddRangeAsync(listFaculties.ToArray());
                 await _db.SaveChangesAsync();
                 facuties.AddRange(listFaculties);
+                _countOfInitEntities++;
             }
 
             #endregion
-
 
             #region Specialties
 
@@ -123,6 +125,7 @@ namespace URLS.Application.Seeder
 
                 await _db.Specialties.AddRangeAsync(listSpecialties.ToArray());
                 await _db.SaveChangesAsync();
+                _countOfInitEntities++;
             }
 
             #endregion
@@ -131,6 +134,8 @@ namespace URLS.Application.Seeder
             {
                 return facuties.FirstOrDefault(x => x.Name == name).Id;
             }
+
+            return await base.SeedSystemAsync();
         }
     }
 }

@@ -1,7 +1,10 @@
-﻿namespace URLS.Application.Seeder
+﻿using URLS.Application.ViewModels;
+using URLS.Application.ViewModels.Identity;
+
+namespace URLS.Application.Seeder
 {
     public interface ISeederService
     {
-        Task SeedSystemAsync();
+        Task<Result<JwtToken>> SeedSystemAsync();
     }
 }

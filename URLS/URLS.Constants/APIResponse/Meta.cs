@@ -13,8 +13,8 @@
             var meta = new Meta();
             meta.TotalCount = totalCount;
             meta.Count = limit;
-            meta.TotalPages = (int)Math.Ceiling(totalCount / (double)limit);
-            meta.Page = (int)Math.Ceiling((offset / (double)limit)) + 1;
+            meta.TotalPages = totalCount == 0 && limit == 0 ? 0 : (int)Math.Ceiling(totalCount / (double)limit);
+            meta.Page = offset == 0 && limit == 0 ? 0 : (int)Math.Ceiling((offset / (double)limit)) + 1;
             return meta;
         }
     }

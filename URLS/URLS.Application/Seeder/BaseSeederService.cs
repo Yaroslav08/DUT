@@ -1,42 +1,55 @@
 ﻿using Extensions.Password;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System.Linq.Expressions;
 using URLS.Application.Extensions;
 using URLS.Application.Helpers;
+using URLS.Application.Services.Interfaces;
+using URLS.Application.ViewModels;
+using URLS.Application.ViewModels.Identity;
 using URLS.Constants;
 using URLS.Domain.Models;
 using URLS.Infrastructure.Data.Context;
 
 namespace URLS.Application.Seeder
 {
-    public abstract class BaseSeederService : ISeederService
+    public class BaseSeederService : ISeederService
     {
         protected readonly URLSDbContext _db;
+        protected readonly IAuthenticationService _authenticationService;
+        protected readonly IConfiguration _configuration;
+        protected int _countOfInitEntities;
         private List<Role> InsertedRoles = null;
         private List<Claim> InsertedClaims = null;
-        public BaseSeederService(URLSDbContext db)
+        public BaseSeederService(URLSDbContext db, IAuthenticationService authenticationService, IConfiguration configuration)
         {
             _db = db;
+            _authenticationService = authenticationService;
+            _countOfInitEntities = 0;
+            _configuration = configuration;
         }
 
-        public virtual async Task SeedSystemAsync()
+        public virtual async Task<Result<JwtToken>> SeedSystemAsync()
         {
             if (!await _db.Apps.AnyAsync())
             {
                 await _db.Apps.AddRangeAsync(GetApps());
                 await _db.SaveChangesAsync();
+                _countOfInitEntities++;
             }
 
             if (!await _db.Settings.AnyAsync())
             {
                 await _db.Settings.AddAsync(GetSetting());
                 await _db.SaveChangesAsync();
+                _countOfInitEntities++;
             }
 
             if (!await _db.UserGroupRoles.AnyAsync())
             {
                 await _db.UserGroupRoles.AddRangeAsync(GetUserGroupRoles());
                 await _db.SaveChangesAsync();
+                _countOfInitEntities++;
             }
 
             if (!await _db.Roles.AnyAsync())
@@ -44,6 +57,7 @@ namespace URLS.Application.Seeder
                 await _db.Roles.AddRangeAsync(GetRoles());
                 await _db.SaveChangesAsync();
                 InsertedRoles = _db.Roles.Local.ToList();
+                _countOfInitEntities++;
             }
 
             if (!await _db.Claims.AnyAsync())
@@ -51,12 +65,14 @@ namespace URLS.Application.Seeder
                 await _db.Claims.AddRangeAsync(GetClaims());
                 await _db.SaveChangesAsync();
                 InsertedClaims = _db.Claims.Local.ToList();
+                _countOfInitEntities++;
             }
 
             if (!await _db.RoleClaims.AnyAsync())
             {
                 await _db.RoleClaims.AddRangeAsync(GetRelationsRoleClaim());
                 await _db.SaveChangesAsync();
+                _countOfInitEntities++;
             }
 
             if (!await _db.Users.AnyAsync())
@@ -64,7 +80,26 @@ namespace URLS.Application.Seeder
                 await _db.Users.AddAsync(GetAdmin());
                 await _db.SaveChangesAsync();
                 await SetupUserRole(_db.Users.Local.FirstOrDefault());
+                _countOfInitEntities++;
             }
+
+            if (_countOfInitEntities == 0)
+                return Result<JwtToken>.Error("System is already initial");
+
+
+            return await _authenticationService.LoginByPasswordAsync(GetLoginAdmin());
+        }
+
+        private LoginCreateModel GetLoginAdmin()
+        {
+            return new LoginCreateModel
+            {
+                Login = GetAdmin().Login,
+                Password = Defaults.Password,
+                Lang = "uk",
+                Client = null,
+                App = GetApps().Where(s => s.ShortName == "Web").Select(s => new AppLoginCreateModel { Id = s.AppId, Secret = s.AppSecret, Version = _configuration["App:Version"] }).FirstOrDefault()
+            };
         }
 
         private User GetAdmin()
@@ -345,7 +380,7 @@ namespace URLS.Application.Seeder
                 || s.Type == PermissionClaims.Specialties && s.Value == Permissions.CanView
                 || s.Type == PermissionClaims.Specialties && s.Value == Permissions.CanViewAllGroups
                 || s.Type == PermissionClaims.Settings && s.Value == Permissions.CanView;
-            
+
             Func<Claim, bool> _getConditionalForTeacher = (Claim s) =>
                 s.Type == PermissionClaims.Timetable
                 || s.Type == PermissionClaims.University && s.Value == Permissions.CanView
@@ -426,7 +461,7 @@ namespace URLS.Application.Seeder
                 }
                 if (role.Name == Roles.Student)
                 {
-                    foreach(var claim in claims.Where(_getConditionalForStudent))
+                    foreach (var claim in claims.Where(_getConditionalForStudent))
                     {
                         roleClaims.Add(new RoleClaim
                         {

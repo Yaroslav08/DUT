@@ -156,16 +156,6 @@ public class Program
 
         #endregion
 
-        #region DataSeeder
-
-        using (var scope = app.Services.CreateScope())
-        {
-            var seederService = scope.ServiceProvider.GetService<ISeederService>();
-            await seederService.SeedSystemAsync();
-        }
-
-        #endregion
-
         app.Run();
     }
 }
