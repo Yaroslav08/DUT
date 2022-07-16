@@ -7,6 +7,7 @@ using URLS.Application.Options;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels;
 using URLS.Application.ViewModels.Group;
+using URLS.Application.ViewModels.Group.GroupMember;
 using URLS.Application.ViewModels.RoleClaim;
 using URLS.Application.ViewModels.Session;
 using URLS.Application.ViewModels.User;
@@ -109,11 +110,11 @@ namespace URLS.Application.Services.Implementations
                     Roles = _mapper.Map<List<RoleViewModel>>(userRoles)
                 };
 
-            var groups = await _db.UserGroups.AsNoTracking().Include(s => s.Group).Where(s => s.UserId == id).Select(s => s.Group).ToListAsync();
-            if (groups != null && groups.Count > 0)
+            var groupMembers = await _db.UserGroups.AsNoTracking().Include(s => s.Group).Include(s => s.UserGroupRole).Where(s => s.UserId == id).ToListAsync();
+            if (groupMembers != null && groupMembers.Count > 0)
                 userToView.Group = new GroupInfo
                 {
-                    Groups = _mapper.Map<List<GroupViewModel>>(groups)
+                    Groups = _mapper.Map<List<GroupMemberViewModel>>(groupMembers).OrderByDescending(s=>s.Group.Name).ToList()
                 };
 
             return Result<UserFullViewModel>.SuccessWithData(userToView);

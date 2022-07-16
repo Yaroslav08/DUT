@@ -1,9 +1,9 @@
-﻿using URLS.Application.ViewModels.Group;
+﻿using URLS.Application.ViewModels.Group.GroupMember;
 
 namespace URLS.Application.ViewModels.User.UserInfo
 {
     public class GroupInfo
     {
-        public List<GroupViewModel> Groups { get; set; }
+        public List<GroupMemberViewModel> Groups { get; set; }
     }
 }

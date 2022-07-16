@@ -6,6 +6,7 @@ using URLS.Application.ViewModels.Apps;
 using URLS.Application.ViewModels.Diploma;
 using URLS.Application.ViewModels.Faculty;
 using URLS.Application.ViewModels.Group;
+using URLS.Application.ViewModels.Group.GroupMember;
 using URLS.Application.ViewModels.Group.GroupRole;
 using URLS.Application.ViewModels.Identity;
 using URLS.Application.ViewModels.Lesson;
@@ -104,6 +105,8 @@ namespace URLS.Application.ViewModels
 
             CreateMap<Domain.Models.UserSpecialty, SpecialtyTeacherViewModel>()
                 .ForMember(s => s.Teacher, s => s.MapFrom(s => s.User));
+
+            CreateMap<Domain.Models.UserGroup, GroupMemberViewModel>().ReverseMap();
         }
 
         private string BuildFullName(Domain.Models.User user)

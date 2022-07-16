@@ -48,8 +48,7 @@ namespace URLS.Application.Services.Implementations
                 Course = model.Course,
                 StartStudy = model.StartStudy,
                 EndStudy = model.EndStudy,
-                SpecialtyId = model.SpecialtyId,
-                Image = model.Image ?? Defaults.GroupImage
+                SpecialtyId = model.SpecialtyId
             };
 
             if (model.TryGetIndexForNumber(out var index))
