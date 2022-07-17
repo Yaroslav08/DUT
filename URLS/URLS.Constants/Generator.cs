@@ -47,6 +47,17 @@ namespace URLS.Constants
             return username;
         }
 
+        public static string GetStringId()
+        {
+            long ticks = DateTime.Now.Ticks;
+            byte[] bytes = BitConverter.GetBytes(ticks);
+            string id = Convert.ToBase64String(bytes)
+                                    .Replace('+', '_')
+                                    .Replace('/', '-')
+                                    .TrimEnd('=');
+            return id;
+        }
+
         public static string GetUniqCode(int sections)
         {
             var commonWords = sections * 4;

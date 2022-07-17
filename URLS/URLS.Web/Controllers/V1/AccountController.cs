@@ -5,6 +5,8 @@ using System.Net;
 using URLS.Application.Services.Interfaces;
 using URLS.Application.ViewModels.Identity;
 using URLS.Application.ViewModels.User;
+using URLS.Constants;
+
 namespace URLS.Web.Controllers.V1
 {
     [ApiVersion("1.0")]

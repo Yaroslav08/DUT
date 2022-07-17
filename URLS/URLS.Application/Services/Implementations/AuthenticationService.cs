@@ -121,9 +121,8 @@ namespace URLS.Application.Services.Implementations
                 return Result<bool>.Error("MFA already diactivated");
 
             var twoFactor = new TwoFactorAuthenticator();
-            var isValid = twoFactor.ValidateTwoFactorPIN(userForDisableMFA.MFASecretKey, code);
 
-            if (!isValid)
+            if (!twoFactor.ValidateTwoFactorPIN(userForDisableMFA.MFASecretKey, code))
                 return Result<bool>.Error("Code is incorrect");
 
             userForDisableMFA.MFA = false;
@@ -132,21 +131,15 @@ namespace URLS.Application.Services.Implementations
             _db.Users.Update(userForDisableMFA);
             await _db.SaveChangesAsync();
 
-            var mfas = await _db.MFAs.Where(s => s.UserId == userId && s.IsActivated).ToListAsync();
-            if (mfas == null || mfas.Count == 0)
-                return Result<bool>.Success();
+            var activeMFA = await _db.MFAs.FirstOrDefaultAsync(s => s.UserId == userId && s.IsActivated);
+            if (activeMFA == null)
+                return Result<bool>.Error("Some error, please contact support");
 
-            var now = DateTime.Now;
-            var sessionId = _identityService.GetCurrentSessionId();
+            activeMFA.Diactived = DateTime.Now;
+            activeMFA.DiactivedBySessionId = _identityService.GetCurrentSessionId();
+            activeMFA.PrepareToUpdate(_identityService);
 
-            mfas.ForEach(mfa =>
-            {
-                mfa.Diactived = now;
-                mfa.DiactivedBySessionId = sessionId;
-                mfa.PrepareToUpdate(_identityService);
-            });
-
-            _db.MFAs.UpdateRange(mfas);
+            _db.MFAs.UpdateRange(activeMFA);
             await _db.SaveChangesAsync();
 
             return Result<bool>.Success();
@@ -155,79 +148,85 @@ namespace URLS.Application.Services.Implementations
         public async Task<Result<MFAViewModel>> EnableMFAAsync(string code = null)
         {
             var userId = _identityService.GetUserId();
-
-            var user = await _db.Users.FirstOrDefaultAsync(s => s.Id == userId);
+            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(s => s.Id == userId);
 
             if (user == null)
                 return Result<MFAViewModel>.NotFound(typeof(User).NotFoundMessage(userId));
 
-            if (user.MFA)
-                return Result<MFAViewModel>.Error("MFA already activated");
-
             if (code == null)
             {
-                var twoFactor = new TwoFactorAuthenticator();
-
-                var secretKey = Guid.NewGuid().ToString("N");
-
-                var setupInfo = twoFactor.GenerateSetupCode("URLS", user.Login, secretKey, false, 3);
-
-                user.MFASecretKey = secretKey;
-                user.PrepareToUpdate(_identityService);
-
-                _db.Users.Update(user);
-                await _db.SaveChangesAsync();
-
-                var mfa = new MFA
+                var existMFA = await _db.MFAs.FirstOrDefaultAsync(s => s.UserId == userId && !s.IsActivated);
+                if (existMFA == null)
                 {
-                    Activated = DateTime.Now,
-                    ActivatedBySessionId = _identityService.GetCurrentSessionId(),
-                    IsActivated = false,
-                    Diactived = null,
-                    DiactivedBySessionId = null,
-                    EntryCode = setupInfo.ManualEntryKey,
-                    Secret = secretKey,
-                    QrCodeBase64 = setupInfo.QrCodeSetupImageUrl,
-                    UserId = userId
-                };
+                    var secretKey = Guid.NewGuid().ToString("N");
+                    var twoFactor = new TwoFactorAuthenticator();
+                    var setupInfo = twoFactor.GenerateSetupCode("URLS", user.Login, secretKey, false, 3);
 
-                mfa.PrepareToCreate(_identityService);
+                    user.MFASecretKey = secretKey;
+                    user.MFA = false;
+                    user.PrepareToUpdate(_identityService);
+                    _db.Users.Update(user);
+                    await _db.SaveChangesAsync();
 
-                await _db.MFAs.AddAsync(mfa);
-                await _db.SaveChangesAsync();
+                    var newMFA = new MFA
+                    {
+                        UserId = userId,
+                        EntryCode = setupInfo.ManualEntryKey,
+                        QrCodeBase64 = setupInfo.QrCodeSetupImageUrl,
+                        Secret = secretKey,
+                        IsActivated = false,
+                        Activated = null,
+                        ActivatedBySessionId = null
+                    };
 
-                return Result<MFAViewModel>.SuccessWithData(new MFAViewModel
+                    newMFA.PrepareToCreate(_identityService);
+                    await _db.MFAs.AddAsync(newMFA);
+                    await _db.SaveChangesAsync();
+                    return Result<MFAViewModel>.SuccessWithData(new MFAViewModel
+                    {
+                        QrCodeImage = setupInfo.QrCodeSetupImageUrl,
+                        ManualEntryKey = setupInfo.ManualEntryKey
+                    });
+                }
+                else
                 {
-                    QrCodeImage = setupInfo.QrCodeSetupImageUrl,
-                    ManualEntryKey = setupInfo.ManualEntryKey
-                });
+                    return Result<MFAViewModel>.SuccessWithData(new MFAViewModel
+                    {
+                        QrCodeImage = existMFA.QrCodeBase64,
+                        ManualEntryKey = existMFA.EntryCode
+                    });
+                }
             }
             else
             {
                 if (string.IsNullOrEmpty(user.MFASecretKey))
-                    return Result<MFAViewModel>.Error("Code is error");
+                    return Result<MFAViewModel>.Error("Unable to activate MFA");
+
+                var mfaToActivate = await _db.MFAs.AsNoTracking().FirstOrDefaultAsync(s => s.UserId == userId && !s.IsActivated);
+
+                if (mfaToActivate == null)
+                    return Result<MFAViewModel>.Error("Unable to activate MFA");
+
+                if (mfaToActivate.Secret != user.MFASecretKey)
+                    return Result<MFAViewModel>.Error("Please write to support as soon as possible");
 
                 var twoFactor = new TwoFactorAuthenticator();
 
-                var isValid = twoFactor.ValidateTwoFactorPIN(user.MFASecretKey, code);
-
-                if (!isValid)
+                if (!twoFactor.ValidateTwoFactorPIN(mfaToActivate.Secret, code))
                     return Result<MFAViewModel>.Error("Code is incorrect");
 
                 user.MFA = true;
                 user.PrepareToUpdate(_identityService);
-
                 _db.Users.Update(user);
                 await _db.SaveChangesAsync();
 
-                var mfa = await _db.MFAs.FirstOrDefaultAsync(s => s.UserId == userId && !s.IsActivated);
-                if (mfa == null)
-                    return Result<MFAViewModel>.NotFound(typeof(MFA).NotFoundMessage("0"));
+                mfaToActivate.IsActivated = true;
+                mfaToActivate.Activated = DateTime.Now;
+                mfaToActivate.ActivatedBySessionId = _identityService.GetCurrentSessionId();
 
-                mfa.IsActivated = true;
-                mfa.PrepareToUpdate(_identityService);
+                mfaToActivate.PrepareToUpdate(_identityService);
 
-                _db.MFAs.Update(mfa);
+                _db.MFAs.Update(mfaToActivate);
                 await _db.SaveChangesAsync();
 
                 return Result<MFAViewModel>.Success();

@@ -2,8 +2,8 @@
 {
     public class MFA : BaseModel<int>
     {
-        public DateTime Activated { get; set; }
-        public Guid ActivatedBySessionId { get; set; }
+        public DateTime? Activated { get; set; }
+        public Guid? ActivatedBySessionId { get; set; }
         public bool IsActivated { get; set; }
         public string Secret { get; set; }
         public string EntryCode { get; set; }
