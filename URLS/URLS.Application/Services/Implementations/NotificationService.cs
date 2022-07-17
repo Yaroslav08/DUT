@@ -57,6 +57,29 @@ namespace URLS.Application.Services.Implementations
             return Result<List<NotificationViewModel>>.SuccessList(notificationViewModels, Meta.FromMeta(totalCount, offset, count));
         }
 
+        public async Task<Result<bool>> ReadAllUserNotificationsAsync(int userId)
+        {
+            if (!await _commonService.IsExistAsync<User>(s => s.Id == userId))
+                return Result<bool>.NotFound(typeof(User).NotFoundMessage(userId));
+
+            var notifications = await _db.Notifications.AsNoTracking().Where(s => s.UserId == userId).ToListAsync();
+            if (notifications == null || notifications.Count == 0)
+                return Result<bool>.SuccessWithData(true);
+
+            var now = DateTime.Now;
+
+            notifications.ForEach(not =>
+            {
+                not.ReadAt = now;
+                not.IsRead = true;
+                not.PrepareToUpdate(_identityService);
+            });
+
+            _db.Notifications.UpdateRange(notifications);
+            await _db.SaveChangesAsync();
+            return Result<bool>.SuccessWithData(true);
+        }
+
         public async Task<Result<NotificationViewModel>> ReadNotificationAsync(long notifyId)
         {
             var notification = await _db.Notifications.FirstOrDefaultAsync(x => x.Id == notifyId);

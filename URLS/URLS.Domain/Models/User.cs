@@ -77,6 +77,13 @@ namespace URLS.Domain.Models
             }
             return isLocked;
         }
+
+        public void SetLock(bool isAvtive)
+        {
+            AccessFailedCount = 0;
+            LockoutEnd = null;
+            LockoutEnabled = isAvtive;
+        }
     }
 
     public class NotificationSettings

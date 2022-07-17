@@ -31,10 +31,16 @@ namespace URLS.Web.Controllers.V1
             return JsonResult(await _notificationsService.GetNotificationByIdAsync(id));
         }
 
-        [HttpPost("{id}")]
+        [HttpPost("{id}/read")]
         public async Task<IActionResult> ReadNotification(long id)
         {
             return JsonResult(await _notificationsService.ReadNotificationAsync(id));
+        }
+
+        [HttpPost("read")]
+        public async Task<IActionResult> ReadAllNotificationsAsync()
+        {
+            return JsonResult(await _notificationsService.ReadAllUserNotificationsAsync(_identityService.GetUserId()));
         }
 
         [HttpPost("subscribe")]

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using URLS.Domain.Models;
 
 namespace URLS.Application.ViewModels.Setting
 {
@@ -14,5 +15,11 @@ namespace URLS.Application.ViewModels.Setting
         public DateTime SecondSemesterEnd { get; set; }
         [Required]
         public int MaxCourseInUniversity { get; set; }
+        public string DirectorSignature { get; set; }
+        public string UniversityStamp { get; set; }
+        [Required]
+        public IEnumerable<Holiday> Holidays { get; set; }
+        [Required]
+        public IEnumerable<LessonTime> LessonTimes { get; set; }
     }
 }

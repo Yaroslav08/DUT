@@ -36,7 +36,7 @@ namespace URLS.Infrastructure.IoC
 
             #region Services
 
-            services.AddScoped<ISeederService, DUTSeederService>();
+            services.AddScoped<ISeederService, BaseSeederService>();
             services.AddScoped<IUniversityService, UniversityService>();
             services.AddScoped<IIdentityService, HttpIdentityService>();
             services.AddScoped<IFacultyService, FacultyService>();

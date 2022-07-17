@@ -62,6 +62,7 @@ namespace URLS.Web.Controllers.V1
         }
 
         [HttpPost]
+        [PermissionFilter(PermissionClaims.Identity, Permissions.All)]
         public async Task<IActionResult> CreateUser([FromBody] UserCreateModel model)
         {
             return JsonResult(await _userService.CreateUserAsync(model));

@@ -63,6 +63,10 @@ namespace URLS.Application.Services.Implementations
             settingToUpdate.FirtsSemesterEnd = model.FirtsSemesterEnd;
             settingToUpdate.SecondSemesterStart = model.SecondSemesterStart;
             settingToUpdate.SecondSemesterEnd = model.SecondSemesterEnd;
+            settingToUpdate.DirectorSignature = model.DirectorSignature;
+            settingToUpdate.UniversityStamp = model.UniversityStamp;
+            settingToUpdate.Holidays = model.Holidays;
+            settingToUpdate.LessonTimes = model.LessonTimes;
             settingToUpdate.PrepareToUpdate(_identityService);
 
             _db.Settings.Update(settingToUpdate);

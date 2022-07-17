@@ -621,9 +621,16 @@ namespace URLS.Application.Services.Implementations
             newUser.IsActivateAccount = false;
             newUser.MFA = false;
             newUser.MFASecretKey = null;
+            newUser.SetLock(true);
             newUser.PrepareToCreate();
 
             await _db.Users.AddAsync(newUser);
+            await _db.SaveChangesAsync();
+
+            var notify = NotificationsHelper.GetWelcomeNotification();
+            notify.UserId = newUser.Id;
+
+            await _db.Notifications.AddAsync(notify);
             await _db.SaveChangesAsync();
 
             var role = await _db.Roles.AsNoTracking().FirstOrDefaultAsync(s => s.Name == Roles.Student);
@@ -683,6 +690,8 @@ namespace URLS.Application.Services.Implementations
                 Welcome = true
             };
 
+            teacher.SetLock(true);
+
             teacher.IsActivateAccount = true;
             teacher.MFA = false;
             teacher.MFASecretKey = null;
@@ -692,6 +701,11 @@ namespace URLS.Application.Services.Implementations
             await _db.Users.AddAsync(teacher);
             await _db.SaveChangesAsync();
 
+            var notify = NotificationsHelper.GetWelcomeNotification();
+            notify.UserId = teacher.Id;
+
+            await _db.Notifications.AddAsync(notify);
+            await _db.SaveChangesAsync();
 
             var role = await _db.Roles.AsNoTracking().FirstOrDefaultAsync(s => s.Name == Roles.Teacher);
 
