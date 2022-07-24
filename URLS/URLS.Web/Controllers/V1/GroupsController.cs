@@ -130,6 +130,12 @@ namespace URLS.Web.Controllers.V1
             return JsonResult(await _groupMemberService.AcceptNewGroupMemberAsync(groupId, memberId, editModel));
         }
 
+        [HttpDelete("{groupId}/members/{memberId}/reject")]
+        public async Task<IActionResult> RejectNewMember(int groupId, int memberId)
+        {
+            return JsonResult(await _groupMemberService.RejectNewGroupMemberAsync(groupId, memberId));
+        }
+
         [HttpPut("{groupId}/members/{memberId}")]
         public async Task<IActionResult> UpdateGroupMember(int groupId, int memberId, [FromBody] GroupMemberEditModel model)
         {

@@ -11,5 +11,6 @@ namespace URLS.Application.Services.Interfaces
         Task<Result<GroupMemberViewModel>> UpdateGroupMemberAsync(GroupMemberEditModel model);
         Task<Result<bool>> AcceptAllNewGroupMembersAsync(int groupId);
         Task<Result<bool>> AcceptNewGroupMemberAsync(int groupId, int groupMemberId, UserEditModel editModel);
+        Task<Result<bool>> RejectNewGroupMemberAsync(int groupId, int groupMemberId);
     }
 }

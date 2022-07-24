@@ -31,7 +31,7 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<bool>> AcceptAllNewGroupMembersAsync(int groupId)
         {
-            if (!await CanAcceptNewJoinersAsync(groupId))
+            if (!await CanAcceptOrRejectNewJoinersAsync(groupId))
                 return Result<bool>.Forbiden();
 
             var allNewGroupMembers = await _db.UserGroups
@@ -57,7 +57,7 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<bool>> AcceptNewGroupMemberAsync(int groupId, int groupMemberId, UserEditModel userModel)
         {
-            if (!await CanAcceptNewJoinersAsync(groupId))
+            if (!await CanAcceptOrRejectNewJoinersAsync(groupId))
                 return Result<bool>.Forbiden();
 
             var newGroupMember = await _db.UserGroups
@@ -159,6 +159,21 @@ namespace URLS.Application.Services.Implementations
             return Result<List<GroupMemberViewModel>>.SuccessList(groupMembersToView, Meta.FromMeta(totalCount, offset, count));
         }
 
+        public async Task<Result<bool>> RejectNewGroupMemberAsync(int groupId, int groupMemberId)
+        {
+            if (!await CanAcceptOrRejectNewJoinersAsync(groupId))
+                return Result<bool>.Forbiden();
+
+            var groupMember = await _db.UserGroups.Include(s => s.User).FirstOrDefaultAsync(s => s.Id == groupMemberId && s.Status == UserGroupStatus.New);
+            if (groupMember == null)
+                return Result<bool>.NotFound(typeof(UserGroup).NotFoundMessage(groupMemberId));
+
+            _db.Users.Remove(groupMember.User);
+            await _db.SaveChangesAsync();
+
+            return Result<bool>.SuccessWithData(true);
+        }
+
         public async Task<Result<GroupMemberViewModel>> UpdateGroupMemberAsync(GroupMemberEditModel model)
         {
             if (!await _commonService.IsExistAsync<Group>(s => s.Id == model.GroupId))
@@ -203,7 +218,7 @@ namespace URLS.Application.Services.Implementations
             return Result<GroupMemberViewModel>.Success();
         }
 
-        private async Task<bool> CanAcceptNewJoinersAsync(int groupId)
+        private async Task<bool> CanAcceptOrRejectNewJoinersAsync(int groupId)
         {
             if (_identityService.IsAdministrator())
                 return true;
