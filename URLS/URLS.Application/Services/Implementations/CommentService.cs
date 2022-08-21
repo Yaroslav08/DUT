@@ -32,7 +32,7 @@ namespace URLS.Application.Services.Implementations
             if (!await _commonService.IsExistAsync<Group>(s => s.Id == model.GroupId))
                 return Result<CommentViewModel>.NotFound(typeof(Group).NotFoundMessage(model.GroupId));
 
-            if (!await _commonService.IsExistAsync<Group>(s => s.Id == model.PostId))
+            if (!await _commonService.IsExistAsync<Post>(s => s.Id == model.PostId))
                 return Result<CommentViewModel>.NotFound(typeof(Post).NotFoundMessage(model.PostId));
 
             if (!await _permissionCommentService.CanCreateCommentAsync(model.GroupId))
