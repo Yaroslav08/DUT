@@ -11,7 +11,7 @@ using URLS.Web.Middlewares;
 
 public class Program
 {
-    public static async Task Main(string[] args)
+    public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -98,9 +98,9 @@ public class Program
             s.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
 
             s.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        { jwtSecurityScheme, Array.Empty<string>() }
-    });
+            {
+                { jwtSecurityScheme, Array.Empty<string>() }
+            });
         });
 
         #endregion

@@ -115,7 +115,7 @@ namespace URLS.Application.ViewModels
             sb.Append(user.LastName);
             sb.Append(" ");
             sb.Append(user.FirstName);
-            if (!string.IsNullOrEmpty(user.MiddleName) && !string.IsNullOrWhiteSpace(user.MiddleName))
+            if (!string.IsNullOrWhiteSpace(user.MiddleName))
             {
                 sb.Append(" ");
                 sb.Append(user.MiddleName);

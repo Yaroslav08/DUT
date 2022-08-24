@@ -797,17 +797,23 @@ namespace URLS.Application.Seeder
             welcomeNotification.PrepareToCreate();
 
 
-            var adminRole = await _db.Roles.AsNoTracking().FirstOrDefaultAsync(s => s.Name == Roles.Admin);
+            var userRoles = await _db.Roles.AsNoTracking().Where(s => s.Name == Roles.Admin || s.Name == Roles.Teacher).ToListAsync();
 
-            var userRole = new UserRole
+            IList<UserRole> dbRoles = new List<UserRole>();
+
+            foreach(var role in userRoles)
             {
-                UserId = user.Id,
-                RoleId = adminRole.Id
-            };
-            userRole.PrepareToCreate();
+                var newUserRole = new UserRole
+                {
+                    UserId = user.Id,
+                    RoleId = role.Id
+                };
+                newUserRole.PrepareToCreate();
+                dbRoles.Add(newUserRole);
+            }
 
             await _db.Notifications.AddAsync(welcomeNotification);
-            await _db.UserRoles.AddAsync(userRole);
+            await _db.UserRoles.AddRangeAsync(dbRoles);
             await _db.SaveChangesAsync();
         }
     }
