@@ -1,4 +1,7 @@
-﻿namespace URLS.Application.ViewModels.Setting
+﻿using System.ComponentModel.DataAnnotations;
+using URLS.Domain.Models;
+
+namespace URLS.Application.ViewModels.Setting
 {
     public class SettingViewModel
     {
@@ -9,5 +12,9 @@
         public DateTime SecondSemesterStart { get; set; }
         public DateTime SecondSemesterEnd { get; set; }
         public int MaxCourseInUniversity { get; set; }
+        public string DirectorSignature { get; set; }
+        public string UniversityStamp { get; set; }
+        public IEnumerable<Holiday> Holidays { get; set; }
+        public IEnumerable<LessonTime> LessonTimes { get; set; }
     }
 }
