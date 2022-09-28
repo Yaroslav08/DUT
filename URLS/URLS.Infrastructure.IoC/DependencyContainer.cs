@@ -72,6 +72,7 @@ namespace URLS.Infrastructure.IoC
             services.AddScoped<IReactionService, ReactionService>();
             services.AddSingleton<IPushNotificationService, FirebasePushNotificationService>();
             services.AddScoped<IExportService, ExportService>();
+            services.AddScoped<INewsService, NewsService>();
 
             services.AddScoped<ILocalizeService, LocalizeService>();
 
@@ -87,6 +88,11 @@ namespace URLS.Infrastructure.IoC
             #region Common
 
             services.AddHttpContextAccessor();
+
+            services.AddHttpClient("UaData", httpClient =>
+            {
+                httpClient.BaseAddress = new Uri("https://uadata.net/");
+            });
 
             #endregion
 
