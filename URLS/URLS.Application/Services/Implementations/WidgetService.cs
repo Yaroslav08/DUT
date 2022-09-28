@@ -9,7 +9,7 @@ namespace URLS.Application.Services.Implementations
     public class WidgetService : IWidgetService
     {
         private readonly IMemoryCache _memoryCache;
-        private const int _defaultSecondsCache = 15;
+        private const int _defaultSecondsCache = 7200;
         private readonly HttpClient _httpClient;
         private readonly string[] _warTypes = new[] {
             "people",
@@ -57,7 +57,10 @@ namespace URLS.Application.Services.Implementations
                         var httpResponse = await _httpClient.GetAsync($"coronavirus-in-ukraine/{type}.json");
                         var stringJson = await httpResponse.Content.ReadAsStringAsync();
                         var item = JsonSerializer.Deserialize<CommonNewsResponse>(stringJson);
+
+                        item.CalculateCovidData();
                         item.Sort(date);
+
                         result.Disease.Add(item);
                     }
                     _memoryCache.Set(cacheKey, result, new MemoryCacheEntryOptions
@@ -91,7 +94,10 @@ namespace URLS.Application.Services.Implementations
                         var httpResponse = await _httpClient.GetAsync($"ukraine-russia-war-2022/{type}.json");
                         var stringJson = await httpResponse.Content.ReadAsStringAsync();
                         var item = JsonSerializer.Deserialize<CommonNewsResponse>(stringJson);
+
+                        item.CalculateWarData();
                         item.Sort(date);
+
                         result.Losses.Add(item);
                     }
                     _memoryCache.Set(cacheKey, result, new MemoryCacheEntryOptions
