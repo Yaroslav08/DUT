@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using URLS.Application.Services.Interfaces;
 
@@ -8,8 +7,8 @@ namespace URLS.Web.Controllers.V1
     [ApiVersion("1.0")]
     public class WidgetsController : ApiBaseController
     {
-        private readonly INewsService _newsService;
-        public WidgetsController(INewsService newsService)
+        private readonly IWidgetService _newsService;
+        public WidgetsController(IWidgetService newsService)
         {
             _newsService = newsService;
         }
