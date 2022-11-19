@@ -16,6 +16,9 @@ namespace URLS.Domain.Models
         public string Login { get; set; }
         [Required, StringLength(1500, MinimumLength = 1)]
         public string PasswordHash { get; set; }
+        [Required]
+        public bool FromImport { get; set; }
+        public DateTime? ModifiedFromTemp { get; set; }
         public bool MFA { get; set; }
         public string MFASecretKey { get; set; }
         [StringLength(1000, MinimumLength = 1)]
@@ -57,6 +60,7 @@ namespace URLS.Domain.Models
             UserName = userName;
             JoinAt = DateTime.Now;
             AccessFailedCount = 0;
+            FromImport = false;
         }
         public User() { }
 

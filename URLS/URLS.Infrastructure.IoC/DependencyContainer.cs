@@ -76,6 +76,7 @@ namespace URLS.Infrastructure.IoC
 
             services.AddScoped<ILocalizeService, LocalizeService>();
 
+            services.AddScoped<IImportService, ImportService>();
             #endregion
 
             #region Managers

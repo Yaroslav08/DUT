@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Security.Cryptography;
+using System.Text;
 
 namespace URLS.Constants
 {
@@ -7,7 +8,7 @@ namespace URLS.Constants
         private static string _upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         private static string _lowerChars = "abcdefghijklmnopqrstuvwxyz";
         private static string _numbersChars = "0123456789";
-        private static string _chars = $"{_upperChars}{_lowerChars}{_numbersChars}";
+        private static string _chars = $"{_upperChars}{_numbersChars}{_lowerChars}";
         public static string CreateGroupInviteCode()
         {
             int lengthOfSequence = 4;
@@ -99,6 +100,21 @@ namespace URLS.Constants
             }
             var result = new string(stringChars);
             return IsUpper ? result.ToUpper() : IsLowwer ? result.ToLower() : result;
+        }
+
+        public static string CreateTempPassword()
+        {
+            var sb = new StringBuilder();
+            var rnd = new Random();
+            char ch;
+
+            for (int i = 0; i < 10; i++)
+            {
+                ch = Convert.ToChar(Convert.ToInt32(Math.Floor(26 * rnd.NextDouble() + 65)));
+                sb.Append(ch);
+            }
+
+            return sb.ToString().ToLower();
         }
     }
 }

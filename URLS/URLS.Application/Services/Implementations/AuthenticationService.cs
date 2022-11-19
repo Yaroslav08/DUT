@@ -620,6 +620,8 @@ namespace URLS.Application.Services.Implementations
             newUser.IsActivateAccount = false;
             newUser.MFA = false;
             newUser.MFASecretKey = null;
+            newUser.FromImport = false;
+            newUser.ModifiedFromTemp = null;
             newUser.SetLock(true);
             newUser.PrepareToCreate();
 
@@ -694,6 +696,8 @@ namespace URLS.Application.Services.Implementations
             teacher.IsActivateAccount = true;
             teacher.MFA = false;
             teacher.MFASecretKey = null;
+            teacher.ModifiedFromTemp = null;
+            teacher.FromImport = false;
 
             teacher.PrepareToCreate();
 

@@ -11,5 +11,15 @@
         {
             return $"{number}) {text}";
         }
+
+        public static int GetIndexForGroup(this string groupName)
+        {
+            if (groupName.Contains("-"))
+            {
+                var indexNumber = groupName.IndexOf("-");
+                return indexNumber + 1;
+            }
+            return -1;
+        }
     }
 }

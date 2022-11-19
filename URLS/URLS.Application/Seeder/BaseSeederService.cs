@@ -119,6 +119,8 @@ namespace URLS.Application.Seeder
                 NewPost = true,
                 Welcome = true
             };
+            admin.ModifiedFromTemp = null;
+            admin.FromImport = false;
             admin.PrepareToCreate();
             return admin;
         }
