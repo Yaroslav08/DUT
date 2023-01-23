@@ -15,7 +15,7 @@
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.97.0" />
     <PackageReference Include="ClosedXML.Extensions.WebApi" Version="0.3.0" />
-    <PackageReference Include="Extensions.DeviceDetector" Version="1.0.1" />
+    <PackageReference Include="Extensions.DeviceDetector" Version="1.0.3" />
     <PackageReference Include="GoogleAuthenticator" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="7.0.0" />
