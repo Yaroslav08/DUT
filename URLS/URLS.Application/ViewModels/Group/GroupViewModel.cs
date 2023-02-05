@@ -13,6 +13,8 @@ namespace URLS.Application.ViewModels.Group
         public DateTime EndStudy { get; set; }
         public bool StudyingIsOver { get; set; }
         public int CountOfStudents { get; set; }
+        public string SpecialtyName { get; set; }
+        public string FacultyName { get; set; }
         public SpecialtyViewModel Specialty { get; set; }
         public List<GroupInviteViewModel> GroupInvites { get; set; }
     }

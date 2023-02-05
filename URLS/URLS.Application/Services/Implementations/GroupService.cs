@@ -133,11 +133,18 @@ namespace URLS.Application.Services.Implementations
 
         public async Task<Result<GroupViewModel>> GetGroupByIdAsync(int id)
         {
-            var query = await _commonService.IsExistWithResultsAsync<Group>(s => s.Id == id);
+            var group = await _db.Groups.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
 
-            if (!query.IsExist)
+            if (group == null)
                 return Result<GroupViewModel>.NotFound(typeof(Group).NotFoundMessage(id));
-            var groupToView = _mapper.Map<GroupViewModel>(query.Results.First());
+
+            var groupToView = _mapper.Map<GroupViewModel>(group);
+
+            var specialty = await _db.Specialties.Include(s => s.Faculty).FirstOrDefaultAsync(s => s.Id == group.SpecialtyId);
+
+            groupToView.SpecialtyName = specialty.Name;
+            groupToView.FacultyName = specialty.Faculty.Name;
+
             groupToView.CountOfStudents = await _db.UserGroups.CountAsync(x => x.GroupId == id && x.Status == Domain.Models.UserGroupStatus.Member);
             return Result<GroupViewModel>.SuccessWithData(groupToView);
         }
