@@ -187,14 +187,31 @@ namespace URLS.Application.Services.Implementations
                 return Result<GroupMemberViewModel>.NotFound(typeof(UserGroup).NotFoundMessage(model.Id));
 
             if (currentGroupMember.GroupId != model.GroupId)
-                return Result<GroupMemberViewModel>.Forbiden();
+            {
+                currentGroupMember.Status = UserGroupStatus.Gona;
+                currentGroupMember.PrepareToUpdate(_identityService);
 
-            currentGroupMember.Title = model.Title;
-            currentGroupMember.Status = model.Status;
-            currentGroupMember.UserGroupRoleId = model.UserGroupRoleId;
-            currentGroupMember.PrepareToUpdate(_identityService);
+                var newGroupMember = new UserGroup
+                {
+                    Title = model.Title,
+                    Status = UserGroupStatus.Member,
+                    UserId = currentGroupMember.UserId,
+                    GroupId = currentGroupMember.GroupId,
+                    UserGroupRoleId = model.UserGroupRoleId,
+                };
 
-            var userUpdated = false;
+                newGroupMember.PrepareToCreate(_identityService);
+                await _db.UserGroups.AddAsync(newGroupMember);
+            }
+            else
+            {
+                currentGroupMember.Title = model.Title;
+                currentGroupMember.Status = model.Status;
+                currentGroupMember.UserGroupRoleId = model.UserGroupRoleId;
+                currentGroupMember.PrepareToUpdate(_identityService);
+            }
+
+            _db.UserGroups.Update(currentGroupMember);
 
             if (model.User != null)
             {
@@ -204,16 +221,10 @@ namespace URLS.Application.Services.Implementations
                 user.LastName = model.User.LastName;
                 user.PrepareToUpdate(_identityService);
                 _db.Users.Update(user);
-                userUpdated = true;
-            }
-
-            _db.UserGroups.Update(currentGroupMember);
-            await _db.SaveChangesAsync();
-
-            if (userUpdated)
-            {
                 await _sessionService.CloseAllSessionsAsync(currentGroupMember.User.Id);
             }
+
+            await _db.SaveChangesAsync();
 
             return Result<GroupMemberViewModel>.Success();
         }
