@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using URLS.Constants.APIResponse;
 using URLS.Web.Extensions;
-
 namespace URLS.Web.Filters
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
