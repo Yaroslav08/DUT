@@ -267,8 +267,8 @@ namespace URLS.Application.Services.Implementations
                     UserId = model.UserId
                 };
 
-                currentUserGroup.PrepareToUpdate(_identityService);
-
+                currentUserGroup.PrepareToCreate(_identityService);
+                await _db.UserGroups.AddAsync(currentUserGroup);
             }
             else
             {
